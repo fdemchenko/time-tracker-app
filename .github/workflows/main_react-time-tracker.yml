@@ -60,4 +60,4 @@ jobs:
           app-name: 'react-time-tracker'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_AC3AB8942EB54B7889F89C2D8FDE1FB7 }}
-          package: .
+          package: release.zip
