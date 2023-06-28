@@ -5,6 +5,7 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import ErrorPage from "./components/ErrorPage";
 import {Provider} from "react-redux";
 import store from "./redux/store";
+import AuthForm from "./components/authorization/AuthForm";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
     },
     {
         path: "/login",
-        element: <h1>Login</h1>,
+        element: <AuthForm />,
         errorElement: <ErrorPage />
     },
 ]);
