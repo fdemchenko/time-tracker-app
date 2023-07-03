@@ -1,7 +1,7 @@
 import React from 'react';
-import { useFormik } from 'formik';
+import {useFormik} from 'formik';
 import * as Yup from 'yup';
-import { Box, TextField, Button } from '@mui/material';
+import {Box, TextField, Button} from '@mui/material';
 
 interface AuthFormData {
     login: string;
