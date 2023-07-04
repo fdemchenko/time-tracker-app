@@ -1,6 +1,4 @@
 export default interface User {
-    id: number,
+    id: string,
     login: string,
-    password: string,
-    refreshToken: string
 }

@@ -2,6 +2,8 @@ import React from 'react';
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
 import {Box, TextField, Button} from '@mui/material';
+import {useAppDispatch} from "../../redux/CustomHooks";
+import {loginActionCreator} from "../../redux/epics/AuthEpics";
 
 interface AuthFormData {
     login: string;
@@ -19,9 +21,13 @@ const initialAuthData: AuthFormData = {
 };
 
 export default function AuthForm() {
-    const handleSubmit = (values: AuthFormData, {resetForm}: any) => {
+    const dispatch = useAppDispatch();
+    const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
         // Call action epic to send data to server
-        console.log(values);
+        dispatch(loginActionCreator({
+            Email: data.login,
+            Password: data.password
+        }));
         resetForm();
     };
 

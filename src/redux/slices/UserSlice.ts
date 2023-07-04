@@ -7,10 +7,8 @@ export interface UserSliceState {
 }
 const initialState: UserSliceState = {
     user: {
-        id: 1,
+        id: "guid id",
         login: "initial login",
-        password: "initial password",
-        refreshToken: "initial refresh token"
     },
     isLogged: false
 }
@@ -20,9 +18,10 @@ export const UserSlice = createSlice({
     initialState,
     reducers: {
         testAction: (state,
-                     action: PayloadAction<User>) => {
+                     action: PayloadAction<any>) => {
             //do some logic example
-            state.user = action.payload
+            //state.user = action.payload
+            console.log(action.payload)
         }
     }
 });

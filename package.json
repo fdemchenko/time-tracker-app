@@ -24,7 +24,8 @@
     "redux-observable": "^2.0.0",
     "rxjs": "^7.8.1",
     "typescript": "^4.9.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "yup": "^1.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
