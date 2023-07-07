@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import {Box, TextField, Button} from '@mui/material';
 import {useAppDispatch} from "../../redux/CustomHooks";
 import {loginActionCreator} from "../../redux/epics/AuthEpics";
+import {Navigate, useNavigate} from "react-router-dom";
 
 interface AuthFormData {
     login: string;
@@ -22,13 +23,15 @@ const initialAuthData: AuthFormData = {
 
 export default function AuthForm() {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
         // Call action epic to send data to server
         dispatch(loginActionCreator({
             Email: data.login,
             Password: data.password
         }));
-        resetForm();
+        navigate("/");
     };
 
     const formik = useFormik({

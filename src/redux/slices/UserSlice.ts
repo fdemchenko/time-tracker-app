@@ -10,7 +10,7 @@ const initialState: UserSliceState = {
         id: "guid id",
         login: "initial login",
     },
-    isLogged: false
+    isLogged: true
 }
 
 export const UserSlice = createSlice({

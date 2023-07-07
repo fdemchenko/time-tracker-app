@@ -1,4 +1,3 @@
-import User from "../../models/User";
 import {LOGIN_ACTION} from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {map, mergeMap, Observable} from "rxjs";
