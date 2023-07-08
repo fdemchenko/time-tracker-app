@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
-import {Box, TextField, Button} from '@mui/material';
-import {useAppDispatch} from "../../redux/CustomHooks";
-import {loginActionCreator} from "../../redux/epics/AuthEpics";
-import {Navigate, useNavigate} from "react-router-dom";
+import {Box, TextField, Button, Alert} from '@mui/material';
+import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
+import {loginActionCreator} from "../../redux/epics/UserEpics";
+import {useNavigate} from "react-router-dom";
 
 interface AuthFormData {
     login: string;
@@ -23,15 +23,21 @@ const initialAuthData: AuthFormData = {
 
 export default function AuthForm() {
     const dispatch = useAppDispatch();
+    const {isFailed, isLogged, isLoading} =
+        useAppSelector(state => state.user)
     const navigate = useNavigate();
 
+    //not working for some reason
+    // if (isLogged) {
+    //     navigate("/");
+    // }
+
     const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
-        // Call action epic to send data to server
         dispatch(loginActionCreator({
             Email: data.login,
             Password: data.password
         }));
-        navigate("/");
+        resetForm();
     };
 
     const formik = useFormik({
@@ -50,7 +56,7 @@ export default function AuthForm() {
                 mb: 3,
             }}
           >
-              You need to sign in first
+              Enter your data
           </Box>
           <form onSubmit={formik.handleSubmit}>
               <TextField
@@ -85,6 +91,10 @@ export default function AuthForm() {
               >
                   Sign in
               </Button>
+
+              {isLoading ? <div className="lds-dual-ring"></div> : "" }
+
+              {isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
           </form>
       </div>
     );

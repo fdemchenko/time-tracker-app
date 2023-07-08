@@ -1,30 +1,43 @@
 import './App.css'
-import {useAppSelector} from "./redux/CustomHooks";
-import {Navigate, Outlet} from "react-router-dom";
-import SidePanel from "./components/side-panel/SidePanel";
-import Box from "@mui/material/Box";
+import {Route, Routes, useNavigate} from "react-router-dom";
 import * as React from "react";
+import MainPage from "./components/main-page/MainPage";
+import SideBar from "./components/main-page/SideBar";
+import AuthForm from "./components/user/AuthForm";
+import NotFound from "./components/NotFound";
+import {useEffect} from "react";
+import {FetchUserFromToken} from "./services/UserService";
+import {useAppDispatch, useAppSelector} from "./redux/CustomHooks";
+import {SetUser} from "./redux/slices/UserSlice";
+import LogoutForm from "./components/user/LogoutForm";
 
 function App() {
-	const {user, isLogged} = useAppSelector(state => state.user);
-	const drawerWidth = 240;
+	const dispatch = useAppDispatch();
+	const {isLogged} = useAppSelector(state => state.user)
+	const navigate = useNavigate();
 
-	if (!isLogged) {
-		return (
-			<Navigate to="/login" />
-		);
-	}
+	useEffect(() => {
+		let user = FetchUserFromToken();
+		if (user !== null) {
+			dispatch(SetUser(user));
+		}
+	}, [])
+
+	//not working for some reason
+	// if (!isLogged) {
+	// 	navigate("/user/login");
+	// }
 
 	return (
 		<div>
-			<Box sx={{ display: 'flex' }}>
-				<SidePanel drawerWidth={drawerWidth} />
-				<Box
-					sx={{ p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-				>
-					<Outlet />
-				</Box>
-			</Box>
+			<SideBar isLogged={isLogged}>
+				<Routes>
+					<Route path="/" element={<MainPage />} />
+					<Route path="/user/login" element={<AuthForm />} />
+					<Route path="/user/logout" element={<LogoutForm />} />
+					<Route path="*" element={<NotFound />} />
+				</Routes>
+			</SideBar>
 		</div>
 	);
 }

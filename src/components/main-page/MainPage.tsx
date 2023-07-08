@@ -1,7 +1,11 @@
+import {useAppSelector} from "../../redux/CustomHooks";
+
 export default function MainPage() {
+    const user = useAppSelector((state) => state.user.user);
+
     return (
         <div>
-            Main page here
+            Hello, {user.FullName}!
         </div>
     );
 }
