@@ -1,11 +1,12 @@
-import {useAppSelector} from "../../redux/CustomHooks";
+import {UserSliceState} from "../../redux/slices/UserSlice";
 
-export default function MainPage() {
-    const user = useAppSelector((state) => state.user.user);
-
+interface MainPageProps {
+    userData: UserSliceState
+}
+export default function MainPage({userData}: MainPageProps) {
     return (
         <div>
-            Hello, {user.FullName}!
+            Hello, {userData.user.FullName}!
         </div>
     );
 }

@@ -4,16 +4,20 @@ import React, {useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {logoutActionCreator} from "../../redux/epics/UserEpics";
+import {UserSliceState} from "../../redux/slices/UserSlice";
 
-export default function LogoutForm() {
-    const {isLogged} = useAppSelector(state => state.user);
+interface LogoutFormProps {
+    userData: UserSliceState
+}
+export default function LogoutForm({userData}: LogoutFormProps) {
     const dispatch = useAppDispatch();
     const navigation = useNavigate();
 
-    //not working for some reason
-    // if (isLogged) {
-    //     navigation("/user/login");
-    // }
+    useEffect(() => {
+        if (!userData.isLogged) {
+            navigation("/user/login");
+        }
+    }, [userData.isLogged]);
 
     function handleLogout() {
         dispatch(logoutActionCreator());

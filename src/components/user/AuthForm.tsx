@@ -2,35 +2,36 @@ import React, {useEffect} from 'react';
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
 import {Box, TextField, Button, Alert} from '@mui/material';
-import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
+import {useAppDispatch} from "../../redux/CustomHooks";
 import {loginActionCreator} from "../../redux/epics/UserEpics";
 import {useNavigate} from "react-router-dom";
+import {UserSliceState} from "../../redux/slices/UserSlice";
 
 interface AuthFormData {
     login: string;
     password: string;
 }
-
+const initialAuthData: AuthFormData = {
+    login: '',
+    password: '',
+};
 const validationSchema = Yup.object().shape({
   login: Yup.string().email('Incorrect login').required('Login is required'),
   password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
 });
 
-const initialAuthData: AuthFormData = {
-    login: '',
-    password: '',
-};
-
-export default function AuthForm() {
+interface AuthFormProps {
+    userData: UserSliceState
+}
+export default function AuthForm({userData} : AuthFormProps) {
     const dispatch = useAppDispatch();
-    const {isFailed, isLogged, isLoading} =
-        useAppSelector(state => state.user)
     const navigate = useNavigate();
 
-    //not working for some reason
-    // if (isLogged) {
-    //     navigate("/");
-    // }
+    useEffect(() => {
+        if (userData.isLogged) {
+            navigate("/");
+        }
+    }, [userData.isLogged]);
 
     const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
         dispatch(loginActionCreator({
@@ -92,9 +93,9 @@ export default function AuthForm() {
                   Sign in
               </Button>
 
-              {isLoading ? <div className="lds-dual-ring"></div> : "" }
+              {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
 
-              {isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
+              {userData.isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
           </form>
       </div>
     );

@@ -30,7 +30,7 @@ export const UserSlice = createSlice({
             state.isFailed = false;
             state.isLoading = true;
         },
-        AuthFinish: (state) => {
+        FinishLoading: (state) => {
             state.isLoading = false;
         },
         SetUser: (state,
@@ -42,9 +42,7 @@ export const UserSlice = createSlice({
             }
         },
         RemoveUser: (state) => {
-            state = {
-                ...initialState
-            }
+            state = initialState;
         },
         AuthError: (state) => {
             state.isFailed = true;
@@ -54,10 +52,11 @@ export const UserSlice = createSlice({
 
 export const {
     AuthStart,
-    AuthFinish,
+    FinishLoading,
     SetUser,
     RemoveUser,
     AuthError
 } = UserSlice.actions;
+
 
 export default UserSlice.reducer;

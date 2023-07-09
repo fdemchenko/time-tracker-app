@@ -3,7 +3,7 @@ import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {RequestLogin, RequestLogout} from "../../services/UserService";
-import {AuthError, AuthFinish, AuthStart, RemoveUser, SetUser} from "../slices/UserSlice";
+import {AuthError, FinishLoading, AuthStart, RemoveUser, SetUser} from "../slices/UserSlice";
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
     {type: LOGIN_ACTION, payload: payload});
@@ -19,7 +19,7 @@ export const LoginActionEpic: Epic = (action$: Observable<PayloadAction<LoginAct
             map((res) => SetUser(res)),
             catchError(() => of(AuthError())),
             startWith(AuthStart()),
-            endWith(AuthFinish())
+            endWith(FinishLoading())
         ))
     );
 
@@ -31,5 +31,6 @@ export const LogoutActionEpic: Epic = (action$) =>
             map(() => RemoveUser()),
             catchError(() => of(AuthError())),
             startWith(AuthStart()),
+            endWith(FinishLoading())
         ))
     );
