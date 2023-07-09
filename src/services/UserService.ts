@@ -2,6 +2,7 @@ import {ajax} from "rxjs/internal/ajax/ajax";
 import {map} from "rxjs";
 import {GetAccessToken, GetUserFromToken, RemoveAccessToken, SetAccessToken} from "./JwtService";
 import {LoginActionPayload} from "../redux/epics/UserEpics";
+import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
 
 export function FetchUserFromToken() {
     let token = GetAccessToken();
@@ -11,66 +12,61 @@ export function FetchUserFromToken() {
     return GetUserFromToken(token);
 }
 
-interface LoginResponse {
-    data: {
+interface LoginResponse extends AjaxResponseType {
+    data?: {
         auth: {
-            login: string
+            login: string | null
         }
     }
 }
 export function RequestLogin(payload: LoginActionPayload) {
-    return ajax<LoginResponse>({
-        url: "https://localhost:7145/graphql",
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            query: `
+    return ajaxAuth<LoginResponse>(JSON.stringify({
+        query: `
                 mutation login($auth: AuthInput!) {
                   auth {
                     login(auth: $auth)
                   }
                 }
             `,
-            variables: {
-                "auth": {
-                    "email": payload.Email,
-                    "password": payload.Password
-                }
+        variables: {
+            "auth": {
+                "email": payload.Email,
+                "password": payload.Password
             }
-        })
-    }).pipe(
-        map(res => res.response.data.auth.login),
-        map(accessToken => {
-            SetAccessToken(accessToken);
-            return GetUserFromToken(accessToken);
+        }
+    })).pipe(
+        map(res => res.response),
+        map(res => {
+            if (res.data?.auth.login) {
+                SetAccessToken(res.data.auth.login);
+                return GetUserFromToken(res.data.auth.login);
+            }
+            return null;
         })
     );
 }
 
+interface LogoutResponse extends AjaxResponseType {
+    data?: {
+        auth: {
+            logout: boolean | null
+        }
+    }
+}
 export function RequestLogout() {
-    let accessToken = GetAccessToken();
-
-    return ajax({
-        url: "https://localhost:7145/graphql",
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({
-            query: `
+    return ajaxAuth<LogoutResponse>(JSON.stringify({
+        query: `
                 mutation logout {
                   auth {
                     logout
                   }
                 }
             `
-        })
-    }).pipe(
-        map(() => {
-            RemoveAccessToken();
+    })).pipe(
+        map((res) => {
+            if (res.response.data?.auth.logout) {
+                RemoveAccessToken();
+            }
         })
     );
 }
