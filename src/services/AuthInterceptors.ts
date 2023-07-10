@@ -1,6 +1,6 @@
 import {GetAccessToken, GetUserFromToken, SetAccessToken} from "./JwtService";
 import {ajax} from "rxjs/internal/ajax/ajax";
-import {catchError, endWith, firstValueFrom, map, of, take} from "rxjs";
+import {endWith, map} from "rxjs";
 import {RemoveUser, SetUser} from "../redux/slices/UserSlice";
 
 export interface AjaxResponseType {
@@ -33,44 +33,14 @@ export function ajaxAuth<T extends AjaxResponseType>(body: string) {
     });
 }
 
-interface RefreshResponse extends AjaxResponseType {
-    data?: {
-        auth: {
-            refresh: string | null
-        }
-    }
-}
-function ajaxRefresh() {
-    return ajaxAuth<RefreshResponse>(JSON.stringify({
-        query: `
-                mutation refresh {
-                  auth {
-                    refresh
-                  }
-                }
-            `
-    })).pipe(
-        map(res => {
-            let result = res.response;
-            if (result.data?.auth.refresh) {
-                SetAccessToken(result.data?.auth.refresh);
-                let user = GetUserFromToken(result.data.auth.refresh);
-                return SetUser(user);
-            }
-            return RemoveUser();
-        }),
-        endWith()
-    );
-}
-
-export function ajaxAuthRefresh<T extends AjaxResponseType>(body: string) {
-    return ajaxAuth<T>(body).pipe(
-        map(res => {
-            let result = res.response;
-            if (result.errors?.extensions.code === "ACCESS_DENIED") {
-                return ajaxRefresh();
-            }
-
-        })
-    );
-}
+// export function ajaxAuthRefresh<T extends AjaxResponseType>(body: string) {
+//     return ajaxAuth<T>(body).pipe(
+//         map(res => {
+//             let result = res.response;
+//             if (result.errors?.extensions.code === "ACCESS_DENIED") {
+//                 return ajaxRefresh();
+//             }
+//
+//         })
+//     );
+// }

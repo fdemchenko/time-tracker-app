@@ -1,8 +1,8 @@
 export default interface User {
-    Id: string,
-    Email: string,
-    FullName: string
-    EmploymentRate: number,
-    Status: string,
-    Permissions: string
+    id: string,
+    email: string,
+    fullName: string
+    employmentRate: number,
+    status: string,
+    permissions: string
 }

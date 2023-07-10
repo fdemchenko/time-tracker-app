@@ -1,8 +1,8 @@
-import {ajax} from "rxjs/internal/ajax/ajax";
 import {map} from "rxjs";
 import {GetAccessToken, GetUserFromToken, RemoveAccessToken, SetAccessToken} from "./JwtService";
 import {LoginActionPayload} from "../redux/epics/UserEpics";
 import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
+import User from "../models/User";
 
 export function FetchUserFromToken() {
     let token = GetAccessToken();
@@ -63,10 +63,55 @@ export function RequestLogout() {
                 }
             `
     })).pipe(
-        map((res) => {
-            if (res.response.data?.auth.logout) {
-                RemoveAccessToken();
-            }
-        })
+        map((res) => res.response)
+    );
+}
+
+interface RefreshResponse extends AjaxResponseType {
+    data?: {
+        auth: {
+            refresh: string | null
+        }
+    }
+}
+export function RequestRefresh() {
+    return ajaxAuth<RefreshResponse>(JSON.stringify({
+        query: `
+                mutation refresh {
+                  auth {
+                    refresh
+                  }
+                }
+            `
+    })).pipe(
+        map(res => res.response)
+    );
+}
+
+interface GetUsersResponse extends AjaxResponseType {
+    data?: {
+        user: {
+            getAll: User[] | null
+        }
+    }
+}
+export function RequestGetUsers() {
+    return ajaxAuth<GetUsersResponse>(JSON.stringify({
+        query: `
+                query GetUser {
+                  user {
+                    getAll {
+                      id,
+                      email,
+                      fullName,
+                      employmentRate,
+                      permissions,
+                      status
+                    }
+                  }
+                }
+            `
+    })).pipe(
+        map(res => res.response)
     );
 }

@@ -37,11 +37,11 @@ export function GetUserFromToken(token: string): User | null {
         return null;
     }
     return {
-        Id: payload.Id,
-        Email: payload.Email,
-        FullName: payload.FullName,
-        EmploymentRate: Number(payload.EmploymentRate),
-        Status: payload.Status,
-        Permissions: payload.Permissions
+        id: payload.Id,
+        email: payload.Email,
+        fullName: payload.FullName,
+        employmentRate: Number(payload.EmploymentRate),
+        status: payload.Status,
+        permissions: payload.Permissions
     };
 }

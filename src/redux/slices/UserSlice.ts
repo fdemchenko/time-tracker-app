@@ -9,12 +9,12 @@ export interface UserSliceState {
 }
 const initialState: UserSliceState = {
     user: {
-        Id: "",
-        Email: "",
-        FullName: "",
-        EmploymentRate: 0,
-        Status: "",
-        Permissions: ""
+        id: "",
+        email: "",
+        fullName: "",
+        employmentRate: 0,
+        status: "",
+        permissions: ""
     },
     isLogged: false,
     isFailed: false,
@@ -25,12 +25,12 @@ export const UserSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        AuthStart: (state) => {
+        RequestStart: (state) => {
             state.isLogged = false;
             state.isFailed = false;
             state.isLoading = true;
         },
-        FinishLoading: (state) => {
+        RequestFinish: (state) => {
             state.isLoading = false;
         },
         SetUser: (state,
@@ -44,18 +44,18 @@ export const UserSlice = createSlice({
         RemoveUser: (state) => {
             state = initialState;
         },
-        AuthError: (state) => {
+        SetError: (state) => {
             state.isFailed = true;
         }
     }
 });
 
 export const {
-    AuthStart,
-    FinishLoading,
+    RequestStart,
+    RequestFinish,
     SetUser,
     RemoveUser,
-    AuthError
+    SetError
 } = UserSlice.actions;
 
 

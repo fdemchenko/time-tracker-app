@@ -10,7 +10,7 @@ export default function ProtectedRoute({isLogged, children}: ProtectedRouteProps
 
     useEffect(() => {
        if (!isLogged) {
-            navigate("/user/login");
+            //navigate("/user/login");
        }
     });
 
