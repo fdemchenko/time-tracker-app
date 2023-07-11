@@ -3,32 +3,60 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface UserSliceState {
     user: User
-    isLogged: boolean
+    isLogged: boolean,
+    isFailed: boolean,
+    isLoading: boolean
 }
 const initialState: UserSliceState = {
     user: {
-        id: 1,
-        login: "initial login",
-        password: "initial password",
-        refreshToken: "initial refresh token"
+        id: "",
+        email: "",
+        fullName: "",
+        employmentRate: 0,
+        status: "",
+        permissions: ""
     },
-    isLogged: false
+    isLogged: false,
+    isFailed: false,
+    isLoading: false
 }
 
 export const UserSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        testAction: (state,
-                     action: PayloadAction<User>) => {
-            //do some logic example
-            state.user = action.payload
+        RequestStart: (state) => {
+            state.isLogged = false;
+            state.isFailed = false;
+            state.isLoading = true;
+        },
+        RequestFinish: (state) => {
+            state.isLoading = false;
+        },
+        SetUser: (state,
+                     action: PayloadAction<User | null>) => {
+            if (action.payload !== null) {
+                state.user = action.payload;
+                state.isLogged = true;
+                state.isFailed = false;
+            }
+        },
+        RemoveUser: (state) => {
+            state = initialState;
+        },
+        SetError: (state) => {
+            state.isFailed = true;
         }
     }
 });
 
 export const {
-    testAction
+    RequestStart,
+    RequestFinish,
+    SetUser,
+    RemoveUser,
+    SetError
 } = UserSlice.actions;
+
 
 export default UserSlice.reducer;

@@ -1,20 +1,42 @@
 import './App.css'
-import {useAppSelector} from "./redux/CustomHooks";
-import {Link, Navigate} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
+import * as React from "react";
+import MainPage from "./components/main-page/MainPage";
+import SideBar from "./components/main-page/SideBar";
+import AuthForm from "./components/user/AuthForm";
+import NotFound from "./components/NotFound";
+import {useEffect} from "react";
+import {useAppDispatch, useAppSelector} from "./redux/CustomHooks";
+import {SetUser} from "./redux/slices/UserSlice";
+import LogoutForm from "./components/user/LogoutForm";
+import ProtectedRoute from "./components/main-page/ProtectedRoute";
+import {FetchUserFromToken} from "./services/JwtService";
 
 function App() {
-	const {user, isLogged} = useAppSelector(state => state.user)
+	const dispatch = useAppDispatch();
+	const userData = useAppSelector(state => state.user)
 
-	if (!isLogged) {
-		return (
-			<Navigate to="/login" />
-		);
-	}
+	useEffect(() => {
+		let user = FetchUserFromToken();
+		if (user !== null) {
+			dispatch(SetUser(user));
+		}
+	}, [])
 
 	return (
 		<div>
-			<h1 className="greeting">Hello from Time Tracker development branch</h1>
-			<Link to="/login">Login</Link>
+			<SideBar isLogged={userData.isLogged}>
+				<Routes>
+					<Route path="/" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<MainPage userData={userData} />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/login" element={<AuthForm userData={userData} />} />
+					<Route path="/user/logout" element={<LogoutForm userData={userData} />} />
+					<Route path="*" element={<NotFound />} />
+				</Routes>
+			</SideBar>
 		</div>
 	);
 }
