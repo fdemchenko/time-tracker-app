@@ -3,28 +3,25 @@ import {
     GET_USERS_ACTION,
     LOGIN_ACTION,
     LOGOUT_ACTION,
-    REFRESH_ACTION, REFRESH_FAILED_ACTION,
     USER_FOUND_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
     catchError,
     endWith,
-    map, merge,
+    map,
     mergeMap,
-    mergeWith,
     Observable,
     of,
     startWith,
-    take,
-    takeUntil, tap
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
-import {RequestGetUsers, RequestLogin, RequestLogout, RequestRefresh} from "../../services/UserService";
+import {RequestGetUsers, RequestLogin, RequestLogout} from "../../services/UserService";
 import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
-import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
+import {RemoveAccessToken} from "../../services/JwtService";
 import User from "../../models/User";
 
+//mb we should delete it
 export const userFoundActionCreator = (payload: User | null) => (
     {type: USER_FOUND_ACTION, payload: payload});
 export const UserFoundEpic: Epic = (action$: Observable<PayloadAction<User | null>>) =>
@@ -76,55 +73,6 @@ export const LogoutEpic: Epic = (action$) =>
         ))
     );
 
-export const refreshFailedActionCreator = (payload: any) => (
-    {type: REFRESH_FAILED_ACTION, payload: payload});
-export const RefreshFailedEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
-    action$.pipe(
-        ofType(REFRESH_FAILED_ACTION),
-        map(action => action.payload),
-        mergeMap((error) => of(SetError()))
-    );
-
-export const refreshActionCreator = () => ({type: REFRESH_ACTION});
-export const RefreshEpic: Epic = (action$) =>
-    action$.pipe(
-        ofType(REFRESH_ACTION),
-        tap(() => console.log("refresh")),
-        mergeMap(() => RequestRefresh().pipe(
-            map(res => {
-                if (res.data?.auth.refresh) {
-                    let accessToken = res.data?.auth.refresh;
-                    SetAccessToken(accessToken);
-                    let user = GetUserFromToken(accessToken);
-                    return userFoundActionCreator(user);
-                }
-                return logoutActionCreator();
-            }),
-            catchError((err) => of(logoutActionCreator()))
-        ))
-    );
-
-// export const ReLoginEpic: Epic = (action$) =>
-//     action$.pipe(
-//         ofType(USER_FOUND_ACTION),
-//         takeUntil(action$.pipe(ofType(LOGOUT_ACTION))),
-//         take(1),
-//         mergeMapTo(source),
-//         mergeWith(of(refreshActionCreator()))
-//     );
-
-export const handleError = (error: any, action$: Observable<any>)  => {
-    if (error.response?.errors?.[0]?.extensions?.code === "ACCESS_DENIED") {
-        return action$.pipe(
-            ofType(USER_FOUND_ACTION),
-            take(1),
-            mergeMap(() => action$),
-            mergeWith(of(refreshActionCreator()))
-        )
-    }
-    return of(errorActionCreator());
-}
-
 export const getUsersActionCreator = () => ({type: GET_USERS_ACTION});
 export const GetUsersEpic: Epic = (action$) =>
     action$.pipe(
@@ -133,18 +81,7 @@ export const GetUsersEpic: Epic = (action$) =>
             map(res => {
                 console.log(res)
             }),
-            catchError((error, source) => {
-                if(error.response?.errors?.[0]?.extensions?.code === "ACCESS_DENIED") {
-                    return action$.pipe(
-                        ofType(USER_FOUND_ACTION),
-                        takeUntil(action$.pipe(ofType(LOGOUT_ACTION))),
-                        take(1),
-                        mergeMap(() => source),
-                        //merge(of(refreshActionCreator()))
-                    )
-                } else {
-                    return of(errorActionCreator()) // failure action
-                }
-            })
+            catchError((err) => of(errorActionCreator())
+            )
         ))
     );

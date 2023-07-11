@@ -1,7 +1,6 @@
-import {GetAccessToken, GetUserFromToken, SetAccessToken} from "./JwtService";
+import {GetAccessToken, IsTokenExpiredInMinute, SetAccessToken} from "./JwtService";
 import {ajax} from "rxjs/internal/ajax/ajax";
-import {endWith, map} from "rxjs";
-import {RemoveUser, SetUser} from "../redux/slices/UserSlice";
+import {defer, map} from "rxjs";
 
 export interface AjaxResponseType {
     data?: any,
@@ -13,7 +12,20 @@ export interface AjaxResponseType {
     }
 }
 export function ajaxAuth<T extends AjaxResponseType>(body: string) {
+    const apiBaseUrl: string = "https://localhost:7145/graphql";
+
     let accessToken = GetAccessToken();
+
+    if (IsTokenExpiredInMinute(accessToken)) {
+        const refreshObs = defer(() => RequestRefresh(apiBaseUrl));
+        refreshObs.subscribe((res) => {
+            if (res.data?.auth.refresh) {
+                SetAccessToken(res.data?.auth.refresh)
+                accessToken = GetAccessToken();
+            }
+        })
+    }
+
 
     let headers = {
         "Content-Type": "application/json",
@@ -22,25 +34,40 @@ export function ajaxAuth<T extends AjaxResponseType>(body: string) {
         }),
     };
 
-    const apiBaseUrl: string = "https://localhost:7145/graphql";
-
     return ajax<T>({
         url: apiBaseUrl,
         method: "POST",
-        async: true,
+        withCredentials: true,
         headers: headers,
         body: body
     });
 }
 
-// export function ajaxAuthRefresh<T extends AjaxResponseType>(body: string) {
-//     return ajaxAuth<T>(body).pipe(
-//         map(res => {
-//             let result = res.response;
-//             if (result.errors?.extensions.code === "ACCESS_DENIED") {
-//                 return ajaxRefresh();
-//             }
-//
-//         })
-//     );
-// }
+interface RefreshResponse extends AjaxResponseType {
+    data?: {
+        auth: {
+            refresh: string | null
+        }
+    }
+}
+export function RequestRefresh(url: string) {
+    return ajax<RefreshResponse>({
+        url: url,
+        method: "POST",
+        withCredentials: true,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            query: `
+                mutation refresh {
+                  auth {
+                    refresh
+                  }
+                }
+            `
+        })
+    }).pipe(
+        map(res => res.response)
+    );
+}

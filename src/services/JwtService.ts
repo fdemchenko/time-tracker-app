@@ -23,12 +23,7 @@ export function GetTokenPayload(token: string | null): TokenPayload | null {
     if (token === null) {
         return null;
     }
-    let tokenPayload: TokenPayload = JSON.parse(atob(token.split('.')[1]));
-    if (tokenPayload.exp < Date.now() / 1000) {
-        localStorage.removeItem("accessToken");
-        return null;
-    }
-    return tokenPayload;
+    return JSON.parse(atob(token.split('.')[1]));
 }
 
 export function GetUserFromToken(token: string): User | null {
@@ -44,4 +39,21 @@ export function GetUserFromToken(token: string): User | null {
         status: payload.Status,
         permissions: payload.Permissions
     };
+}
+
+export function IsTokenExpiredInMinute(token: string | null): boolean {
+    if (token) {
+        let tokenPayload = GetTokenPayload(token);
+        return !!(tokenPayload && tokenPayload.exp < (Date.now() + 60000) / 1000);
+    } else {
+        return false;
+    }
+}
+
+export function FetchUserFromToken() {
+    let token = GetAccessToken();
+    if (token === null) {
+        return null;
+    }
+    return GetUserFromToken(token);
 }
