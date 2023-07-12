@@ -1,8 +1,8 @@
-import {Alert, Box, Button, TextField} from "@mui/material";
+import {Alert, Box, Button} from "@mui/material";
 
-import React, {useEffect} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
+import React from "react";
+import {Link} from "react-router-dom";
+import {useAppDispatch} from "../../redux/CustomHooks";
 import {logoutActionCreator} from "../../redux/epics/UserEpics";
 import {UserSliceState} from "../../redux/slices/UserSlice";
 
@@ -11,13 +11,6 @@ interface LogoutFormProps {
 }
 export default function LogoutForm({userData}: LogoutFormProps) {
     const dispatch = useAppDispatch();
-    const navigation = useNavigate();
-
-    useEffect(() => {
-        if (!userData.isLogged) {
-            navigation("/user/login");
-        }
-    }, [userData.isLogged]);
 
     function handleLogout() {
         dispatch(logoutActionCreator());
@@ -69,6 +62,10 @@ export default function LogoutForm({userData}: LogoutFormProps) {
                 >
                     Log out
                 </Button>
+
+                {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
+
+                {userData.isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
             </Box>
         </div>
     );

@@ -33,7 +33,11 @@ function App() {
 						</ProtectedRoute>
 					} />
 					<Route path="/user/login" element={<AuthForm userData={userData} />} />
-					<Route path="/user/logout" element={<LogoutForm userData={userData} />} />
+					<Route path="/user/logout" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<LogoutForm userData={userData} />
+						</ProtectedRoute>
+					} />
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

@@ -1,18 +1,14 @@
-import {ReactNode, useEffect} from "react";
-import {useNavigate} from "react-router-dom";
+import {ReactNode} from "react";
+import {Navigate} from "react-router-dom";
 
 interface ProtectedRouteProps {
     isLogged: boolean
     children: ReactNode
 }
 export default function ProtectedRoute({isLogged, children}: ProtectedRouteProps) {
-    const navigate = useNavigate();
-
-    useEffect(() => {
-       if (!isLogged) {
-            navigate("/user/login");
-       }
-    });
+    if (!isLogged) {
+        return <Navigate to="/user/login" />;
+    }
 
     return (
         <div>
