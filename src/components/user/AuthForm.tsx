@@ -4,7 +4,7 @@ import * as Yup from 'yup';
 import {Box, TextField, Button, Alert} from '@mui/material';
 import {useAppDispatch} from "../../redux/CustomHooks";
 import {loginActionCreator} from "../../redux/epics/UserEpics";
-import {useNavigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {UserSliceState} from "../../redux/slices/UserSlice";
 
 interface AuthFormData {
@@ -25,13 +25,6 @@ interface AuthFormProps {
 }
 export default function AuthForm({userData} : AuthFormProps) {
     const dispatch = useAppDispatch();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        if (userData.isLogged) {
-            navigate("/");
-        }
-    }, [userData.isLogged]);
 
     const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
         dispatch(loginActionCreator({
@@ -46,6 +39,10 @@ export default function AuthForm({userData} : AuthFormProps) {
         validationSchema,
         onSubmit: handleSubmit,
     });
+
+    if (userData.isLogged) {
+        return (<Navigate to="/" />);
+    }
 
     return (
       <div>
@@ -95,7 +92,7 @@ export default function AuthForm({userData} : AuthFormProps) {
 
               {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
 
-              {userData.isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
+              {userData.error ? <Alert severity="error" sx={{mt: 2}}>{userData.error}</Alert> : "" }
           </form>
       </div>
     );

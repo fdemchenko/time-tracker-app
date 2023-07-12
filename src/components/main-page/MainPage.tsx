@@ -18,7 +18,7 @@ export default function MainPage({userData}: MainPageProps) {
         <div>
             Hello, {userData.user.fullName}!
             <Button onClick={handleGetUsers}>Get Users in console</Button>
-            {userData.isFailed ? <Alert severity="error" sx={{mt: 2}}>Operation failed</Alert> : "" }
+            {userData.error ? <Alert severity="error" sx={{mt: 2}}>{userData.error}</Alert> : "" }
         </div>
     );
 }

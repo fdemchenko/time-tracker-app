@@ -1,6 +1,6 @@
 import {GetAccessToken, IsTokenExpiredInMinute, SetAccessToken} from "./JwtService";
 import {ajax} from "rxjs/internal/ajax/ajax";
-import {defer, map} from "rxjs";
+import {defer, iif, map, mergeMap, of} from "rxjs";
 
 export interface AjaxResponseType {
     data?: any,
@@ -11,36 +11,38 @@ export interface AjaxResponseType {
         }
     }
 }
-export function ajaxAuth<T extends AjaxResponseType>(body: string) {
-    const apiBaseUrl: string = "https://localhost:7145/graphql";
-
-    let accessToken = GetAccessToken();
-
-    if (IsTokenExpiredInMinute(accessToken)) {
-        const refreshObs = defer(() => RequestRefresh(apiBaseUrl));
-        refreshObs.subscribe((res) => {
-            if (res.data?.auth.refresh) {
-                SetAccessToken(res.data?.auth.refresh)
-                accessToken = GetAccessToken();
-            }
-        })
-    }
-
-
+function ajaxWithToken<T>(url: string, body: string, accessToken: string | null) {
     let headers = {
         "Content-Type": "application/json",
         ...(accessToken && {
             Authorization: `Bearer ${accessToken}`,
-        }),
-    };
-
+        })
+    }
     return ajax<T>({
-        url: apiBaseUrl,
+        url: url,
         method: "POST",
         withCredentials: true,
         headers: headers,
         body: body
-    });
+    })
+}
+
+export function ajaxAuth<T extends AjaxResponseType>(body: string) {
+    const apiBaseUrl: string = "https://localhost:7145/graphql";
+
+    return of(GetAccessToken()).pipe(
+        mergeMap(accessToken => iif(() => IsTokenExpiredInMinute(accessToken),
+            RequestRefresh(apiBaseUrl).pipe(
+                mergeMap(res => {
+                    if (res.data?.auth.refresh) {
+                        SetAccessToken(res.data?.auth.refresh)
+                    }
+                    return ajaxWithToken<T>(apiBaseUrl, body, GetAccessToken());
+                })
+            ),
+            ajaxWithToken<T>(apiBaseUrl, body, accessToken))
+            )
+    );
 }
 
 interface RefreshResponse extends AjaxResponseType {
