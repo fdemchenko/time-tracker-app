@@ -4,7 +4,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 export interface UserSliceState {
     user: User
     isLogged: boolean,
-    isFailed: boolean,
+    error: string | null,
     isLoading: boolean
 }
 const initialState: UserSliceState = {
@@ -17,7 +17,7 @@ const initialState: UserSliceState = {
         permissions: ""
     },
     isLogged: false,
-    isFailed: false,
+    error: null,
     isLoading: false
 }
 
@@ -27,7 +27,7 @@ export const UserSlice = createSlice({
     reducers: {
         RequestStart: (state) => {
             state.isLogged = false;
-            state.isFailed = false;
+            state.error = null;
             state.isLoading = true;
         },
         RequestFinish: (state) => {
@@ -38,14 +38,15 @@ export const UserSlice = createSlice({
             if (action.payload !== null) {
                 state.user = action.payload;
                 state.isLogged = true;
-                state.isFailed = false;
+                state.error = null;
             }
         },
         RemoveUser: (state) => {
             state = initialState;
         },
-        SetError: (state) => {
-            state.isFailed = true;
+        SetError: (state,
+                   action: PayloadAction<string>) => {
+            state.error = action.payload;
         }
     }
 });

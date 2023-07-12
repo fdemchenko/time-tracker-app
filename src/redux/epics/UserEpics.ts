@@ -31,13 +31,18 @@ export const UserFoundEpic: Epic = (action$: Observable<PayloadAction<User | nul
         mergeMap((payload) => of(SetUser(payload)))
     );
 
-export const errorActionCreator = () => (
-    {type: ERROR_ACTION});
-export const ErrorEpic: Epic = (action$) =>
+export const errorActionCreator = (errorMessage: any) => (
+    {type: ERROR_ACTION, payload: errorMessage});
+export const ErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
     action$.pipe(
         ofType(ERROR_ACTION),
         map(action => action.payload),
-        mergeMap((payload) => of(SetError(payload)))
+        mergeMap((payload) => {
+            if (payload.response?.errors?.[0].message) {
+                return of(SetError(payload.response.errors[0].message));
+            }
+            return of(SetError("Operation failed. Try again later."));
+        })
     );
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
@@ -52,7 +57,7 @@ export const LoginEpic: Epic = (action$: Observable<PayloadAction<LoginActionPay
         map(action => action.payload),
         mergeMap((payload) => RequestLogin(payload).pipe(
             map((res) => userFoundActionCreator(res)),
-            catchError(() => of(errorActionCreator())),
+            catchError((err) => of(errorActionCreator(err))),
             startWith(RequestStart()),
             endWith(RequestFinish())
         ))
@@ -67,7 +72,7 @@ export const LogoutEpic: Epic = (action$) =>
                 RemoveAccessToken();
                 return RemoveUser()
             }),
-            catchError((err) => of(errorActionCreator())),
+            catchError((err) => of(errorActionCreator(err))),
             startWith(RequestStart()),
             endWith(RequestFinish())
         ))
@@ -81,7 +86,7 @@ export const GetUsersEpic: Epic = (action$) =>
             map(res => {
                 console.log(res)
             }),
-            catchError((err) => of(errorActionCreator())
+            catchError((err) => of(errorActionCreator(err))
             )
         ))
     );

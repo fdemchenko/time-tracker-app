@@ -65,7 +65,7 @@ export default function LogoutForm({userData}: LogoutFormProps) {
 
                 {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
 
-                {userData.isFailed ? <Alert severity="error" sx={{mt: 2}}>Login failed</Alert> : "" }
+                {userData.error ? <Alert severity="error" sx={{mt: 2}}>{userData.error}</Alert> : "" }
             </Box>
         </div>
     );
