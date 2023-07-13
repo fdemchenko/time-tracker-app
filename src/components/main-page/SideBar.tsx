@@ -102,11 +102,11 @@ export default function SideBar({isLogged, children}: SideBarProps) {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Typography variant="h6" noWrap component="div">
-                        <Link to="/" style={{textDecoration: "none", color: "white"}}>
+                    <Link to="/" style={{textDecoration: "none", color: "white"}}>
+                        <Typography variant="h6" noWrap component="div" sx={{textDecoration: "none", color: "white"}}>
                             Time Tracker
-                        </Link>
-                    </Typography>
+                        </Typography>
+                    </Link>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -155,6 +155,9 @@ export default function SideBar({isLogged, children}: SideBarProps) {
                     {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton>
+                                <ListItemIcon>
+                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                </ListItemIcon>
                                 <ListItemText primary={text} />
                             </ListItemButton>
                         </ListItem>
@@ -165,13 +168,16 @@ export default function SideBar({isLogged, children}: SideBarProps) {
                     {['All mail', 'Trash', 'Spam'].map((text, index) => (
                         <ListItem key={text} disablePadding>
                             <ListItemButton>
+                                <ListItemIcon>
+                                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                </ListItemIcon>
                                 <ListItemText primary={text} />
                             </ListItemButton>
                         </ListItem>
                     ))}
                 </List>
             </Drawer>
-            <Main open={open}>
+            <Main open={open} sx={{pr: 0}}>
                 <DrawerHeader />
 
                 {children}
