@@ -22,6 +22,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {ReactNode} from "react";
 import {Link} from "react-router-dom";
 import TimerBar from "./TimerBar";
+import {useStopwatch} from "react-timer-hook";
 
 const drawerWidth = 240;
 
@@ -81,7 +82,17 @@ interface SideBarProps {
 export default function SideBar({isLogged, children}: SideBarProps) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
+
     const [timerBarOpen, setTimerBarOpen] = React.useState(false);
+    const {
+        seconds,
+        minutes,
+        hours,
+        isRunning,
+        start,
+        pause,
+        reset,
+    } = useStopwatch({ autoStart: false });
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -96,7 +107,19 @@ export default function SideBar({isLogged, children}: SideBarProps) {
 
     return (
         <div>
-            <TimerBar open={timerBarOpen} handleTimerBarOpen={handleTimerBarOpen} />
+            <TimerBar
+                open={timerBarOpen}
+                handleTimerBarOpen={handleTimerBarOpen}
+                timerParameters={{
+                    seconds,
+                    minutes,
+                    hours,
+                    isRunning,
+                    start,
+                    pause,
+                    reset,
+                }}
+            />
 
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
@@ -128,7 +151,12 @@ export default function SideBar({isLogged, children}: SideBarProps) {
                             display: "flex",
                             alignItems: "center"
                         }}>
-                            <Box sx={{mr: "14px"}}>Text timer</Box>
+                            <Box sx={{mr: "14px"}}>
+                                <span>Work session: </span>
+                                <span>{hours < 10 ? `0${hours}` : hours}</span>:
+                                <span>{minutes < 10 ? `0${minutes}` : minutes}</span>:
+                                <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
+                            </Box>
 
                             <IconButton
                                 color="inherit"
