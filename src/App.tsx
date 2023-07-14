@@ -2,14 +2,14 @@ import './App.css'
 import {Route, Routes} from "react-router-dom";
 import * as React from "react";
 import MainPage from "./components/main-page/MainPage";
-import SideBar from "./components/main-page/SideBar";
+import SideBar from "./components/layout/SideBar";
 import AuthForm from "./components/user/AuthForm";
 import NotFound from "./components/NotFound";
 import {useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "./redux/CustomHooks";
 import {SetUser} from "./redux/slices/UserSlice";
 import LogoutForm from "./components/user/LogoutForm";
-import ProtectedRoute from "./components/main-page/ProtectedRoute";
+import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 
 function App() {
