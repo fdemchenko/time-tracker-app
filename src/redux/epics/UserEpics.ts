@@ -1,5 +1,5 @@
 import {
-    ERROR_ACTION,
+    USER_ERROR_ACTION,
     GET_USERS_ACTION,
     LOGIN_ACTION,
     LOGOUT_ACTION,
@@ -17,7 +17,7 @@ import {
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {RequestGetUsers, RequestLogin, RequestLogout} from "../../services/UserService";
-import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
+import {SetUserError, UserRequestFinish, UserRequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
 import {RemoveAccessToken} from "../../services/JwtService";
 import User from "../../models/User";
 
@@ -31,17 +31,17 @@ export const UserFoundEpic: Epic = (action$: Observable<PayloadAction<User | nul
         mergeMap((payload) => of(SetUser(payload)))
     );
 
-export const errorActionCreator = (errorMessage: any) => (
-    {type: ERROR_ACTION, payload: errorMessage});
-export const ErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
+export const userErrorActionCreator = (errorMessage: any) => (
+    {type: USER_ERROR_ACTION, payload: errorMessage});
+export const UserErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
     action$.pipe(
-        ofType(ERROR_ACTION),
+        ofType(USER_ERROR_ACTION),
         map(action => action.payload),
         mergeMap((payload) => {
             if (payload.response?.errors?.[0].message) {
-                return of(SetError(payload.response.errors[0].message));
+                return of(SetUserError(payload.response.errors[0].message));
             }
-            return of(SetError("Operation failed. Try again later."));
+            return of(SetUserError("Operation failed. Try again later."));
         })
     );
 
@@ -57,9 +57,9 @@ export const LoginEpic: Epic = (action$: Observable<PayloadAction<LoginActionPay
         map(action => action.payload),
         mergeMap((payload) => RequestLogin(payload).pipe(
             map((res) => userFoundActionCreator(res)),
-            catchError((err) => of(errorActionCreator(err))),
-            startWith(RequestStart()),
-            endWith(RequestFinish())
+            catchError((err) => of(userErrorActionCreator(err))),
+            startWith(UserRequestStart()),
+            endWith(UserRequestFinish())
         ))
     );
 
@@ -72,9 +72,9 @@ export const LogoutEpic: Epic = (action$) =>
                 RemoveAccessToken();
                 return RemoveUser()
             }),
-            catchError((err) => of(errorActionCreator(err))),
-            startWith(RequestStart()),
-            endWith(RequestFinish())
+            catchError((err) => of(userErrorActionCreator(err))),
+            startWith(UserRequestStart()),
+            endWith(UserRequestFinish())
         ))
     );
 
@@ -86,7 +86,7 @@ export const GetUsersEpic: Epic = (action$) =>
             map(res => {
                 console.log(res)
             }),
-            catchError((err) => of(errorActionCreator(err))
+            catchError((err) => of(userErrorActionCreator(err))
             )
         ))
     );

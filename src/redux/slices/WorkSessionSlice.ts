@@ -14,15 +14,21 @@ export const WorkSessionSlice = createSlice({
     name: "workSession",
     initialState,
     reducers: {
-        Template: (state,
-                  action: PayloadAction<boolean>) => {
-            //some state logic
+        SetWorkSessionError: (state,
+                  action: PayloadAction<string>) => {
+            state.error = action.payload;
+        },
+        SetActiveWorkSession: (state
+                               , action: PayloadAction<WorkSession>) => {
+            state.activeWorkSession = action.payload;
+            state.error = null;
         }
     }
 });
 
 export const {
-    Template
+    SetWorkSessionError,
+    SetActiveWorkSession
 } = WorkSessionSlice.actions;
 
 export default WorkSessionSlice.reducer;

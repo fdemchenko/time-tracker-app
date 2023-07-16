@@ -11,21 +11,24 @@ import {SetUser} from "./redux/slices/UserSlice";
 import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
+import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 
 function App() {
 	const dispatch = useAppDispatch();
-	const userData = useAppSelector(state => state.user)
+	const userData = useAppSelector(state => state.user);
+	const workSessionData = useAppSelector(state => state.workSession);
 
 	useEffect(() => {
 		let user = FetchUserFromToken();
 		if (user !== null) {
 			dispatch(SetUser(user));
+			dispatch(getActiveWorkSessionActionCreator(user.id));
 		}
 	}, [])
 
 	return (
 		<div>
-			<SideBar isLogged={userData.isLogged}>
+			<SideBar isLogged={userData.isLogged} workSessionData={workSessionData}>
 				<Routes>
 					<Route path="/" element={
 						<ProtectedRoute isLogged={userData.isLogged}>

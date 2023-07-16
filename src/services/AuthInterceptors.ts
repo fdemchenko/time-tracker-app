@@ -2,7 +2,7 @@ import {GetAccessToken, IsTokenExpiredInMinute, SetAccessToken} from "./JwtServi
 import {ajax} from "rxjs/internal/ajax/ajax";
 import {defer, iif, map, mergeMap, of} from "rxjs";
 
-export interface AjaxResponseType {
+export interface GraphQLResponse {
     data?: any,
     errors?: {
         message: string,
@@ -27,7 +27,7 @@ function ajaxWithToken<T>(url: string, body: string, accessToken: string | null)
     })
 }
 
-export function ajaxAuth<T extends AjaxResponseType>(body: string) {
+export function ajaxAuth<T extends GraphQLResponse>(body: string) {
     const apiBaseUrl: string = "https://localhost:7145/graphql";
 
     return of(GetAccessToken()).pipe(
@@ -45,7 +45,7 @@ export function ajaxAuth<T extends AjaxResponseType>(body: string) {
     );
 }
 
-interface RefreshResponse extends AjaxResponseType {
+interface RefreshResponse extends GraphQLResponse {
     data?: {
         auth: {
             refresh: string | null

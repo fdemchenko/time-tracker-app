@@ -1,10 +1,10 @@
 import {map} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {LoginActionPayload} from "../redux/epics/UserEpics";
-import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
+import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
 
-interface LoginResponse extends AjaxResponseType {
+interface LoginResponse extends GraphQLResponse {
     data?: {
         auth: {
             login: string | null
@@ -38,7 +38,7 @@ export function RequestLogin(payload: LoginActionPayload) {
     );
 }
 
-interface LogoutResponse extends AjaxResponseType {
+interface LogoutResponse extends GraphQLResponse {
     data?: {
         auth: {
             logout: boolean | null
@@ -59,7 +59,7 @@ export function RequestLogout() {
     );
 }
 
-interface GetUsersResponse extends AjaxResponseType {
+interface GetUsersResponse extends GraphQLResponse {
     data?: {
         user: {
             getAll: User[] | null

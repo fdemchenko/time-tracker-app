@@ -25,12 +25,12 @@ export const UserSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        RequestStart: (state) => {
+        UserRequestStart: (state) => {
             state.isLogged = false;
             state.error = null;
             state.isLoading = true;
         },
-        RequestFinish: (state) => {
+        UserRequestFinish: (state) => {
             state.isLoading = false;
         },
         SetUser: (state,
@@ -44,19 +44,19 @@ export const UserSlice = createSlice({
         RemoveUser: (state) => {
             state = initialState;
         },
-        SetError: (state,
-                   action: PayloadAction<string>) => {
+        SetUserError: (state,
+                       action: PayloadAction<string>) => {
             state.error = action.payload;
         }
     }
 });
 
 export const {
-    RequestStart,
-    RequestFinish,
+    UserRequestStart,
+    UserRequestFinish,
     SetUser,
     RemoveUser,
-    SetError
+    SetUserError
 } = UserSlice.actions;
 
 

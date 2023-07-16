@@ -19,10 +19,10 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import {ReactNode} from "react";
+import {ReactNode, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import TimerBar from "./TimerBar";
-import {useStopwatch} from "react-timer-hook";
+import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 
 const drawerWidth = 240;
 
@@ -77,22 +77,15 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 interface SideBarProps {
     isLogged: boolean,
+    workSessionData: WorkSessionSliceState
     children: ReactNode
 }
-export default function SideBar({isLogged, children}: SideBarProps) {
+export default function SideBar({isLogged, workSessionData, children}: SideBarProps) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
     const [timerBarOpen, setTimerBarOpen] = React.useState(false);
-    const {
-        seconds,
-        minutes,
-        hours,
-        isRunning,
-        start,
-        pause,
-        reset,
-    } = useStopwatch({ autoStart: false });
+    const [trackerDisplay, setTrackerDisplay] = useState("00:00:00");
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -104,21 +97,17 @@ export default function SideBar({isLogged, children}: SideBarProps) {
     function handleTimerBarOpen(value: boolean) {
         setTimerBarOpen(value);
     }
+    function handleSetTrackerDisplay(value: string) {
+        setTrackerDisplay(value);
+    }
 
     return (
         <div>
             <TimerBar
                 open={timerBarOpen}
+                workSessionData={workSessionData}
                 handleTimerBarOpen={handleTimerBarOpen}
-                timerParameters={{
-                    seconds,
-                    minutes,
-                    hours,
-                    isRunning,
-                    start,
-                    pause,
-                    reset,
-                }}
+                //handleSetTrackerDisplay={handleSetTrackerDisplay}
             />
 
             <Box sx={{ display: 'flex' }}>
@@ -152,10 +141,10 @@ export default function SideBar({isLogged, children}: SideBarProps) {
                             alignItems: "center"
                         }}>
                             <Box sx={{mr: "14px"}}>
-                                <span>Work session: </span>
-                                <span>{hours < 10 ? `0${hours}` : hours}</span>:
-                                <span>{minutes < 10 ? `0${minutes}` : minutes}</span>:
-                                <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
+                                <span>Work session: {trackerDisplay}</span>
+                                {/*<span>{hours < 10 ? `0${hours}` : hours}</span>:*/}
+                                {/*<span>{minutes < 10 ? `0${minutes}` : minutes}</span>:*/}
+                                {/*<span>{seconds < 10 ? `0${seconds}` : seconds}</span>*/}
                             </Box>
 
                             <IconButton
