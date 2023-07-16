@@ -18,12 +18,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import {ReactNode, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import TimerBar from "./TimerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
+import {Grid} from "@mui/material";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 
 const drawerWidth = 240;
 
@@ -83,7 +84,7 @@ interface SideBarProps {
 }
 export default function SideBar({userData, workSessionData, children}: SideBarProps) {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = React.useState(true);
 
     const [timerBarOpen, setTimerBarOpen] = React.useState(false);
     const [trackerDisplay, setTrackerDisplay] = useState("00:00:00");
@@ -154,11 +155,11 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 <IconButton
                                     color="inherit"
                                     aria-label="open timer"
-                                    onClick={() => handleTimerBarOpen(!open)}
+                                    onClick={() => handleTimerBarOpen(!timerBarOpen)}
                                     edge="start"
                                     sx={{ mr: 2, ...(timerBarOpen && { visibility: 'hidden' }) }}
                                 >
-                                    <KeyboardArrowRightIcon />
+                                    <KeyboardArrowLeftIcon />
                                 </IconButton>
                             </Box>
                         }
@@ -234,9 +235,19 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                 </Drawer>
                 <Main open={open} sx={{pr: 0}}>
                     <DrawerHeader />
+                    <Grid
+                        container
+                        spacing={0}
+                        direction="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        sx={{ minHeight: '80vh' }}
+                    >
+                        <Grid item xs={3}>
+                            {children}
+                        </Grid>
+                    </Grid>
 
-
-                    {children}
                 </Main>
             </Box>
         </div>

@@ -1,8 +1,8 @@
 import IconButton from "@mui/material/IconButton";
 import * as React from "react";
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import Tracker from "../time-tracking/Tracker";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 interface TimerBarProps {
     open: boolean,
@@ -29,7 +29,7 @@ export default function TimerBar({
                     edge="start"
                     sx={{ mr: 2 }}
                 >
-                    <KeyboardArrowLeftIcon />
+                    <KeyboardArrowRightIcon />
                 </IconButton>
             </div>
 

@@ -14,29 +14,23 @@ interface TrackerProps {
 export default function Tracker({workSessionData, userId}: TrackerProps) {
     const dispatch = useAppDispatch();
 
-    const [startTime, setStartTime] = useState(getCurrentDate());
+    const [startTime, setStartTime] = useState(Date.now());
     const [now, setNow] = useState(startTime);
     const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
     const trackerDisplay = new Date(now - startTime).toISOString().slice(11, 19);
     //handleSetTrackerDisplay(trackerDisplay);
 
-    function getCurrentDate() {
-        let date = new Date();
-        date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
-        return date.getTime();
-    }
-
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
-            setNow(getCurrentDate());
+            setNow(Date.now());
             setStartTime(new Date(workSessionData.activeWorkSession.start).getTime());
-            setIntervalID(setInterval(() => setNow(getCurrentDate()), 1));
+            setIntervalID(setInterval(() => setNow(Date.now()), 1));
         }
     }, [workSessionData.activeWorkSession]);
 
     const start = () => {
         if (workSessionData.activeWorkSession == null) {
-            setNow(getCurrentDate());
+            setNow(Date.now());
             setStartTime(now);
 
             dispatch(createWorkSessionActionCreator(userId));
@@ -47,7 +41,7 @@ export default function Tracker({workSessionData, userId}: TrackerProps) {
         if (workSessionData.activeWorkSession) {
             clearInterval(intervalID);
             setIntervalID(undefined);
-            setNow(getCurrentDate());
+            setNow(Date.now());
             setStartTime(now);
 
             dispatch(setEndWorkSessionActionCreator(workSessionData.activeWorkSession.id));
