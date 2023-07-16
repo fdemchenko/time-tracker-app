@@ -4,40 +4,54 @@ import {useEffect, useState} from "react";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import * as React from "react";
 import {useAppDispatch} from "../../redux/CustomHooks";
+import {createWorkSessionActionCreator, setEndWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 
 interface TrackerProps {
     workSessionData: WorkSessionSliceState,
+    userId: string
     //handleSetTrackerDisplay: (value: string) => void
 }
-export default function Tracker({workSessionData}: TrackerProps) {
+export default function Tracker({workSessionData, userId}: TrackerProps) {
     const dispatch = useAppDispatch();
 
-    const [startTime, setStartTime] = useState(Date.now());
+    const [startTime, setStartTime] = useState(getCurrentDate());
     const [now, setNow] = useState(startTime);
     const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
     const trackerDisplay = new Date(now - startTime).toISOString().slice(11, 19);
     //handleSetTrackerDisplay(trackerDisplay);
 
+    function getCurrentDate() {
+        let date = new Date();
+        date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+        return date.getTime();
+    }
+
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
-            setNow(Date.now());
+            setNow(getCurrentDate());
             setStartTime(new Date(workSessionData.activeWorkSession.start).getTime());
-            setIntervalID(setInterval(() => setNow(Date.now()), 1));
+            setIntervalID(setInterval(() => setNow(getCurrentDate()), 1));
         }
     }, [workSessionData.activeWorkSession]);
 
     const start = () => {
-        setNow(Date.now());
-        setStartTime(now);
+        if (workSessionData.activeWorkSession == null) {
+            setNow(getCurrentDate());
+            setStartTime(now);
 
-        setIntervalID(setInterval(() => setNow(Date.now()), 1));
+            dispatch(createWorkSessionActionCreator(userId));
+        }
     };
 
     const stop = () => {
-        clearInterval(intervalID);
-        setIntervalID(undefined);
-        setNow(Date.now());
-        setStartTime(now);
+        if (workSessionData.activeWorkSession) {
+            clearInterval(intervalID);
+            setIntervalID(undefined);
+            setNow(getCurrentDate());
+            setStartTime(now);
+
+            dispatch(setEndWorkSessionActionCreator(workSessionData.activeWorkSession.id));
+        }
     };
 
     return (

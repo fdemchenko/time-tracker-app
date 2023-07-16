@@ -7,7 +7,12 @@ import {
     UserFoundEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
-import {GetActiveWorkSessionEpic, WorkSessionErrorEpic} from "./epics/WorkSessionEpics";
+import {
+    CreateWorkSessionEpic,
+    GetActiveWorkSessionEpic,
+    SetEndWorkSessionEpic,
+    WorkSessionErrorEpic
+} from "./epics/WorkSessionEpics";
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>
     combineEpics(
@@ -17,7 +22,9 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         GetUsersEpic,
         UserErrorEpic,
         WorkSessionErrorEpic,
-        GetActiveWorkSessionEpic
+        GetActiveWorkSessionEpic,
+        SetEndWorkSessionEpic,
+        CreateWorkSessionEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

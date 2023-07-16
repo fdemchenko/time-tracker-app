@@ -19,8 +19,14 @@ export const WorkSessionSlice = createSlice({
             state.error = action.payload;
         },
         SetActiveWorkSession: (state
-                               , action: PayloadAction<WorkSession>) => {
-            state.activeWorkSession = action.payload;
+                               , action: PayloadAction<WorkSession | null | undefined>) => {
+            if (action.payload) {
+                state.activeWorkSession = action.payload;
+                state.error = null;
+            }
+        },
+        RemoveActiveWorkSession: (state) => {
+            state.activeWorkSession = null;
             state.error = null;
         }
     }
@@ -28,7 +34,8 @@ export const WorkSessionSlice = createSlice({
 
 export const {
     SetWorkSessionError,
-    SetActiveWorkSession
+    SetActiveWorkSession,
+    RemoveActiveWorkSession
 } = WorkSessionSlice.actions;
 
 export default WorkSessionSlice.reducer;

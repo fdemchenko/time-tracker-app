@@ -12,6 +12,7 @@ import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
+import {toIsoString} from "./services/WorkSessionService";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -28,7 +29,7 @@ function App() {
 
 	return (
 		<div>
-			<SideBar isLogged={userData.isLogged} workSessionData={workSessionData}>
+			<SideBar userData={userData} workSessionData={workSessionData}>
 				<Routes>
 					<Route path="/" element={
 						<ProtectedRoute isLogged={userData.isLogged}>

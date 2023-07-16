@@ -8,12 +8,14 @@ interface TimerBarProps {
     open: boolean,
     workSessionData: WorkSessionSliceState,
     handleTimerBarOpen: (value: boolean) => void,
+    userId: string
     //handleSetTrackerDisplay: (value: string) => void
 }
 export default function TimerBar({
         open,
         workSessionData,
         handleTimerBarOpen,
+        userId
         //handleSetTrackerDisplay
     }: TimerBarProps) {
 
@@ -35,6 +37,7 @@ export default function TimerBar({
                 <div>
                     <Tracker
                         workSessionData={workSessionData}
+                        userId={userId}
                         //handleSetTrackerDisplay={handleSetTrackerDisplay}
                     />
                 </div>

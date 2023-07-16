@@ -23,6 +23,7 @@ import {ReactNode, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import TimerBar from "./TimerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
+import {UserSliceState} from "../../redux/slices/UserSlice";
 
 const drawerWidth = 240;
 
@@ -76,11 +77,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 interface SideBarProps {
-    isLogged: boolean,
+    userData: UserSliceState,
     workSessionData: WorkSessionSliceState
     children: ReactNode
 }
-export default function SideBar({isLogged, workSessionData, children}: SideBarProps) {
+export default function SideBar({userData, workSessionData, children}: SideBarProps) {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
@@ -103,12 +104,13 @@ export default function SideBar({isLogged, workSessionData, children}: SideBarPr
 
     return (
         <div>
-            <TimerBar
+            {userData.isLogged && <TimerBar
                 open={timerBarOpen}
                 workSessionData={workSessionData}
+                userId={userData.user.id}
                 handleTimerBarOpen={handleTimerBarOpen}
                 //handleSetTrackerDisplay={handleSetTrackerDisplay}
-            />
+            />}
 
             <Box sx={{ display: 'flex' }}>
                 <CssBaseline />
@@ -136,27 +138,30 @@ export default function SideBar({isLogged, workSessionData, children}: SideBarPr
                         </Box>
 
                         {/*Button which open timer bar*/}
-                        <Box sx={{
-                            display: "flex",
-                            alignItems: "center"
-                        }}>
-                            <Box sx={{mr: "14px"}}>
-                                <span>Work session: {trackerDisplay}</span>
-                                {/*<span>{hours < 10 ? `0${hours}` : hours}</span>:*/}
-                                {/*<span>{minutes < 10 ? `0${minutes}` : minutes}</span>:*/}
-                                {/*<span>{seconds < 10 ? `0${seconds}` : seconds}</span>*/}
-                            </Box>
+                        {
+                            userData.isLogged &&
+                            <Box sx={{
+                                display: "flex",
+                                alignItems: "center"
+                            }}>
+                                <Box sx={{mr: "14px"}}>
+                                    <span>Work session: {trackerDisplay}</span>
+                                    {/*<span>{hours < 10 ? `0${hours}` : hours}</span>:*/}
+                                    {/*<span>{minutes < 10 ? `0${minutes}` : minutes}</span>:*/}
+                                    {/*<span>{seconds < 10 ? `0${seconds}` : seconds}</span>*/}
+                                </Box>
 
-                            <IconButton
-                                color="inherit"
-                                aria-label="open timer"
-                                onClick={() => handleTimerBarOpen(!open)}
-                                edge="start"
-                                sx={{ mr: 2, ...(timerBarOpen && { visibility: 'hidden' }) }}
-                            >
-                                <KeyboardArrowRightIcon />
-                            </IconButton>
-                        </Box>
+                                <IconButton
+                                    color="inherit"
+                                    aria-label="open timer"
+                                    onClick={() => handleTimerBarOpen(!open)}
+                                    edge="start"
+                                    sx={{ mr: 2, ...(timerBarOpen && { visibility: 'hidden' }) }}
+                                >
+                                    <KeyboardArrowRightIcon />
+                                </IconButton>
+                            </Box>
+                        }
                     </Toolbar>
                 </AppBar>
                 <Drawer
@@ -180,7 +185,7 @@ export default function SideBar({isLogged, workSessionData, children}: SideBarPr
                     <Divider />
                     <List>
                         {
-                            !isLogged ? (
+                            !userData.isLogged ? (
                                 <ListItem disablePadding>
                                     <ListItemButton sx={{width: 100}}>
                                         <Link to="/user/login" style={{width: '100%'}}>
