@@ -12,7 +12,6 @@ import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
-import {toIsoString} from "./services/WorkSessionService";
 
 function App() {
 	const dispatch = useAppDispatch();

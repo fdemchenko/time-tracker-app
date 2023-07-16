@@ -2,22 +2,10 @@ import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
 import WorkSession from "../models/WorkSession";
 
-//function which includes our timezone in ISO format date
-export function toIsoString(date: Date) {
-    let tzo = -date.getTimezoneOffset(),
-        dif = tzo >= 0 ? '+' : '-',
-        pad = function(num: number) {
-            return (num < 10 ? '0' : '') + num;
-        };
-
-    return date.getFullYear() +
-        '-' + pad(date.getMonth() + 1) +
-        '-' + pad(date.getDate()) +
-        'T' + pad(date.getHours()) +
-        ':' + pad(date.getMinutes()) +
-        ':' + pad(date.getSeconds()) +
-        dif + pad(Math.floor(Math.abs(tzo) / 60)) +
-        ':' + pad(Math.abs(tzo) % 60);
+export function getNewIsoDate() {
+    let date = new Date();
+    date.setTime(date.getTime() + (-date.getTimezoneOffset() * 60 * 1000));
+    return date.toISOString();
 }
 
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
@@ -67,7 +55,7 @@ export function RequestSetEndWorkSession(id: string) {
             `,
         variables: {
             "id": id,
-            "endDateTime": new Date().toISOString()
+            "endDateTime": getNewIsoDate()
         }
     })).pipe(
         map((res) => res.response)
@@ -98,7 +86,7 @@ export function RequestCreateWorkSession(userId: string) {
         variables: {
             "workSession": {
                 "userId": userId,
-                "start": new Date().toISOString()
+                "start": getNewIsoDate()
             }
         }
     })).pipe(
