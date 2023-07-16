@@ -9,24 +9,27 @@ import {createWorkSessionActionCreator, setEndWorkSessionActionCreator} from "..
 interface TrackerProps {
     workSessionData: WorkSessionSliceState,
     userId: string
-    //handleSetTrackerDisplay: (value: string) => void
+    handleSetTrackerDisplay: (value: string) => void
 }
-export default function Tracker({workSessionData, userId}: TrackerProps) {
+export default function Tracker({workSessionData, userId, handleSetTrackerDisplay}: TrackerProps) {
     const dispatch = useAppDispatch();
 
     const [startTime, setStartTime] = useState(Date.now());
     const [now, setNow] = useState(startTime);
     const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
     const trackerDisplay = new Date(now - startTime).toISOString().slice(11, 19);
-    //handleSetTrackerDisplay(trackerDisplay);
 
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
             setNow(Date.now());
             setStartTime(new Date(workSessionData.activeWorkSession.start).getTime());
-            setIntervalID(setInterval(() => setNow(Date.now()), 1));
+            setIntervalID(setInterval(() => setNow(Date.now()), 1000));
         }
     }, [workSessionData.activeWorkSession]);
+
+    useEffect(() => {
+        handleSetTrackerDisplay(trackerDisplay);
+    }, [trackerDisplay]);
 
     const start = () => {
         if (workSessionData.activeWorkSession == null) {
@@ -52,9 +55,6 @@ export default function Tracker({workSessionData, userId}: TrackerProps) {
         <div>
             <Typography variant="h3">
                 <span>{trackerDisplay}</span>
-                {/*<span>{hours < 10 ? `0${hours}` : hours}</span>:*/}
-                {/*<span>{minutes < 10 ? `0${minutes}` : minutes}</span>:*/}
-                {/*<span>{seconds < 10 ? `0${seconds}` : seconds}</span>*/}
             </Typography>
             <Typography variant="h6" color="darkgrey">
                 {intervalID ? 'Running' : 'Not running'}
@@ -77,14 +77,6 @@ export default function Tracker({workSessionData, userId}: TrackerProps) {
                 >
                     Start
                 </Button>
-                {/*<Button*/}
-                {/*    variant="contained"*/}
-                {/*    color="secondary"*/}
-                {/*    size="large"*/}
-                {/*    onClick={timerParameters.pause}*/}
-                {/*>*/}
-                {/*    Pause*/}
-                {/*</Button>*/}
                 <Button
                     variant="contained"
                     color="error"

@@ -18,9 +18,9 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-import {ReactNode, useEffect, useState} from "react";
+import {ReactNode, useState} from "react";
 import {Link} from "react-router-dom";
-import TimerBar from "./TimerBar";
+import TrackerBar from "../time-tracking/TrackerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
 import {Grid} from "@mui/material";
@@ -105,12 +105,12 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
 
     return (
         <div>
-            {userData.isLogged && <TimerBar
+            {userData.isLogged && <TrackerBar
                 open={timerBarOpen}
                 workSessionData={workSessionData}
                 userId={userData.user.id}
                 handleTimerBarOpen={handleTimerBarOpen}
-                //handleSetTrackerDisplay={handleSetTrackerDisplay}
+                handleSetTrackerDisplay={handleSetTrackerDisplay}
             />}
 
             <Box sx={{ display: 'flex' }}>
@@ -147,9 +147,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                             }}>
                                 <Box sx={{mr: "14px"}}>
                                     <span>Work session: {trackerDisplay}</span>
-                                    {/*<span>{hours < 10 ? `0${hours}` : hours}</span>:*/}
-                                    {/*<span>{minutes < 10 ? `0${minutes}` : minutes}</span>:*/}
-                                    {/*<span>{seconds < 10 ? `0${seconds}` : seconds}</span>*/}
                                 </Box>
 
                                 <IconButton
@@ -247,7 +244,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                             {children}
                         </Grid>
                     </Grid>
-
                 </Main>
             </Box>
         </div>
