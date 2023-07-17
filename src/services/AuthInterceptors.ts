@@ -28,7 +28,12 @@ function ajaxWithToken<T>(url: string, body: string, accessToken: string | null)
 }
 
 export function ajaxAuth<T extends GraphQLResponse>(body: string) {
-    const apiBaseUrl: string = "https://localhost:7145/graphql";
+    let apiBaseUrl: string;
+    if (`${process.env.REACT_APP_MODE}`.toUpperCase() === `PRODUCTION`) {
+        apiBaseUrl = `${process.env.REACT_APP_PRODUCTION_API_URL}`;
+    } else {
+        apiBaseUrl = `${process.env.REACT_APP_DEVELOPMENT_API_URL}`
+    }
 
     return of(GetAccessToken()).pipe(
         mergeMap(accessToken => iif(() => IsTokenExpiredInMinute(accessToken),
