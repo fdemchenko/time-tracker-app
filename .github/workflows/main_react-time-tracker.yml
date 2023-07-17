@@ -25,6 +25,8 @@ jobs:
         run: |
           npm install
           npm run build --if-present
+        env:
+          CI: ""
 
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.1
