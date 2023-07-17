@@ -1,13 +1,15 @@
 import {createEpicMiddleware} from "redux-observable";
 import {configureStore} from "@reduxjs/toolkit";
-import UserReducer from "./slices/UserSlice"
+import UserReducer from "./slices/UserSlice";
+import ManageUsersReducer from "./slices/ManageUsersSlice";
 import {RootEpic} from "./Root";
 
 const epicMiddleware = createEpicMiddleware();
 
 const store = configureStore({
     reducer: {
-        user: UserReducer
+        user: UserReducer,
+        manageUsers: ManageUsersReducer
     },
     middleware: [epicMiddleware]
 });

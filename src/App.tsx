@@ -11,6 +11,8 @@ import {SetUser} from "./redux/slices/UserSlice";
 import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/main-page/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
+import UsersList from "./components/user/UsersList";
+import SetPasswordFrom from "./components/user/SetPasswordForm";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -33,9 +35,15 @@ function App() {
 						</ProtectedRoute>
 					} />
 					<Route path="/user/login" element={<AuthForm userData={userData} />} />
+					<Route path="/set-password/:link" element={<SetPasswordFrom />} />
 					<Route path="/user/logout" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<LogoutForm userData={userData} />
+						</ProtectedRoute>
+					} />
+					<Route path="/users" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<UsersList />
 						</ProtectedRoute>
 					} />
 					<Route path="*" element={<NotFound />} />

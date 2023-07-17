@@ -13,8 +13,11 @@ const initialState: UserSliceState = {
         email: "",
         fullName: "",
         employmentRate: 0,
+        employmentDate: "",
         status: "",
-        permissions: ""
+        permissions: "",
+        hasPassword: false,
+        hasValidSetPasswordLink: false
     },
     isLogged: false,
     error: null,

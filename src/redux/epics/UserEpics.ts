@@ -1,23 +1,25 @@
 import {
-    ERROR_ACTION,
-    GET_USERS_ACTION,
-    LOGIN_ACTION,
-    LOGOUT_ACTION,
-    USER_FOUND_ACTION
+  ERROR_ACTION,
+  GET_USERS_ACTION,
+  LOGIN_ACTION,
+  LOGOUT_ACTION,
+  SET_SEND_PASSWORD_LINK_ACTION,
+  USER_FOUND_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
-    catchError,
-    endWith,
-    map,
-    mergeMap,
-    Observable,
-    of,
-    startWith,
+  catchError,
+  endWith,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  startWith, tap,
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
-import {RequestGetUsers, RequestLogin, RequestLogout} from "../../services/UserService";
+import {RequestGetUsers, RequestLogin, RequestLogout, RequestSetSendPasswordLink} from "../../services/UserService";
 import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
+import {SetUsers, SetError as SetManageUsersError, SetLoading as SetManageUsersLoading, SetSendPasswordLink} from "../slices/ManageUsersSlice";
 import {RemoveAccessToken} from "../../services/JwtService";
 import User from "../../models/User";
 
@@ -84,9 +86,31 @@ export const GetUsersEpic: Epic = (action$) =>
         ofType(GET_USERS_ACTION),
         mergeMap(() => RequestGetUsers().pipe(
             map(res => {
-                console.log(res)
+              if (res.data)
+                return res.data.user.getAll;
+              else
+                return {items: [], count: 0};
             }),
-            catchError((err) => of(errorActionCreator(err))
-            )
+            mergeMap(payload => of(SetUsers(payload))),
+            catchError((err) => of(SetManageUsersError(err))),
+            startWith(SetManageUsersLoading(true)),
+            endWith(SetManageUsersLoading(false)),
         ))
     );
+
+export const setSendPasswordLinkActionCreator = (payload: string) => (
+  {type: SET_SEND_PASSWORD_LINK_ACTION, payload: payload});
+export const SetSendPasswordLinkEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+  action$.pipe(
+    ofType(SET_SEND_PASSWORD_LINK_ACTION),
+    mergeMap(action => {
+      const payload = action.payload;
+
+      return RequestSetSendPasswordLink(payload).pipe(
+        mergeMap(() => of(SetSendPasswordLink(payload))),
+        catchError((err) => of(SetManageUsersError(err))),
+        startWith(SetManageUsersLoading(true)),
+        endWith(SetManageUsersLoading(false))
+      );
+    })
+  );

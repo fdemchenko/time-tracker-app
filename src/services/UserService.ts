@@ -1,4 +1,4 @@
-import {map} from "rxjs";
+import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {LoginActionPayload} from "../redux/epics/UserEpics";
 import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
@@ -62,27 +62,59 @@ export function RequestLogout() {
 interface GetUsersResponse extends AjaxResponseType {
     data?: {
         user: {
-            getAll: User[] | null
+            getAll: {
+                items: User[],
+                count: number
+            }
         }
     }
 }
-export function RequestGetUsers() {
+
+export function RequestGetUsers(): Observable<GetUsersResponse> {
     return ajaxAuth<GetUsersResponse>(JSON.stringify({
         query: `
-                query GetUser {
+               query getAllUsers {
                   user {
                     getAll {
-                      id,
-                      email,
-                      fullName,
-                      employmentRate,
-                      permissions,
-                      status
+                       items {
+                         id, 
+                         email, 
+                         employmentRate,
+                         employmentDate,
+                         fullName,
+                         status,
+                         hasPassword,
+                         hasValidSetPasswordLink
+                        }, count
                     }
                   }
                 }
             `
     })).pipe(
         map(res => res.response)
+    );
+}
+
+interface SetSendPasswordLink extends AjaxResponseType {
+    data?: {
+        user: {
+            addSetPasswordLink: boolean
+        }
+    }
+}
+export function RequestSetSendPasswordLink(payload: string): Observable<SetSendPasswordLink> {
+    return ajaxAuth<SetSendPasswordLink>(JSON.stringify({
+        query: `
+               mutation addSetPasswordLink($email: String!) {
+                  user {
+                    addSetPasswordLink(email: $email)
+                  }
+               }
+            `,
+        variables: {
+            "email": payload,
+        }
+    })).pipe(
+      map(res => res.response)
     );
 }
