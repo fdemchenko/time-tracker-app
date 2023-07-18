@@ -2,22 +2,29 @@ import {
   ERROR_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
-  LOGOUT_ACTION,
+  LOGOUT_ACTION, SET_PASSWORD_ACTION,
   SET_SEND_PASSWORD_LINK_ACTION,
   USER_FOUND_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
-  catchError,
+  catchError, EMPTY,
   endWith,
+  ignoreElements,
   map,
   mergeMap,
   Observable,
   of,
-  startWith, tap,
+  startWith, switchMap, tap,
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
-import {RequestGetUsers, RequestLogin, RequestLogout, RequestSetSendPasswordLink} from "../../services/UserService";
+import {
+  RequestGetUsers,
+  RequestLogin,
+  RequestLogout,
+  RequestSetPassword,
+  RequestSetSendPasswordLink
+} from "../../services/UserService";
 import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
 import {SetUsers, SetError as SetManageUsersError, SetLoading as SetManageUsersLoading, SetSendPasswordLink} from "../slices/ManageUsersSlice";
 import {RemoveAccessToken} from "../../services/JwtService";
@@ -109,6 +116,28 @@ export const SetSendPasswordLinkEpic: Epic = (action$: Observable<PayloadAction<
       return RequestSetSendPasswordLink(payload).pipe(
         mergeMap(() => of(SetSendPasswordLink(payload))),
         catchError((err) => of(SetManageUsersError(err))),
+        startWith(SetManageUsersLoading(true)),
+        endWith(SetManageUsersLoading(false))
+      );
+    })
+  );
+
+export const setPasswordActionCreator = (payload: SetPasswordPayload) => (
+  {type: SET_PASSWORD_ACTION, payload: payload});
+export interface SetPasswordPayload {
+  Email: string,
+  Password: string,
+  SetPasswordLink: string
+}
+export const SetPasswordEpic: Epic = (action$: Observable<PayloadAction<SetPasswordPayload>>) =>
+  action$.pipe(
+    ofType(SET_PASSWORD_ACTION),
+    mergeMap(action => {
+      const payload = action.payload;
+
+      return RequestSetPassword(payload).pipe(
+        catchError((err) => of(SetManageUsersError(err))),
+        ignoreElements(),
         startWith(SetManageUsersLoading(true)),
         endWith(SetManageUsersLoading(false))
       );

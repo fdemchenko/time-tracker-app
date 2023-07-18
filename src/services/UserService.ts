@@ -1,6 +1,6 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
-import {LoginActionPayload} from "../redux/epics/UserEpics";
+import {LoginActionPayload, SetPasswordPayload} from "../redux/epics/UserEpics";
 import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
 import User from "../models/User";
 
@@ -113,6 +113,34 @@ export function RequestSetSendPasswordLink(payload: string): Observable<SetSendP
             `,
         variables: {
             "email": payload,
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface SetPasswordResponse extends AjaxResponseType {
+    data?: {
+        user: {
+            setPassword: boolean
+        }
+    }
+}
+export function RequestSetPassword(payload: SetPasswordPayload) {
+    return ajaxAuth<SetPasswordResponse>(JSON.stringify({
+        query: `
+                mutation setPassword($user: SetPasswordUserInput!) {
+                  user {
+                    setPassword(user: $user)
+                  }
+                }
+            `,
+        variables: {
+            "user": {
+                "email": payload.Email,
+                "password": payload.Password,
+                "setPasswordLink": payload.SetPasswordLink
+            }
         }
     })).pipe(
       map(res => res.response)
