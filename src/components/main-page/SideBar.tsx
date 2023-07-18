@@ -91,7 +91,7 @@ export default function SideBar({isLogged, children}: SideBarProps) {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBar position="fixed" open={open}>
+            <AppBar open={open}>
                 <Toolbar>
                     <IconButton
                         color="inherit"

@@ -1,10 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {getUsersActionCreator, setSendPasswordLinkActionCreator} from "../../redux/epics/UserEpics";
-import {Alert, Button, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {Alert, Button, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {useNavigate} from "react-router-dom";
 
 const UsersList = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const {manageUsers, error, isLoading} = useAppSelector(state => state.manageUsers)
 
   const handleSendPasswordLink = (email: string) => {
@@ -27,17 +29,18 @@ const UsersList = () => {
               <h3>
                 List of employees
 
-                <Button
-                  variant="outlined"
-                  color="success"
-                  type="submit"
-                  size='small'
-                  sx={{
-                    mx: 1
-                  }}
-                >
-                  Create new
-                </Button>
+                  <Button
+                    onClick={() => navigate('/user/create')}
+                    variant="outlined"
+                    color="success"
+                    type="submit"
+                    size="small"
+                    sx={{
+                      mx: 1,
+                    }}
+                  >
+                    Create new
+                  </Button>
               </h3>
               <TableContainer className="custom-table-container" component={Paper}>
                 <Table>

@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+main {
+    margin-top: 56px;
+}
+
 #root {
     display: flex;
     height: 100vh;

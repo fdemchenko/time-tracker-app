@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/main-page/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 import UsersList from "./components/user/UsersList";
 import SetPasswordFrom from "./components/user/SetPasswordForm";
+import CreateUserForm from "./components/user/CreateUserForm";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -44,6 +45,11 @@ function App() {
 					<Route path="/users" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<UsersList />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/create" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<CreateUserForm />
 						</ProtectedRoute>
 					} />
 					<Route path="*" element={<NotFound />} />
