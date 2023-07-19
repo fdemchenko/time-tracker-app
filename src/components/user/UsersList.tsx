@@ -3,6 +3,7 @@ import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {getUsersActionCreator, setSendPasswordLinkActionCreator} from "../../redux/epics/UserEpics";
 import {Alert, Button, Link, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {useNavigate} from "react-router-dom";
+import {formatIsoDate, getNewIsoDateWithTimeZone} from "../../helpers/date";
 
 const UsersList = () => {
   const dispatch = useAppDispatch();
@@ -60,16 +61,17 @@ const UsersList = () => {
                         <TableCell>{user.fullName}</TableCell>
                         <TableCell>{user.email}</TableCell>
                         <TableCell>{user.employmentRate}</TableCell>
-                        <TableCell>{new Date(user.employmentDate).toLocaleDateString()} {new Date(user.employmentDate).toLocaleTimeString()}</TableCell>
+                        <TableCell>{formatIsoDate(getNewIsoDateWithTimeZone(new Date(user.employmentDate)))}</TableCell>
                         <TableCell>
                           {user.status}
                         </TableCell>
                         <TableCell>
-                          {user.status === 'fired'
+                          {user.status === 'fired' || user.permissions.toLowerCase() === "all"
                             ? <span>Actions are not available</span>
                             :
                             <>
                               <Button
+                                onClick={() => navigate(`/user/update/${user.id}`)}
                                 variant="outlined"
                                 color="primary"
                                 type="submit"
@@ -82,6 +84,7 @@ const UsersList = () => {
                               </Button>
 
                               <Button
+                                onClick={() => navigate(`/user/fire/${user.id}`)}
                                 variant="outlined"
                                 color="error"
                                 type="submit"

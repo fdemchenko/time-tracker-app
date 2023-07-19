@@ -59,7 +59,7 @@ export const {
     RequestFinish,
     SetUser,
     RemoveUser,
-    SetError
+    SetError,
 } = UserSlice.actions;
 
 

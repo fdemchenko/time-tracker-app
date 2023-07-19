@@ -35,9 +35,28 @@ export const ManageUsersSlice = createSlice({
         user.email === action.payload ? {...user, hasValidSetPasswordLink: true} : user
       );
     },
+    FireUser: (state, action: PayloadAction<string>) => {
+      state.manageUsers.items = state.manageUsers.items.map((user) =>
+        user.id === action.payload ? {...user, status: 'fired'} : user
+      );
+    },
     CreateUser: (state, action: PayloadAction<User | null>) => {
       if (action.payload)
         state.manageUsers.items.push(action.payload);
+    },
+    UpdateUser: (state, action: PayloadAction<User | null>) => {
+      if (action.payload) {
+        state.manageUsers.items = state.manageUsers.items.map(item => {
+          if (item.id !== action.payload?.id) {
+            return item;
+          }
+
+          return {
+            ...item,
+            ...action.payload
+          };
+        })
+      }
     }
   }
 });
@@ -47,7 +66,9 @@ export const {
   SetError,
   SetLoading,
   SetSendPasswordLink,
-  CreateUser
+  CreateUser,
+  UpdateUser,
+  FireUser
 } = ManageUsersSlice.actions;
 
 export default ManageUsersSlice.reducer;

@@ -14,6 +14,8 @@ import {FetchUserFromToken} from "./services/JwtService";
 import UsersList from "./components/user/UsersList";
 import SetPasswordFrom from "./components/user/SetPasswordForm";
 import CreateUserForm from "./components/user/CreateUserForm";
+import UpdateUserForm from "./components/user/UpdateUserForm";
+import FireUserForm from "./components/user/FireUserForm";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -50,6 +52,16 @@ function App() {
 					<Route path="/user/create" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<CreateUserForm />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/update/:id" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<UpdateUserForm />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/fire/:id" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<FireUserForm />
 						</ProtectedRoute>
 					} />
 					<Route path="*" element={<NotFound />} />

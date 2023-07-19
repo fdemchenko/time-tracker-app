@@ -1,10 +1,10 @@
 import {
   CREATE_USER_ACTION,
-  ERROR_ACTION,
+  ERROR_ACTION, FIRE_USER_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
   LOGOUT_ACTION, SET_PASSWORD_ACTION,
-  SET_SEND_PASSWORD_LINK_ACTION,
+  SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION,
   USER_FOUND_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
@@ -20,15 +20,23 @@ import {
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
-  RequestCreateUser,
+  RequestCreateUser, RequestFireUser,
   RequestGetUsers,
   RequestLogin,
   RequestLogout,
   RequestSetPassword,
-  RequestSetSendPasswordLink
+  RequestSetSendPasswordLink,
+  RequestUpdateUser
 } from "../../services/UserService";
 import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
-import {SetUsers, SetError as SetManageUsersError, SetLoading as SetManageUsersLoading, SetSendPasswordLink, CreateUser} from "../slices/ManageUsersSlice";
+import {
+  SetUsers,
+  SetError as SetManageUsersError,
+  SetLoading as SetManageUsersLoading,
+  SetSendPasswordLink,
+  CreateUser,
+  UpdateUser, FireUser
+} from "../slices/ManageUsersSlice";
 import {RemoveAccessToken} from "../../services/JwtService";
 import User from "../../models/User";
 
@@ -122,8 +130,6 @@ export const CreateUserEpic: Epic = (action$: Observable<PayloadAction<CreateUse
     ofType(CREATE_USER_ACTION),
     mergeMap((action) => RequestCreateUser(action.payload).pipe(
       map(res => {
-        console.log(res, 'r')
-
         if (res.data)
           return res.data.user.create;
         else
@@ -169,6 +175,51 @@ export const SetPasswordEpic: Epic = (action$: Observable<PayloadAction<SetPassw
       return RequestSetPassword(payload).pipe(
         catchError((err) => of(SetManageUsersError(err))),
         ignoreElements(),
+        startWith(SetManageUsersLoading(true)),
+        endWith(SetManageUsersLoading(false))
+      );
+    })
+  );
+
+export const updateUserActionCreator = (payload: UpdateUserActionPayload) => (
+  {type: UPDATE_USER_ACTION, payload: payload});
+export interface UpdateUserActionPayload {
+  Id: string,
+  Email: string,
+  FullName: string,
+  EmploymentRate: number,
+  EmploymentDate: string,
+  Status: string,
+  Permissions: string
+}
+export const UpdateUserEpic: Epic = (action$: Observable<PayloadAction<UpdateUserActionPayload>>) =>
+  action$.pipe(
+    ofType(UPDATE_USER_ACTION),
+    mergeMap((action) => RequestUpdateUser(action.payload).pipe(
+      map(res => {
+        if (res.data)
+          return res.data.user.update;
+        else
+          return null;
+      }),
+      mergeMap(payload => of(UpdateUser(payload))),
+      catchError((err) => of(SetManageUsersError(err))),
+      startWith(SetManageUsersLoading(true)),
+      endWith(SetManageUsersLoading(false)),
+    ))
+  );
+
+export const fireUserActionCreator = (payload: string) => (
+  {type: FIRE_USER_ACTION, payload: payload});
+export const FireUserEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+  action$.pipe(
+    ofType(FIRE_USER_ACTION),
+    mergeMap(action => {
+      const payload = action.payload;
+
+      return RequestFireUser(payload).pipe(
+        mergeMap(() => of(FireUser(payload))),
+        catchError((err) => of(SetManageUsersError(err))),
         startWith(SetManageUsersLoading(true)),
         endWith(SetManageUsersLoading(false))
       );

@@ -1,6 +1,11 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
-import {CreateUserActionPayload, LoginActionPayload, SetPasswordPayload} from "../redux/epics/UserEpics";
+import {
+    CreateUserActionPayload,
+    LoginActionPayload,
+    SetPasswordPayload,
+    UpdateUserActionPayload
+} from "../redux/epics/UserEpics";
 import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
 import User from "../models/User";
 
@@ -84,6 +89,7 @@ export function RequestGetUsers(): Observable<GetUsersResponse> {
                          fullName,
                          status,
                          hasPassword,
+                         permissions,
                          hasValidSetPasswordLink
                         }, count
                     }
@@ -175,6 +181,7 @@ export function RequestCreateUser(payload: CreateUserActionPayload) {
                     email,
                     refreshToken,
                     status,
+                    fullName,
                     employmentRate,
                     employmentDate
                     permissions,
@@ -193,6 +200,84 @@ export function RequestCreateUser(payload: CreateUserActionPayload) {
                 "employmentDate": payload.EmploymentDate,
                 "permissions": payload.Permissions
             }
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface UpdateUserResponse extends AjaxResponseType {
+    data?: {
+        user: {
+            update: {
+                id: string,
+                email: string,
+                fullName: string
+                employmentRate: number,
+                employmentDate: string,
+                status: string,
+                permissions: string,
+                hasPassword: boolean,
+                hasValidSetPasswordLink: boolean,
+            }
+        }
+    }
+}
+
+export function RequestUpdateUser(payload: UpdateUserActionPayload) {
+    return ajaxAuth<UpdateUserResponse>(JSON.stringify({
+        query: `
+               mutation updateUser($user: CreateUpdateUser!, $id: ID!) {
+                  user {
+                    update(user: $user, id: $id){
+                        id,
+                        email,
+                        refreshToken,
+                        status,
+                        fullName,
+                        employmentRate,
+                        employmentDate
+                        permissions,
+                        hasPassword,
+                        hasValidSetPasswordLink
+                    }
+                  }
+                }
+            `,
+        variables: {
+            "user": {
+                "email": payload.Email,
+                "fullName": payload.FullName,
+                "status": payload.Status,
+                "employmentRate": payload.EmploymentRate,
+                "employmentDate": payload.EmploymentDate,
+                "permissions": payload.Permissions
+            },
+            "id": payload.Id,
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface FireUserResponse extends AjaxResponseType {
+    data?: {
+        user: {
+            fire: boolean
+        }
+    }
+}
+export function RequestFireUser(payload: string) {
+    return ajaxAuth<FireUserResponse>(JSON.stringify({
+        query: `
+                mutation fireUser($id: ID!) {
+                  user {
+                    fire(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": payload,
         }
     })).pipe(
       map(res => res.response)
