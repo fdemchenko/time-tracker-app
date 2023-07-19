@@ -6,7 +6,7 @@ import {
     LogoutEpic,
     UserFoundEpic,
     SetSendPasswordLinkEpic,
-    SetPasswordEpic
+    SetPasswordEpic, CreateUserEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
 
@@ -18,7 +18,8 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         GetUsersEpic,
         ErrorEpic,
         SetSendPasswordLinkEpic,
-        SetPasswordEpic
+        SetPasswordEpic,
+        CreateUserEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

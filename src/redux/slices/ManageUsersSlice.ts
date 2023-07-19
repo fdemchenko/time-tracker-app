@@ -1,5 +1,6 @@
 import ManageUsers from "../../models/ManageUsers";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import User from "../../models/User";
 
 export interface ManageUsersSliceState {
   manageUsers: ManageUsers,
@@ -33,6 +34,10 @@ export const ManageUsersSlice = createSlice({
       state.manageUsers.items = state.manageUsers.items.map((user) =>
         user.email === action.payload ? {...user, hasValidSetPasswordLink: true} : user
       );
+    },
+    CreateUser: (state, action: PayloadAction<User | null>) => {
+      if (action.payload)
+        state.manageUsers.items.push(action.payload);
     }
   }
 });
@@ -41,7 +46,8 @@ export const {
   SetUsers,
   SetError,
   SetLoading,
-  SetSendPasswordLink
+  SetSendPasswordLink,
+  CreateUser
 } = ManageUsersSlice.actions;
 
 export default ManageUsersSlice.reducer;

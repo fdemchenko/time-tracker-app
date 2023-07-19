@@ -1,4 +1,5 @@
 import {
+  CREATE_USER_ACTION,
   ERROR_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
@@ -19,6 +20,7 @@ import {
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
+  RequestCreateUser,
   RequestGetUsers,
   RequestLogin,
   RequestLogout,
@@ -26,7 +28,7 @@ import {
   RequestSetSendPasswordLink
 } from "../../services/UserService";
 import {SetError, RequestFinish, RequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
-import {SetUsers, SetError as SetManageUsersError, SetLoading as SetManageUsersLoading, SetSendPasswordLink} from "../slices/ManageUsersSlice";
+import {SetUsers, SetError as SetManageUsersError, SetLoading as SetManageUsersLoading, SetSendPasswordLink, CreateUser} from "../slices/ManageUsersSlice";
 import {RemoveAccessToken} from "../../services/JwtService";
 import User from "../../models/User";
 
@@ -104,6 +106,35 @@ export const GetUsersEpic: Epic = (action$) =>
             endWith(SetManageUsersLoading(false)),
         ))
     );
+
+export const createUserActionCreator = (payload: CreateUserActionPayload) => (
+  {type: CREATE_USER_ACTION, payload: payload});
+export interface CreateUserActionPayload {
+  Email: string,
+  FullName: string,
+  EmploymentRate: number,
+  EmploymentDate: string,
+  Status: string,
+  Permissions: string
+}
+export const CreateUserEpic: Epic = (action$: Observable<PayloadAction<CreateUserActionPayload>>) =>
+  action$.pipe(
+    ofType(CREATE_USER_ACTION),
+    mergeMap((action) => RequestCreateUser(action.payload).pipe(
+      map(res => {
+        console.log(res, 'r')
+
+        if (res.data)
+          return res.data.user.create;
+        else
+          return null;
+      }),
+      mergeMap(payload => of(CreateUser(payload))),
+      catchError((err) => of(SetManageUsersError(err))),
+      startWith(SetManageUsersLoading(true)),
+      endWith(SetManageUsersLoading(false)),
+    ))
+  );
 
 export const setSendPasswordLinkActionCreator = (payload: string) => (
   {type: SET_SEND_PASSWORD_LINK_ACTION, payload: payload});

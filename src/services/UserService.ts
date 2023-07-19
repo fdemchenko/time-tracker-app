@@ -1,6 +1,6 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
-import {LoginActionPayload, SetPasswordPayload} from "../redux/epics/UserEpics";
+import {CreateUserActionPayload, LoginActionPayload, SetPasswordPayload} from "../redux/epics/UserEpics";
 import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
 import User from "../models/User";
 
@@ -140,6 +140,58 @@ export function RequestSetPassword(payload: SetPasswordPayload) {
                 "email": payload.Email,
                 "password": payload.Password,
                 "setPasswordLink": payload.SetPasswordLink
+            }
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface CreateUserResponse extends AjaxResponseType {
+    data?: {
+        user: {
+            create: {
+                id: string,
+                email: string,
+                fullName: string
+                employmentRate: number,
+                employmentDate: string,
+                status: string,
+                permissions: string,
+                hasPassword: boolean,
+                hasValidSetPasswordLink: boolean,
+            }
+        }
+    }
+}
+
+export function RequestCreateUser(payload: CreateUserActionPayload) {
+    return ajaxAuth<CreateUserResponse>(JSON.stringify({
+        query: `
+                mutation addUser($user: CreateUpdateUser!) {
+                 user {
+                  create(user: $user) {
+                    id,
+                    email,
+                    refreshToken,
+                    status,
+                    employmentRate,
+                    employmentDate
+                    permissions,
+                    hasPassword,
+                    hasValidSetPasswordLink
+                   } 
+                  }
+                }
+            `,
+        variables: {
+            "user": {
+                "email": payload.Email,
+                "fullName": payload.FullName,
+                "status": payload.Status,
+                "employmentRate": payload.EmploymentRate,
+                "employmentDate": payload.EmploymentDate,
+                "permissions": payload.Permissions
             }
         }
     })).pipe(
