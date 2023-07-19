@@ -14,17 +14,18 @@ import {
 } from "../../services/WorkSessionService";
 import {RemoveActiveWorkSession, SetActiveWorkSession, SetWorkSessionError} from "../slices/WorkSessionSlice";
 
-export const workSessionErrorActionCreator = (errorMessage: any) => (
+export const workSessionErrorActionCreator = (errorMessage: string) => (
     {type: WORK_SESSION_ERROR_ACTION, payload: errorMessage});
-export const WorkSessionErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
+export const WorkSessionErrorEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
     action$.pipe(
         ofType(WORK_SESSION_ERROR_ACTION),
         map(action => action.payload),
-        mergeMap((payload) => {
-            if (payload.response?.errors?.[0].message) {
-                return of(SetWorkSessionError(payload.response.errors[0].message));
-            }
-            return of(SetWorkSessionError("Operation failed. Try again later."));
+        mergeMap((message) => {
+            // if (message) {
+            //     return of(SetWorkSessionError(payload.response.errors[0].message));
+            // }
+            // return of(SetWorkSessionError("Operation failed. Try again later."));
+            return of(SetWorkSessionError(message));
         })
     );
 
@@ -35,7 +36,12 @@ export const GetActiveWorkSessionEpic: Epic = (action$: Observable<PayloadAction
         ofType(GET_ACTIVE_WORK_SESSION_ACTION),
         map(action => action.payload),
         mergeMap((userId) => RequestGetActiveWorkSession(userId).pipe(
-            map(res => res.data?.workSession.getActiveWorkSessionByUserId),
+            map(res => {
+                if (res.errors) {
+                    throw new Error(res.errors.message);
+                }
+                return res.data?.workSession.getActiveWorkSessionByUserId
+            }),
             map(workSession => SetActiveWorkSession(workSession)),
             catchError((err) => of(workSessionErrorActionCreator(err))),
         ))

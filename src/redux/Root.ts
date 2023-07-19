@@ -4,7 +4,7 @@ import {
     GetUsersEpic,
     LoginEpic,
     LogoutEpic,
-    UserFoundEpic
+    LoginErrorEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
 import {
@@ -16,8 +16,8 @@ import {
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>
     combineEpics(
-        UserFoundEpic,
         LoginEpic,
+        LoginErrorEpic,
         LogoutEpic,
         GetUsersEpic,
         UserErrorEpic,

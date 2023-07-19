@@ -3,7 +3,7 @@ import {
     GET_USERS_ACTION,
     LOGIN_ACTION,
     LOGOUT_ACTION,
-    USER_FOUND_ACTION
+    LOGIN_ERROR_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
@@ -17,31 +17,30 @@ import {
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {RequestGetUsers, RequestLogin, RequestLogout} from "../../services/UserService";
-import {SetUserError, UserRequestFinish, UserRequestStart, RemoveUser, SetUser} from "../slices/UserSlice";
-import {RemoveAccessToken} from "../../services/JwtService";
-import User from "../../models/User";
+import {
+    SetUserError,
+    UserRequestFinish,
+    UserRequestStart,
+    RemoveUser,
+    SetLoginError, SetUser
+} from "../slices/UserSlice";
+import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
+import {SetGlobalErrorMessage} from "../slices/GlobalErrorSlice";
+import {defaultErrorMessage} from "../../helpers/notifications";
 
-//mb we should delete it
-export const userFoundActionCreator = (payload: User | null) => (
-    {type: USER_FOUND_ACTION, payload: payload});
-export const UserFoundEpic: Epic = (action$: Observable<PayloadAction<User | null>>) =>
-    action$.pipe(
-        ofType(USER_FOUND_ACTION),
-        map(action => action.payload),
-        mergeMap((payload) => of(SetUser(payload)))
-    );
-
-export const userErrorActionCreator = (errorMessage: any) => (
-    {type: USER_ERROR_ACTION, payload: errorMessage});
+export const userErrorActionCreator = (error: any) => (
+    {type: USER_ERROR_ACTION, payload: error});
 export const UserErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
     action$.pipe(
         ofType(USER_ERROR_ACTION),
         map(action => action.payload),
-        mergeMap((payload) => {
-            if (payload.response?.errors?.[0].message) {
-                return of(SetUserError(payload.response.errors[0].message));
+        mergeMap((error) => {
+            //console.log(error);
+            let message = defaultErrorMessage;
+            if (error.response?.errors?.[0].message) {
+                message = error.response?.errors?.[0].message;
             }
-            return of(SetUserError("Operation failed. Try again later."));
+            return of(SetUserError(message), SetGlobalErrorMessage(message));
         })
     );
 
@@ -56,11 +55,29 @@ export const LoginEpic: Epic = (action$: Observable<PayloadAction<LoginActionPay
         ofType(LOGIN_ACTION),
         map(action => action.payload),
         mergeMap((payload) => RequestLogin(payload).pipe(
-            map((res) => userFoundActionCreator(res)),
+            map((res) => {
+                let accessToken = res.data?.auth?.login;
+                if (accessToken) {
+                    SetAccessToken(accessToken);
+                    let user = GetUserFromToken(accessToken);
+                    if (user) {
+                        return SetUser(user);
+                    }
+                    return loginErrorActionCreator();
+                }
+                return loginErrorActionCreator();
+            }),
             catchError((err) => of(userErrorActionCreator(err))),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))
+    );
+
+export const loginErrorActionCreator = () => ({type: LOGIN_ERROR_ACTION});
+export const LoginErrorEpic: Epic = (action$) =>
+    action$.pipe(
+        ofType(LOGIN_ERROR_ACTION),
+        map(() => SetLoginError(true))
     );
 
 export const logoutActionCreator = () => ({type: LOGOUT_ACTION});
@@ -70,9 +87,9 @@ export const LogoutEpic: Epic = (action$) =>
         mergeMap(() => RequestLogout().pipe(
             map(() => {
                 RemoveAccessToken();
-                return RemoveUser()
+                return RemoveUser();
             }),
-            catchError((err) => of(userErrorActionCreator(err))),
+            //catchError((err) => of(userErrorActionCreator(err))),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))

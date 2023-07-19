@@ -4,6 +4,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 export interface UserSliceState {
     user: User
     isLogged: boolean,
+    isLoginFailed: boolean
     error: string | null,
     isLoading: boolean
 }
@@ -17,6 +18,7 @@ const initialState: UserSliceState = {
         permissions: ""
     },
     isLogged: false,
+    isLoginFailed: false,
     error: null,
     isLoading: false
 }
@@ -34,12 +36,11 @@ export const UserSlice = createSlice({
             state.isLoading = false;
         },
         SetUser: (state,
-                     action: PayloadAction<User | null>) => {
-            if (action.payload !== null) {
-                state.user = action.payload;
-                state.isLogged = true;
-                state.error = null;
-            }
+                     action: PayloadAction<User>) => {
+            state.user = action.payload;
+            state.isLogged = true;
+            state.isLoginFailed = false;
+            state.error = null;
         },
         RemoveUser: (state) => {
             state = initialState;
@@ -47,6 +48,10 @@ export const UserSlice = createSlice({
         SetUserError: (state,
                        action: PayloadAction<string>) => {
             state.error = action.payload;
+        },
+        SetLoginError: (state,
+                        action: PayloadAction<boolean>) => {
+            state.isLoginFailed = action.payload;
         }
     }
 });
@@ -56,7 +61,8 @@ export const {
     UserRequestFinish,
     SetUser,
     RemoveUser,
-    SetUserError
+    SetUserError,
+    SetLoginError
 } = UserSlice.actions;
 
 

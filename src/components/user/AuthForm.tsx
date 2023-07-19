@@ -92,7 +92,12 @@ export default function AuthForm({userData} : AuthFormProps) {
 
               {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
 
-              {userData.error ? <Alert severity="error" sx={{mt: 2}}>{userData.error}</Alert> : "" }
+              {
+                  userData.isLoginFailed ?
+                      <Alert severity="error" sx={{mt: 2}}>
+                            Login failed, please write your correct data
+                      </Alert> : ""
+              }
           </form>
       </div>
     );
