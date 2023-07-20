@@ -11,8 +11,8 @@ import {SetUser} from "./redux/slices/UserSlice";
 import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
-import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 import {Notify} from "./helpers/notifications";
+import WorkSessionList from "./components/time-tracking/WorkSessionList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -48,6 +48,13 @@ function App() {
 							<LogoutForm userData={userData} />
 						</ProtectedRoute>
 					} />
+					<Route path="/worksession">
+						<Route index element={
+							<ProtectedRoute isLogged={userData.isLogged}>
+								<WorkSessionList />
+							</ProtectedRoute>
+						} />
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>
