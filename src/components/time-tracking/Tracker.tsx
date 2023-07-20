@@ -1,9 +1,8 @@
 import Typography from "@mui/material/Typography";
 import {Alert, Box, Button} from "@mui/material";
 import {useEffect, useState} from "react";
-import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import * as React from "react";
-import {useAppDispatch} from "../../redux/CustomHooks";
+import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {
     createWorkSessionActionCreator,
     getActiveWorkSessionActionCreator,
@@ -11,11 +10,11 @@ import {
 } from "../../redux/epics/WorkSessionEpics";
 
 interface TrackerProps {
-    workSessionData: WorkSessionSliceState,
-    userId: string
     handleSetTrackerDisplay: (value: string) => void
 }
-export default function Tracker({workSessionData, userId, handleSetTrackerDisplay}: TrackerProps) {
+export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
+    const user = useAppSelector(state => state.user.user);
+    const workSessionData = useAppSelector(state => state.workSession);
     const dispatch = useAppDispatch();
 
     const [startTime, setStartTime] = useState(Date.now());
@@ -24,8 +23,8 @@ export default function Tracker({workSessionData, userId, handleSetTrackerDispla
     const trackerDisplay = intervalID ? new Date(now - startTime).toISOString().slice(11, 19) : "00:00:00";
 
     useEffect(() => {
-        dispatch(getActiveWorkSessionActionCreator(userId));
-    }, []);
+        dispatch(getActiveWorkSessionActionCreator(user.id));
+    }, [user.id]);
 
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
@@ -44,7 +43,7 @@ export default function Tracker({workSessionData, userId, handleSetTrackerDispla
             setNow(Date.now());
             setStartTime(now);
 
-            dispatch(createWorkSessionActionCreator(userId));
+            dispatch(createWorkSessionActionCreator(user.id));
         }
     };
 

@@ -32,6 +32,9 @@ export const GetActiveWorkSessionEpic: Epic = (action$: Observable<PayloadAction
         map(action => action.payload),
         mergeMap((userId) => RequestGetActiveWorkSession(userId).pipe(
             map(res => {
+                if (res.errors) {
+                    return workSessionErrorActionCreator(res,"Failed to load active session");
+                }
                 let workSession = res.data?.workSession?.getActiveWorkSessionByUserId;
                 if (workSession !== undefined) {
                     return SetActiveWorkSession(workSession);

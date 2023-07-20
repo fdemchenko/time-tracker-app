@@ -13,6 +13,7 @@ export interface HandleErrorMessageType {
 export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: ActionCreatorWithPayload<string>) {
     let message = data.message ? data.message: defaultErrorMessage;
     let response = data.response;
+    console.log(data.response)
     if (response.errors?.[0]) {
         console.error(`${response.errors?.[0].extensions?.code}: ${response.errors?.[0].message}`);
     }
