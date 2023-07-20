@@ -2,7 +2,6 @@
 export const LOGIN_ACTION = "LOGIN";
 export const LOGOUT_ACTION = "LOGOUT";
 export const USER_ERROR_ACTION = "USER_ERROR";
-export const LOGIN_ERROR_ACTION = "LOGIN_ERROR";
 export const GET_USERS_ACTION = "GET_USERS";
 
 

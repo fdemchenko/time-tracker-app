@@ -1,7 +1,5 @@
 import {NOTIFICATION_TYPE, Store} from "react-notifications-component";
 
-export const defaultErrorMessage = "Fatal error, something went wrong with server connection or business logic";
-
 export function Notify(title: string, message: string, type: NOTIFICATION_TYPE = "danger") {
     Store.addNotification({
         title: title,

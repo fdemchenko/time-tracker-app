@@ -2,8 +2,7 @@ import {
     USER_ERROR_ACTION,
     GET_USERS_ACTION,
     LOGIN_ACTION,
-    LOGOUT_ACTION,
-    LOGIN_ERROR_ACTION
+    LOGOUT_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
@@ -22,26 +21,18 @@ import {
     UserRequestFinish,
     UserRequestStart,
     RemoveUser,
-    SetLoginError, SetUser
+    SetUser
 } from "../slices/UserSlice";
 import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
-import {SetGlobalErrorMessage} from "../slices/GlobalErrorSlice";
-import {defaultErrorMessage} from "../../helpers/notifications";
+import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
 
-export const userErrorActionCreator = (error: any) => (
-    {type: USER_ERROR_ACTION, payload: error});
-export const UserErrorEpic: Epic = (action$: Observable<PayloadAction<any>>) =>
+export const userErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
+    {type: USER_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
+export const UserErrorEpic: Epic = (action$: Observable<PayloadAction<HandleErrorMessageType>>) =>
     action$.pipe(
         ofType(USER_ERROR_ACTION),
         map(action => action.payload),
-        mergeMap((error) => {
-            //console.log(error);
-            let message = defaultErrorMessage;
-            if (error.response?.errors?.[0].message) {
-                message = error.response?.errors?.[0].message;
-            }
-            return of(SetUserError(message), SetGlobalErrorMessage(message));
-        })
+        mergeMap((payload) => handleErrorMessage(payload, SetUserError))
     );
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
@@ -63,21 +54,14 @@ export const LoginEpic: Epic = (action$: Observable<PayloadAction<LoginActionPay
                     if (user) {
                         return SetUser(user);
                     }
-                    return loginErrorActionCreator();
+                    return userErrorActionCreator(res, "Login failed, please write your correct data", false);
                 }
-                return loginErrorActionCreator();
+                return userErrorActionCreator(res, "Login failed, please write your correct data", false);
             }),
             catchError((err) => of(userErrorActionCreator(err))),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))
-    );
-
-export const loginErrorActionCreator = () => ({type: LOGIN_ERROR_ACTION});
-export const LoginErrorEpic: Epic = (action$) =>
-    action$.pipe(
-        ofType(LOGIN_ERROR_ACTION),
-        map(() => SetLoginError(true))
     );
 
 export const logoutActionCreator = () => ({type: LOGOUT_ACTION});
@@ -89,12 +73,13 @@ export const LogoutEpic: Epic = (action$) =>
                 RemoveAccessToken();
                 return RemoveUser();
             }),
-            //catchError((err) => of(userErrorActionCreator(err))),
+            catchError((err) => of(userErrorActionCreator(err))),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))
     );
 
+//require rework
 export const getUsersActionCreator = () => ({type: GET_USERS_ACTION});
 export const GetUsersEpic: Epic = (action$) =>
     action$.pipe(

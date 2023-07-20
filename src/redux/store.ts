@@ -2,7 +2,7 @@ import {createEpicMiddleware} from "redux-observable";
 import {configureStore} from "@reduxjs/toolkit";
 import UserReducer from "./slices/UserSlice";
 import WorkSessionReducer from "./slices/WorkSessionSlice";
-import GlobalErrorReducer from "./slices/GlobalErrorSlice";
+import GlobalMessageReducer, {GlobalMessageSliceState} from "./slices/GlobalMessageSlice";
 import {RootEpic} from "./Root";
 
 const epicMiddleware = createEpicMiddleware();
@@ -11,7 +11,7 @@ const store = configureStore({
     reducer: {
         user: UserReducer,
         workSession: WorkSessionReducer,
-        error: GlobalErrorReducer
+        message: GlobalMessageReducer
     },
     middleware: [epicMiddleware]
 });

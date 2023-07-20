@@ -18,13 +18,12 @@ function App() {
 	const dispatch = useAppDispatch();
 	const userData = useAppSelector(state => state.user);
 	const workSessionData = useAppSelector(state => state.workSession);
-	const globalErrorData = useAppSelector(state => state.error);
+	const globalErrorData = useAppSelector(state => state.message);
 
 	useEffect(() => {
 		let user = FetchUserFromToken();
 		if (user !== null) {
 			dispatch(SetUser(user));
-			dispatch(getActiveWorkSessionActionCreator(user.id));
 		}
 	}, [])
 

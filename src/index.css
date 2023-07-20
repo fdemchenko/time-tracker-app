@@ -5,8 +5,8 @@
 }
 
 .lds-dual-ring {
-    margin: auto;
-    display: inline-block;
+    margin: 0 auto;
+    display: block;
     width: 80px;
     height: 80px;
 }

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
 import {Box, TextField, Button, Alert} from '@mui/material';
@@ -93,9 +93,9 @@ export default function AuthForm({userData} : AuthFormProps) {
               {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
 
               {
-                  userData.isLoginFailed ?
+                  userData.error ?
                       <Alert severity="error" sx={{mt: 2}}>
-                            Login failed, please write your correct data
+                          {userData.error}
                       </Alert> : ""
               }
           </form>

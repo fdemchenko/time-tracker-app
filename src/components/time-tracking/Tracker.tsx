@@ -1,10 +1,14 @@
 import Typography from "@mui/material/Typography";
-import {Box, Button} from "@mui/material";
+import {Alert, Box, Button} from "@mui/material";
 import {useEffect, useState} from "react";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import * as React from "react";
 import {useAppDispatch} from "../../redux/CustomHooks";
-import {createWorkSessionActionCreator, setEndWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {
+    createWorkSessionActionCreator,
+    getActiveWorkSessionActionCreator,
+    setEndWorkSessionActionCreator
+} from "../../redux/epics/WorkSessionEpics";
 
 interface TrackerProps {
     workSessionData: WorkSessionSliceState,
@@ -17,13 +21,17 @@ export default function Tracker({workSessionData, userId, handleSetTrackerDispla
     const [startTime, setStartTime] = useState(Date.now());
     const [now, setNow] = useState(startTime);
     const [intervalID, setIntervalID] = useState<NodeJS.Timer>();
-    const trackerDisplay = new Date(now - startTime).toISOString().slice(11, 19);
+    const trackerDisplay = intervalID ? new Date(now - startTime).toISOString().slice(11, 19) : "00:00:00";
+
+    useEffect(() => {
+        dispatch(getActiveWorkSessionActionCreator(userId));
+    }, []);
 
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
             setNow(Date.now());
             setStartTime(new Date(workSessionData.activeWorkSession.start).getTime());
-            setIntervalID(setInterval(() => setNow(Date.now()), 1000));
+            setIntervalID(setInterval(() => setNow(Date.now()), 500));
         }
     }, [workSessionData.activeWorkSession]);
 
@@ -73,7 +81,7 @@ export default function Tracker({workSessionData, userId, handleSetTrackerDispla
                     size="large"
                     onClick={start}
                     sx={{w: 1}}
-                    disabled={intervalID !== undefined}
+                    disabled={!!(workSessionData.error || intervalID !== undefined)}
                 >
                     Start
                 </Button>
@@ -82,11 +90,13 @@ export default function Tracker({workSessionData, userId, handleSetTrackerDispla
                     color="error"
                     size="large"
                     onClick={stop}
-                    disabled={intervalID === undefined}
+                    disabled={!!(workSessionData.error || intervalID === undefined)}
                 >
                     Finish
                 </Button>
             </Box>
+
+            {workSessionData.error && <Alert severity="error" sx={{mt: 2}}>{workSessionData.error}</Alert>}
         </div>
     );
 };

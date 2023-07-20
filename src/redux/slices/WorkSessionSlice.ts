@@ -19,11 +19,9 @@ export const WorkSessionSlice = createSlice({
             state.error = action.payload;
         },
         SetActiveWorkSession: (state
-                               , action: PayloadAction<WorkSession | null | undefined>) => {
-            if (action.payload) {
-                state.activeWorkSession = action.payload;
-                state.error = null;
-            }
+                               , action: PayloadAction<WorkSession | null>) => {
+            state.activeWorkSession = action.payload;
+            state.error = null;
         },
         RemoveActiveWorkSession: (state) => {
             state.activeWorkSession = null;
