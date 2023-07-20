@@ -1,21 +1,16 @@
 import IconButton from "@mui/material/IconButton";
 import * as React from "react";
-import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import Tracker from "./Tracker";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 interface TimerBarProps {
     open: boolean,
-    workSessionData: WorkSessionSliceState,
     handleTimerBarOpen: (value: boolean) => void,
-    userId: string,
     handleSetTrackerDisplay: (value: string) => void
 }
 export default function TrackerBar({
         open,
-        workSessionData,
         handleTimerBarOpen,
-        userId,
         handleSetTrackerDisplay
     }: TimerBarProps) {
 
@@ -36,8 +31,6 @@ export default function TrackerBar({
             <div className="timer_bar_center">
                 <div>
                     <Tracker
-                        workSessionData={workSessionData}
-                        userId={userId}
                         handleSetTrackerDisplay={handleSetTrackerDisplay}
                     />
                 </div>

@@ -12,19 +12,26 @@ import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
+import {Notify} from "./helpers/notifications";
 
 function App() {
 	const dispatch = useAppDispatch();
 	const userData = useAppSelector(state => state.user);
 	const workSessionData = useAppSelector(state => state.workSession);
+	const globalErrorData = useAppSelector(state => state.message);
 
 	useEffect(() => {
 		let user = FetchUserFromToken();
 		if (user !== null) {
 			dispatch(SetUser(user));
-			dispatch(getActiveWorkSessionActionCreator(user.id));
 		}
 	}, [])
+
+	useEffect(() => {
+		if (globalErrorData.message) {
+			Notify("Error", globalErrorData.message);
+		}
+	}, [globalErrorData.message]);
 
 	return (
 		<div>

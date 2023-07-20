@@ -1,7 +1,5 @@
 import {UserSliceState} from "../../redux/slices/UserSlice";
-import {Box} from "@mui/material";
 import {useAppDispatch} from "../../redux/CustomHooks";
-import {getUsersActionCreator} from "../../redux/epics/UserEpics";
 import React from "react";
 import Typography from "@mui/material/Typography";
 
@@ -10,10 +8,6 @@ interface MainPageProps {
 }
 export default function MainPage({userData}: MainPageProps) {
     const dispatch = useAppDispatch();
-
-    function handleGetUsers() {
-        dispatch(getUsersActionCreator());
-    }
 
     return (
         <Typography sx={{

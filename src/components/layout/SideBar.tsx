@@ -107,8 +107,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
         <div>
             {userData.isLogged && <TrackerBar
                 open={timerBarOpen}
-                workSessionData={workSessionData}
-                userId={userData.user.id}
                 handleTimerBarOpen={handleTimerBarOpen}
                 handleSetTrackerDisplay={handleSetTrackerDisplay}
             />}

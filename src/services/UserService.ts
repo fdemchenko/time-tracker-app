@@ -6,7 +6,7 @@ import User from "../models/User";
 
 interface LoginResponse extends GraphQLResponse {
     data?: {
-        auth: {
+        auth?: {
             login: string | null
         }
     }
@@ -28,13 +28,6 @@ export function RequestLogin(payload: LoginActionPayload) {
         }
     })).pipe(
         map(res => res.response),
-        map(res => {
-            if (res.data?.auth.login) {
-                SetAccessToken(res.data.auth.login);
-                return GetUserFromToken(res.data.auth.login);
-            }
-            return null;
-        })
     );
 }
 
