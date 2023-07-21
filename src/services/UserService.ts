@@ -1,7 +1,7 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {
-    CreateUserActionPayload,
+    CreateUserActionPayload, GetUsersActionPayload,
     LoginActionPayload,
     SetPasswordPayload,
     UpdateUserActionPayload
@@ -75,12 +75,12 @@ interface GetUsersResponse extends AjaxResponseType {
     }
 }
 
-export function RequestGetUsers(): Observable<GetUsersResponse> {
+export function RequestGetUsers(payload: GetUsersActionPayload): Observable<GetUsersResponse> {
     return ajaxAuth<GetUsersResponse>(JSON.stringify({
         query: `
-               query getAllUsers {
+               query getAllUsers($offset: Int, $limit: Int, $sortingColumn: String, $search: String, $filteringEmploymentRate: Int, $filteringStatus: String) {
                   user {
-                    getAll {
+                    getAll(offset: $offset, limit: $limit, sortingColumn: $sortingColumn, search: $search, filteringEmploymentRate: $filteringEmploymentRate, filteringStatus: $filteringStatus) {
                        items {
                          id, 
                          email, 
@@ -95,7 +95,15 @@ export function RequestGetUsers(): Observable<GetUsersResponse> {
                     }
                   }
                 }
-            `
+            `,
+        variables: {
+            "offset": payload.Offset,
+            "limit": payload.Limit,
+            "sortingColumn": payload.SortingColumn,
+            "search": payload.Search,
+            "filteringEmploymentRate": payload.FilteringEmploymentRate,
+            "filteringStatus": payload.FilteringStatus
+        }
     })).pipe(
         map(res => res.response)
     );

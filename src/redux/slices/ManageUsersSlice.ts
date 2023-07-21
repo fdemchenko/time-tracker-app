@@ -4,6 +4,7 @@ import User from "../../models/User";
 
 export interface ManageUsersSliceState {
   manageUsers: ManageUsers,
+  recentlyCreatedUsers: User[];
   error: string | null,
   isLoading: boolean
 }
@@ -13,6 +14,7 @@ const initialState: ManageUsersSliceState = {
     items: [],
     count: 0
   },
+  recentlyCreatedUsers: [],
   error: null,
   isLoading: false
 }
@@ -34,19 +36,39 @@ export const ManageUsersSlice = createSlice({
       state.manageUsers.items = state.manageUsers.items.map((user) =>
         user.email === action.payload ? {...user, hasValidSetPasswordLink: true} : user
       );
+
+      state.recentlyCreatedUsers = state.recentlyCreatedUsers.map((user) =>
+        user.email === action.payload ? {...user, hasValidSetPasswordLink: true} : user
+      );
     },
     FireUser: (state, action: PayloadAction<string>) => {
       state.manageUsers.items = state.manageUsers.items.map((user) =>
-        user.id === action.payload ? {...user, status: 'fired'} : user
+        user.id === action.payload ? { ...user, status: 'fired' } : user
+      );
+
+      state.recentlyCreatedUsers = state.recentlyCreatedUsers.map((user) =>
+        user.id === action.payload ? { ...user, status: 'fired' } : user
       );
     },
     CreateUser: (state, action: PayloadAction<User | null>) => {
-      if (action.payload)
-        state.manageUsers.items.push(action.payload);
+      if (action.payload) {
+        state.recentlyCreatedUsers.push(action.payload);
+      }
     },
     UpdateUser: (state, action: PayloadAction<User | null>) => {
       if (action.payload) {
         state.manageUsers.items = state.manageUsers.items.map(item => {
+          if (item.id !== action.payload?.id) {
+            return item;
+          }
+
+          return {
+            ...item,
+            ...action.payload
+          };
+        });
+
+        state.recentlyCreatedUsers = state.recentlyCreatedUsers.map(item => {
           if (item.id !== action.payload?.id) {
             return item;
           }

@@ -27,8 +27,10 @@ const UpdateUserForm = () => {
   const navigate = useNavigate();
   const {id} = useParams();
 
-  const {manageUsers, error, isLoading} = useAppSelector(state => state.manageUsers);
-  const inputUser: User | null = manageUsers.items.find(user => user.id === id) || null;
+  const {manageUsers, recentlyCreatedUsers, error, isLoading} = useAppSelector(state => state.manageUsers);
+  const inputUser: User | null = manageUsers.items.find(user => user.id === id)
+    || recentlyCreatedUsers.find(user => user.id === id)
+    || null;
 
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),

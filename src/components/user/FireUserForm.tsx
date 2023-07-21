@@ -10,8 +10,10 @@ const FireUserForm = () => {
   const navigate = useNavigate();
   const {id} = useParams();
 
-  const { manageUsers, error, isLoading } = useAppSelector(state => state.manageUsers);
-  const inputUser: User | null = manageUsers.items.find(user => user.id === id) || null;
+  const {manageUsers, recentlyCreatedUsers, error, isLoading} = useAppSelector(state => state.manageUsers);
+  const inputUser: User | null = manageUsers.items.find(user => user.id === id)
+    || recentlyCreatedUsers.find(user => user.id === id)
+    || null;
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 

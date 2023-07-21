@@ -97,11 +97,20 @@ export const LogoutEpic: Epic = (action$) =>
         ))
     );
 
-export const getUsersActionCreator = () => ({type: GET_USERS_ACTION});
-export const GetUsersEpic: Epic = (action$) =>
+export const getUsersActionCreator = (payload: GetUsersActionPayload ) =>
+  ({type: GET_USERS_ACTION, payload: payload});
+export interface GetUsersActionPayload {
+  Offset?: number,
+  Limit?: number,
+  Search?: string,
+  SortingColumn?: string,
+  FilteringEmploymentRate?: number | null,
+  FilteringStatus?: string
+}
+export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersActionPayload>>) =>
     action$.pipe(
         ofType(GET_USERS_ACTION),
-        mergeMap(() => RequestGetUsers().pipe(
+        mergeMap((action) => RequestGetUsers(action.payload).pipe(
             map(res => {
               if (res.data)
                 return res.data.user.getAll;
