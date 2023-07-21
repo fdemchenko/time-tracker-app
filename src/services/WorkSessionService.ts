@@ -93,3 +93,32 @@ export function RequestCreateWorkSession(userId: string) {
         map((res) => res.response)
     );
 }
+
+interface GetUsersWorkSessionsResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            getWorkSessionsByUserId: WorkSession[] | null
+        }
+    }
+}
+export function RequestGetUserWorkSessions(userId: string) {
+    return ajaxAuth<GetUsersWorkSessionsResponse>(JSON.stringify({
+        query: `
+                query GetWorkSessionsByUserId($userId: ID!) {
+                  workSession {
+                    getWorkSessionsByUserId(userId: $userId) {
+                      id
+                      userId
+                      start
+                      end
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "userId": userId
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}

@@ -95,7 +95,7 @@ export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
                 </Button>
             </Box>
 
-            {workSessionData.error && <Alert severity="error" sx={{mt: 2}}>{workSessionData.error}</Alert>}
+            {workSessionData.error && <Alert severity="error" sx={{m: 2}}>{workSessionData.error}</Alert>}
         </div>
     );
 };
