@@ -84,6 +84,10 @@ const FireUserForm = () => {
                 >
                   Fire
                 </Button>
+
+                <Button onClick={() => navigate('/users')} variant="outlined" color="primary" sx={{ml: 2, mt: 2}}>
+                  Back to list
+                </Button>
               </div>
             </>
           )}

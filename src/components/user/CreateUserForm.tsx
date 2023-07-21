@@ -263,6 +263,10 @@ export default function CreateUserForm() {
             <Button variant="outlined" color="secondary" type="submit">
               Create
             </Button>
+
+            <Button onClick={() => navigate('/users')} variant="outlined" color="primary" sx={{ml: 2}}>
+              Back to list
+            </Button>
           </form>
         }
       </>

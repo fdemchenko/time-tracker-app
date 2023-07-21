@@ -275,6 +275,10 @@ const UpdateUserForm = () => {
                 <Button variant="outlined" color="secondary" type="submit">
                   Update
                 </Button>
+
+                <Button onClick={() => navigate('/users')} variant="outlined" color="primary" sx={{ml: 2}}>
+                  Back to list
+                </Button>
               </form>
             </>
           )}
