@@ -1,9 +1,10 @@
 import {UserSliceState} from "../../redux/slices/UserSlice";
-import {Alert, Button} from "@mui/material";
 import {useAppDispatch} from "../../redux/CustomHooks";
 import React from "react";
 import {useNavigate} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
+import Typography from "@mui/material/Typography";
+import {Alert, Button} from "@mui/material";
 
 interface MainPageProps {
     userData: UserSliceState

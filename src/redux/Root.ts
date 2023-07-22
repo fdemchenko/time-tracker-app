@@ -1,27 +1,35 @@
 import {combineEpics, Epic} from "redux-observable";
 import {
-    ErrorEpic,
+    UserErrorEpic,
     GetUsersEpic,
     LoginEpic,
     LogoutEpic,
-    UserFoundEpic,
     SetSendPasswordLinkEpic,
     SetPasswordEpic, CreateUserEpic, UpdateUserEpic, FireUserEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
+import {
+    CreateWorkSessionEpic,
+    GetActiveWorkSessionEpic,
+    SetEndWorkSessionEpic,
+    WorkSessionErrorEpic
+} from "./epics/WorkSessionEpics";
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>
     combineEpics(
-        UserFoundEpic,
         LoginEpic,
         LogoutEpic,
         GetUsersEpic,
-        ErrorEpic,
         SetSendPasswordLinkEpic,
         SetPasswordEpic,
         CreateUserEpic,
         UpdateUserEpic,
-        FireUserEpic
+        FireUserEpic,
+        UserErrorEpic,
+        WorkSessionErrorEpic,
+        GetActiveWorkSessionEpic,
+        SetEndWorkSessionEpic,
+        CreateWorkSessionEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

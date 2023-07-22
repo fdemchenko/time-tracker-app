@@ -1,4 +1,4 @@
-import {Alert, Box, Button} from "@mui/material";
+import {Box, Button} from "@mui/material";
 
 import React from "react";
 import {Link} from "react-router-dom";
@@ -64,8 +64,6 @@ export default function LogoutForm({userData}: LogoutFormProps) {
                 </Button>
 
                 {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
-
-                {userData.error ? <Alert severity="error" sx={{mt: 2}}>{userData.error}</Alert> : "" }
             </Box>
         </div>
     );

@@ -6,12 +6,12 @@ import {
     SetPasswordPayload,
     UpdateUserActionPayload
 } from "../redux/epics/UserEpics";
-import {ajaxAuth, AjaxResponseType} from "./AuthInterceptors";
+import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
 
-interface LoginResponse extends AjaxResponseType {
+interface LoginResponse extends GraphQLResponse {
     data?: {
-        auth: {
+        auth?: {
             login: string | null
         }
     }
@@ -33,17 +33,10 @@ export function RequestLogin(payload: LoginActionPayload) {
         }
     })).pipe(
         map(res => res.response),
-        map(res => {
-            if (res.data?.auth.login) {
-                SetAccessToken(res.data.auth.login);
-                return GetUserFromToken(res.data.auth.login);
-            }
-            return null;
-        })
     );
 }
 
-interface LogoutResponse extends AjaxResponseType {
+interface LogoutResponse extends GraphQLResponse {
     data?: {
         auth: {
             logout: boolean | null
@@ -64,7 +57,7 @@ export function RequestLogout() {
     );
 }
 
-interface GetUsersResponse extends AjaxResponseType {
+interface GetUsersResponse extends GraphQLResponse {
     data?: {
         user: {
             getAll: {
@@ -109,7 +102,7 @@ export function RequestGetUsers(payload: GetUsersActionPayload): Observable<GetU
     );
 }
 
-interface SetSendPasswordLink extends AjaxResponseType {
+interface SetSendPasswordLink extends GraphQLResponse {
     data?: {
         user: {
             addSetPasswordLink: boolean
@@ -133,7 +126,7 @@ export function RequestSetSendPasswordLink(payload: string): Observable<SetSendP
     );
 }
 
-interface SetPasswordResponse extends AjaxResponseType {
+interface SetPasswordResponse extends GraphQLResponse {
     data?: {
         user: {
             setPassword: boolean
@@ -161,7 +154,7 @@ export function RequestSetPassword(payload: SetPasswordPayload) {
     );
 }
 
-interface CreateUserResponse extends AjaxResponseType {
+interface CreateUserResponse extends GraphQLResponse {
     data?: {
         user: {
             create: {
@@ -214,9 +207,9 @@ export function RequestCreateUser(payload: CreateUserActionPayload) {
     );
 }
 
-interface UpdateUserResponse extends AjaxResponseType {
+interface UpdateUserResponse extends GraphQLResponse {
     data?: {
-        user: {
+        user?: {
             update: {
                 id: string,
                 email: string,
@@ -268,7 +261,7 @@ export function RequestUpdateUser(payload: UpdateUserActionPayload) {
     );
 }
 
-interface FireUserResponse extends AjaxResponseType {
+interface FireUserResponse extends GraphQLResponse {
     data?: {
         user: {
             fire: boolean

@@ -1,8 +1,8 @@
 import {GetAccessToken, IsTokenExpiredInMinute, SetAccessToken} from "./JwtService";
 import {ajax} from "rxjs/internal/ajax/ajax";
-import {defer, iif, map, mergeMap, of} from "rxjs";
+import {iif, map, mergeMap, of} from "rxjs";
 
-export interface AjaxResponseType {
+export interface GraphQLResponse {
     data?: any,
     errors?: {
         message: string,
@@ -27,10 +27,10 @@ function ajaxWithToken<T>(url: string, body: string, accessToken: string | null)
     })
 }
 
-export function ajaxAuth<T extends AjaxResponseType>(body: string) {
+export function ajaxAuth<T extends GraphQLResponse>(body: string) {
     let apiBaseUrl: string;
     if (`${process.env.REACT_APP_MODE}`.toUpperCase() === `PRODUCTION`) {
-        apiBaseUrl = `${process.env.REACT_APP_PRODUCTION_API_URL}`
+        apiBaseUrl = `${process.env.REACT_APP_PRODUCTION_API_URL}`;
     } else {
         apiBaseUrl = `${process.env.REACT_APP_DEVELOPMENT_API_URL}`
     }
@@ -43,6 +43,7 @@ export function ajaxAuth<T extends AjaxResponseType>(body: string) {
                         SetAccessToken(res.data?.auth.refresh)
                     }
                     return ajaxWithToken<T>(apiBaseUrl, body, GetAccessToken());
+                    //catch error with logout?
                 })
             ),
             ajaxWithToken<T>(apiBaseUrl, body, accessToken))
@@ -50,7 +51,7 @@ export function ajaxAuth<T extends AjaxResponseType>(body: string) {
     );
 }
 
-interface RefreshResponse extends AjaxResponseType {
+interface RefreshResponse extends GraphQLResponse {
     data?: {
         auth: {
             refresh: string | null

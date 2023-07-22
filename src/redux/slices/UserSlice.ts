@@ -3,8 +3,8 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface UserSliceState {
     user: User
-    isLogged: boolean,
-    error: string | null,
+    isLogged: boolean
+    error: string | null
     isLoading: boolean
 }
 const initialState: UserSliceState = {
@@ -28,39 +28,36 @@ export const UserSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        RequestStart: (state) => {
+        UserRequestStart: (state) => {
             state.isLogged = false;
             state.error = null;
             state.isLoading = true;
         },
-        RequestFinish: (state) => {
+        UserRequestFinish: (state) => {
             state.isLoading = false;
         },
         SetUser: (state,
-                     action: PayloadAction<User | null>) => {
-            if (action.payload !== null) {
-                state.user = action.payload;
-                state.isLogged = true;
-                state.error = null;
-            }
+                     action: PayloadAction<User>) => {
+            state.user = action.payload;
+            state.isLogged = true;
+            state.error = null;
         },
         RemoveUser: (state) => {
             state = initialState;
         },
-        SetError: (state,
-                   action: PayloadAction<string>) => {
+        SetUserError: (state,
+                       action: PayloadAction<string>) => {
             state.error = action.payload;
         }
     }
 });
 
 export const {
-    RequestStart,
-    RequestFinish,
+    UserRequestStart,
+    UserRequestFinish,
     SetUser,
     RemoveUser,
-    SetError,
+    SetUserError
 } = UserSlice.actions;
-
 
 export default UserSlice.reducer;
