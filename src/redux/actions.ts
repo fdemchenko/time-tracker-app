@@ -11,6 +11,8 @@ export const UPDATE_USER_ACTION = "UPDATE_USER";
 export const FIRE_USER_ACTION = "FIRE_USER";
 export const USER_ERROR_ACTION = "USER_ERROR";
 
+export const MANAGE_USERS_ERROR_ACTION = "MANAGE_USERS_ERROR";
+
 //time tracker (work session) actions
 export const WORK_SESSION_ERROR_ACTION = "WORK_SESSION_ERROR";
 export const GET_ACTIVE_WORK_SESSION_ACTION = "GET_ACTIVE_WORK_SESSION";

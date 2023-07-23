@@ -405,7 +405,15 @@ const UsersList = () => {
                     Users not found
                   </Alert>
 
-                  <Button onClick={() => navigate('/users')} variant="outlined" color="primary" sx={{mt: 2}}>
+                  <Button
+                    onClick={() => {
+                      setEmploymentRate(null);
+                      setStatus('');
+                      setFullName('');
+                    }}
+                    variant="outlined"
+                    color="primary" sx={{mt: 2}}
+                  >
                     Back to list
                   </Button>
                   </>

@@ -3,7 +3,7 @@ import {
   FIRE_USER_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
-  LOGOUT_ACTION, SET_PASSWORD_ACTION,
+  LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, SET_PASSWORD_ACTION,
   SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
@@ -55,6 +55,15 @@ export const UserErrorEpic: Epic = (action$: Observable<PayloadAction<HandleErro
         map(action => action.payload),
         mergeMap((payload) => handleErrorMessage(payload, SetUserError))
     );
+
+export const manageUsersErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
+  {type: MANAGE_USERS_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
+export const ManageUsersErrorEpic: Epic = (action$: Observable<PayloadAction<HandleErrorMessageType>>) =>
+  action$.pipe(
+    ofType(MANAGE_USERS_ERROR_ACTION),
+    map(action => action.payload),
+    mergeMap((payload) => handleErrorMessage(payload, SetManageUsersError))
+  );
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
     {type: LOGIN_ACTION, payload: payload});
@@ -122,7 +131,7 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
             }),
 
             mergeMap(payload => of(SetUsers(payload))),
-            catchError((err) => of(SetManageUsersError(err))),
+            catchError((err) => of(manageUsersErrorActionCreator(err))),
             startWith(SetManageUsersLoading(true)),
             endWith(SetManageUsersLoading(false)),
         ))
@@ -149,7 +158,7 @@ export const CreateUserEpic: Epic = (action$: Observable<PayloadAction<CreateUse
           return null;
       }),
       mergeMap(payload => of(CreateUser(payload))),
-      catchError((err) => of(SetManageUsersError(err))),
+      catchError((err) => of(manageUsersErrorActionCreator(err))),
       startWith(SetManageUsersLoading(true)),
       endWith(SetManageUsersLoading(false)),
     ))
@@ -165,7 +174,7 @@ export const SetSendPasswordLinkEpic: Epic = (action$: Observable<PayloadAction<
 
       return RequestSetSendPasswordLink(payload).pipe(
         mergeMap(() => of(SetSendPasswordLink(payload))),
-        catchError((err) => of(SetManageUsersError(err))),
+        catchError((err) => of(manageUsersErrorActionCreator(err))),
         startWith(SetManageUsersLoading(true)),
         endWith(SetManageUsersLoading(false))
       );
@@ -186,7 +195,7 @@ export const SetPasswordEpic: Epic = (action$: Observable<PayloadAction<SetPassw
       const payload = action.payload;
 
       return RequestSetPassword(payload).pipe(
-        catchError((err) => of(SetManageUsersError(err))),
+        catchError((err) => of(manageUsersErrorActionCreator(err))),
         ignoreElements(),
         startWith(SetManageUsersLoading(true)),
         endWith(SetManageUsersLoading(false))
@@ -216,7 +225,7 @@ export const UpdateUserEpic: Epic = (action$: Observable<PayloadAction<UpdateUse
           return null;
       }),
       mergeMap(payload => of(UpdateUser(payload))),
-      catchError((err) => of(SetManageUsersError(err))),
+      catchError((err) => of(manageUsersErrorActionCreator(err))),
       startWith(SetManageUsersLoading(true)),
       endWith(SetManageUsersLoading(false)),
     ))
@@ -229,10 +238,9 @@ export const FireUserEpic: Epic = (action$: Observable<PayloadAction<string>>) =
     ofType(FIRE_USER_ACTION),
     mergeMap(action => {
       const payload = action.payload;
-
       return RequestFireUser(payload).pipe(
         mergeMap(() => of(FireUser(payload))),
-        catchError((err) => of(SetManageUsersError(err))),
+        catchError((err) => of(manageUsersErrorActionCreator(err))),
         startWith(SetManageUsersLoading(true)),
         endWith(SetManageUsersLoading(false))
       );
