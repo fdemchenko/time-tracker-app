@@ -136,3 +136,32 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
         map((res) => res.response)
     );
 }
+
+interface UpdateWorkSessionResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            update: boolean | null
+        }
+    }
+}
+export function RequestUpdateWorkSession(workSession: WorkSession) {
+    return ajaxAuth<UpdateWorkSessionResponse>(JSON.stringify({
+        query: `
+                mutation UpdateWorkSession($id: ID!, $workSession: WorkSessionInputType!) {
+                  workSession {
+                    update(id: $id, workSession: $workSession)
+                  }
+                }
+            `,
+        variables: {
+            "id": workSession.id,
+            "workSession": {
+                "userId": workSession.userId,
+                "start": getNewIsoDate(new Date(workSession.start)),
+                "end": workSession.end ? getNewIsoDate(new Date(workSession.end)) : getNewIsoDate()
+            }
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}

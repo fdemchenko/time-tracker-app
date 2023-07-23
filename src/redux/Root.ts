@@ -9,7 +9,7 @@ import {catchError} from "rxjs";
 import {
     CreateWorkSessionEpic,
     GetActiveWorkSessionEpic, GetUsersWorkSessionsEpic,
-    SetEndWorkSessionEpic,
+    SetEndWorkSessionEpic, UpdateWorkSessionEpic,
     WorkSessionErrorEpic
 } from "./epics/WorkSessionEpics";
 
@@ -23,7 +23,8 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         GetActiveWorkSessionEpic,
         SetEndWorkSessionEpic,
         CreateWorkSessionEpic,
-        GetUsersWorkSessionsEpic
+        GetUsersWorkSessionsEpic,
+        UpdateWorkSessionEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

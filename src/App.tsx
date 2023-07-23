@@ -13,7 +13,7 @@ import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
-import WorkSessionPopover from "./components/time-tracking/WorkSessionPopover";
+import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -54,7 +54,7 @@ function App() {
 							<WorkSessionList />
 						</ProtectedRoute>
 					}>
-						<Route path="/worksession/id" element={<WorkSessionPopover />}/>
+						<Route path="/worksession/:id" element={<WorkSessionUpdateDialog />}/>
 					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
