@@ -11,6 +11,11 @@ import {SetUser} from "./redux/slices/UserSlice";
 import LogoutForm from "./components/user/LogoutForm";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import {FetchUserFromToken} from "./services/JwtService";
+import UsersList from "./components/user/UsersList";
+import SetPasswordFrom from "./components/user/SetPasswordForm";
+import CreateUserForm from "./components/user/CreateUserForm";
+import UpdateUserForm from "./components/user/UpdateUserForm";
+import FireUserForm from "./components/user/FireUserForm";
 import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 import {Notify} from "./helpers/notifications";
 
@@ -43,9 +48,30 @@ function App() {
 						</ProtectedRoute>
 					} />
 					<Route path="/user/login" element={<AuthForm userData={userData} />} />
+					<Route path="/set-password/:link" element={<SetPasswordFrom />} />
 					<Route path="/user/logout" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<LogoutForm userData={userData} />
+						</ProtectedRoute>
+					} />
+					<Route path="/users" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<UsersList />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/create" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<CreateUserForm />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/update/:id" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<UpdateUserForm />
+						</ProtectedRoute>
+					} />
+					<Route path="/user/fire/:id" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<FireUserForm />
 						</ProtectedRoute>
 					} />
 					<Route path="*" element={<NotFound />} />
