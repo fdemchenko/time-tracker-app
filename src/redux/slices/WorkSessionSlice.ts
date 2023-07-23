@@ -3,13 +3,19 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface WorkSessionSliceState {
     activeWorkSession: WorkSession | null,
-    workSessionsList: WorkSession[],
+    workSessionsList: {
+        count: number,
+        items: WorkSession[]
+    },
     isLoading: boolean
     error: string | null
 }
 const initialState: WorkSessionSliceState = {
     activeWorkSession: null,
-    workSessionsList: [],
+    workSessionsList: {
+        count: 0,
+        items: []
+    },
     isLoading: false,
     error: null
 }
@@ -32,12 +38,15 @@ export const WorkSessionSlice = createSlice({
             state.error = null;
         },
         SetWorkSessionList: (state,
-                             action: PayloadAction<WorkSession[]>) => {
+                             action: PayloadAction<{count: number, items: WorkSession[]}>) => {
             state.workSessionsList = action.payload;
             state.error = null;
         },
         RemoveWorkSessionList: (state) => {
-            state.workSessionsList = [];
+            state.workSessionsList = {
+                count: 0,
+                items: []
+            };
             state.error = null;
         },
         SetIsWorkSessionLoading: (state,
