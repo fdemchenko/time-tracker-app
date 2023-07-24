@@ -12,7 +12,7 @@ import {
     CreateWorkSessionEpic,
     GetActiveWorkSessionEpic, GetUsersWorkSessionsEpic,
     SetEndWorkSessionEpic, UpdateWorkSessionEpic,
-    WorkSessionErrorEpic
+    WorkSessionErrorEpic,
     GetActiveWorkSessionEpic,
     SetEndWorkSessionEpic,
     WorkSessionErrorEpic,
