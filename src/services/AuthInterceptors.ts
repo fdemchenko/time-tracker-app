@@ -28,12 +28,12 @@ function ajaxWithToken<T>(url: string, body: string, accessToken: string | null)
 }
 
 export function ajaxAuth<T extends GraphQLResponse>(body: string) {
-    let apiBaseUrl: string;
-    if (`${process.env.REACT_APP_MODE}`.toUpperCase() === `PRODUCTION`) {
-        apiBaseUrl = `${process.env.REACT_APP_PRODUCTION_API_URL}`;
-    } else {
-        apiBaseUrl = `${process.env.REACT_APP_DEVELOPMENT_API_URL}`
-    }
+    let apiBaseUrl: string = 'https://timetrackerteam1.azurewebsites.net/graphql';
+    // if (`${process.env.REACT_APP_MODE}`.toUpperCase() === `PRODUCTION`) {
+    //     apiBaseUrl = `${process.env.REACT_APP_PRODUCTION_API_URL}`;
+    // } else {
+    //     apiBaseUrl = `${process.env.REACT_APP_DEVELOPMENT_API_URL}`
+    // }
 
     return of(GetAccessToken()).pipe(
         mergeMap(accessToken => iif(() => IsTokenExpiredInMinute(accessToken),
