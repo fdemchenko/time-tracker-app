@@ -3,10 +3,6 @@
 
 name: Build and deploy Node.js app to Azure Web App - react-time-tracker
 
-env:
-  REACT_APP_MODE: ${{ secrets.REACT_APP_MODE }}
-  REACT_APP_PRODUCTION_API_URL: ${{ secrets.REACT_APP_PRODUCTION_API_URL }}
-
 on:
   push:
     branches:
@@ -31,6 +27,8 @@ jobs:
           npm run build --if-present
         env:
           CI: ""
+          REACT_APP_MODE: ${{ secrets.REACT_APP_MODE }}
+          REACT_APP_PRODUCTION_API_URL: ${{ secrets.REACT_APP_PRODUCTION_API_URL }}
 
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.1
