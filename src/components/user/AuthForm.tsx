@@ -94,7 +94,7 @@ export default function AuthForm({userData} : AuthFormProps) {
 
               {
                   userData.error ?
-                      <Alert severity="error" sx={{mt: 2}}>
+                      <Alert severity="error" sx={{m: 2}}>
                           {userData.error}
                       </Alert> : ""
               }

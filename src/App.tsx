@@ -18,6 +18,8 @@ import UpdateUserForm from "./components/user/UpdateUserForm";
 import FireUserForm from "./components/user/FireUserForm";
 import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 import {Notify} from "./helpers/notifications";
+import WorkSessionList from "./components/time-tracking/WorkSessionList";
+import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -54,6 +56,13 @@ function App() {
 							<LogoutForm userData={userData} />
 						</ProtectedRoute>
 					} />
+					<Route path="/worksession" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<WorkSessionList />
+						</ProtectedRoute>
+					}>
+						<Route path="/worksession/:id" element={<WorkSessionUpdateDialog />}/>
+					</Route>
 					<Route path="/users" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<UsersList />

@@ -8,6 +8,8 @@ import {BrowserRouter} from "react-router-dom";
 import {Provider} from "react-redux";
 import store from "./redux/store";
 import { ReactNotifications } from 'react-notifications-component'
+import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
+import {LocalizationProvider} from "@mui/x-date-pickers";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,8 +18,10 @@ const root = ReactDOM.createRoot(
 root.render(
     <Provider store={store}>
         <BrowserRouter>
-            <ReactNotifications />
-            <App />
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <ReactNotifications />
+                <App />
+            </LocalizationProvider>
         </BrowserRouter>
     </Provider>
 );
