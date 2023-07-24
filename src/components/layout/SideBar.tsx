@@ -107,8 +107,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
         <div>
             {userData.isLogged && <TrackerBar
                 open={timerBarOpen}
-                workSessionData={workSessionData}
-                userId={userData.user.id}
                 handleTimerBarOpen={handleTimerBarOpen}
                 handleSetTrackerDisplay={handleSetTrackerDisplay}
             />}
@@ -182,6 +180,28 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                     </DrawerHeader>
                     <Divider />
                     <List>
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
+                                <Link to="/worksession" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        My work sessions
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
+                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+                            <ListItem key={text} disablePadding>
+                                <ListItemButton>
+                                    <ListItemIcon>
+                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                                    </ListItemIcon>
+                                    <ListItemText primary={text} />
+                                </ListItemButton>
+                            </ListItem>
+                        ))}
+                    </List>
+                    <Divider />
+                    <List>
                         {
                             !userData.isLogged ? (
                                 <ListItem disablePadding>
@@ -205,29 +225,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </ListItem>
                             )
                         }
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                    <Divider />
-                    <List>
-                        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
                     </List>
                 </Drawer>
                 <Main open={open} sx={{pr: 0}}>

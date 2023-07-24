@@ -15,8 +15,11 @@ export interface TokenPayload {
     Email: string,
     FullName: string
     EmploymentRate: string,
+    EmploymentDate: string,
     Status: string,
     Permissions: string,
+    HasPassword: boolean,
+    hasValidSetPasswordLink: boolean,
     exp: number
 }
 export function GetTokenPayload(token: string | null): TokenPayload | null {
@@ -36,8 +39,11 @@ export function GetUserFromToken(token: string): User | null {
         email: payload.Email,
         fullName: payload.FullName,
         employmentRate: Number(payload.EmploymentRate),
+        employmentDate: payload.EmploymentDate,
         status: payload.Status,
-        permissions: payload.Permissions
+        permissions: payload.Permissions,
+        hasValidSetPasswordLink: payload.HasPassword,
+        hasPassword: payload.HasPassword
     };
 }
 

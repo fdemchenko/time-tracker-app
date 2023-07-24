@@ -2,3 +2,8 @@
     font-size: 40px;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+.custom-table-container {
+    width: 100%;
+    margin-bottom: 20px;
+}

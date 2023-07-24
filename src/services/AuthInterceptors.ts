@@ -1,6 +1,6 @@
 import {GetAccessToken, IsTokenExpiredInMinute, SetAccessToken} from "./JwtService";
 import {ajax} from "rxjs/internal/ajax/ajax";
-import {defer, iif, map, mergeMap, of} from "rxjs";
+import {iif, map, mergeMap, of} from "rxjs";
 
 export interface GraphQLResponse {
     data?: any,
@@ -43,6 +43,7 @@ export function ajaxAuth<T extends GraphQLResponse>(body: string) {
                         SetAccessToken(res.data?.auth.refresh)
                     }
                     return ajaxWithToken<T>(apiBaseUrl, body, GetAccessToken());
+                    //catch error with logout?
                 })
             ),
             ajaxWithToken<T>(apiBaseUrl, body, accessToken))

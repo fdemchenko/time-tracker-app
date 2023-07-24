@@ -3,6 +3,9 @@ export default interface User {
     email: string,
     fullName: string
     employmentRate: number,
+    employmentDate: string,
     status: string,
-    permissions: string
+    permissions: string,
+    hasPassword: boolean,
+    hasValidSetPasswordLink: boolean,
 }
