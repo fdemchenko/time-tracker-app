@@ -18,7 +18,7 @@ import {
     SetWorkSessionError,
     SetWorkSessionList
 } from "../slices/WorkSessionSlice";
-import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
+import {ErrorCodes, handleErrorMessage, HandleErrorMessageType, NoPermissionErrorMessage} from "../../helpers/errors";
 import WorkSession from "../../models/WorkSession";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
 
@@ -128,7 +128,10 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
         mergeMap((workSession) => RequestUpdateWorkSession(workSession).pipe(
                 mergeMap((res) => {
                     if (res.errors) {
-                        return of(workSessionErrorActionCreator(res, "Failed to update session"));
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.NO_PERMISSION]) {
+                            return of(SetGlobalMessage({title: "Error", message: NoPermissionErrorMessage, type: "danger"}));
+                        }
+                        return of(SetGlobalMessage({title: "Error", message: "Failed to update session", type: "danger"}));
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
                         getActiveWorkSessionActionCreator(workSession.userId));

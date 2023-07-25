@@ -4,6 +4,8 @@ import {ActionCreatorWithPayload} from "@reduxjs/toolkit";
 
 const defaultErrorMessage = "Fatal error, something went wrong with server connection " +
     "or business logic. Please try again later.";
+export const NoPermissionErrorMessage = "You do not have a permission to complete this " +
+    "action";
 
 export interface HandleErrorMessageType {
     response: any,
@@ -28,4 +30,13 @@ export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: 
     else {
         return of(actionCreator(message));
     }
+}
+
+/**
+ * List of error codes from backend which need to be handled on client.
+ *
+ * Try 'ErrorCodes[ErrorCodes.NO_PERMISSION]' to get 'NO_PERMISSION' instead '0'.
+ **/
+export enum ErrorCodes {
+    NO_PERMISSION
 }
