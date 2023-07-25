@@ -19,6 +19,7 @@ import FireUserForm from "./components/user/FireUserForm";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
+import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -55,13 +56,6 @@ function App() {
 							<LogoutForm userData={userData} />
 						</ProtectedRoute>
 					} />
-					<Route path="/worksession" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
-							<WorkSessionList />
-						</ProtectedRoute>
-					}>
-						<Route path="/worksession/:id" element={<WorkSessionUpdateDialog />}/>
-					</Route>
 					<Route path="/users" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<UsersList />
@@ -82,6 +76,15 @@ function App() {
 							<FireUserForm />
 						</ProtectedRoute>
 					} />
+
+					<Route path="/worksession" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<WorkSessionList />
+						</ProtectedRoute>
+					}>
+						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
+						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

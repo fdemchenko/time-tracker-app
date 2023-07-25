@@ -11,13 +11,10 @@ import {Alert, Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
-import {DateTimePicker} from "@mui/x-date-pickers";
-import {useState} from "react";
-import moment, {Moment} from "moment";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {deleteWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 
-export default function WorkSessionUpdateDialog() {
+export default function WorkSessionDeleteDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {id} = useParams();
@@ -25,23 +22,11 @@ export default function WorkSessionUpdateDialog() {
     const workSession = useAppSelector(state =>
         state.workSession.workSessionsList.items.find(ws => ws.id === id));
     const {user} = useAppSelector(state => state.user);
-    const {error} = useAppSelector(state => state.workSession);
 
-    const [start, setStart] =
-        useState<Moment | null>(workSession ? moment.utc(workSession.start).local() : null);
-    const [end, setEnd] =
-        useState<Moment | null>(workSession ? moment.utc(workSession.end).local() : null);
-
-    function handleUpdate() {
-        if (workSession && start && end) {
-            start.set("seconds", 0);
-            end.set("seconds", 0);
-            dispatch(updateWorkSessionActionCreator({
-                id: workSession.id,
-                userId: workSession.userId,
-                start: start.toISOString(),
-                end: end.toISOString()
-            }));
+    function handleDelete() {
+        if (workSession) {
+            dispatch(deleteWorkSessionActionCreator(workSession.id));
+            navigate(-1);
         }
     }
 
@@ -62,7 +47,7 @@ export default function WorkSessionUpdateDialog() {
                         gap: "80px"
                     }}
                 >
-                    <Typography variant="h5">Work session record update</Typography>
+                    <Typography variant="h5">Work session record delete</Typography>
                     <CloseIcon
                         sx={{cursor: "pointer"}}
                         onClick={() => navigate(-1)}
@@ -75,41 +60,17 @@ export default function WorkSessionUpdateDialog() {
                     (
                         <>
                             <DialogContent>
-                                <DialogContentText>
-                                    You can update work session here
+                                <DialogContentText fontSize={18}>
+                                    Are you sure that you want to delete this work session?
+                                    You can't get it back later.
                                 </DialogContentText>
-                                <Box
-                                    sx={{
-                                        m: 4,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "flex-start",
-                                        gap: "45px"
-                                    }}
-                                >
-                                    <DateTimePicker
-                                        label="Session start date"
-                                        ampm={false}
-                                        value={start}
-                                        onChange={(newValue) => setStart(newValue)}
-                                    />
-                                    <DateTimePicker
-                                        label="Session end date"
-                                        ampm={false}
-                                        value={end}
-                                        onChange={(newValue) => setEnd(newValue)}
-                                    />
-                                </Box>
-                                {
-                                    error && <Alert severity="error" sx={{m: 2}}>{error}</Alert>
-                                }
                             </DialogContent>
                             <DialogActions sx={{mx: 3, my: 2}}>
                                 <Button
                                     size="large"
-                                    onClick={handleUpdate}
+                                    onClick={handleDelete}
                                 >
-                                    Update
+                                    Yes, i am sure. Delete it!
                                 </Button>
                                 <Button
                                     size="large"

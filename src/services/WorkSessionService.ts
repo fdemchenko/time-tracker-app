@@ -157,3 +157,27 @@ export function RequestUpdateWorkSession(workSession: WorkSession) {
         map((res) => res.response)
     );
 }
+
+interface DeleteWorkSessionResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            delete: boolean | null
+        }
+    }
+}
+export function RequestDeleteWorkSession(id: string) {
+    return ajaxAuth<DeleteWorkSessionResponse>(JSON.stringify({
+        query: `
+                mutation DeleteWorkSession($id: ID!) {
+                  workSession {
+                    delete(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": id
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}

@@ -16,6 +16,7 @@ import {
     styled, InputBase, NativeSelect
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {Link, Outlet} from "react-router-dom";
 import {getUserWorkSessionsActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
@@ -165,6 +166,7 @@ export default function WorkSessionList() {
                                                             </Box>
                                                         </TableCell>
                                                         <TableCell style={{fontWeight: 'bold'}}></TableCell>
+                                                        <TableCell style={{fontWeight: 'bold'}}></TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
@@ -197,8 +199,16 @@ export default function WorkSessionList() {
                                                             <TableCell>
                                                                 {
                                                                     workSession.end &&
-                                                                    <Link to={`/worksession/${workSession.id}`}>
-                                                                        <EditIcon/>
+                                                                    <Link to={`/worksession/update/${workSession.id}`}>
+                                                                        <EditIcon />
+                                                                    </Link>
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {
+                                                                    workSession.end &&
+                                                                    <Link to={`/worksession/delete/${workSession.id}`}>
+                                                                        <DeleteIcon />
                                                                     </Link>
                                                                 }
                                                             </TableCell>
