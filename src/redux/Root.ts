@@ -10,11 +10,10 @@ import {
 import {catchError} from "rxjs";
 import {
     CreateWorkSessionEpic,
-    GetActiveWorkSessionEpic, GetUsersWorkSessionsEpic,
-    SetEndWorkSessionEpic, UpdateWorkSessionEpic,
-    WorkSessionErrorEpic,
     GetActiveWorkSessionEpic,
+    GetUsersWorkSessionsEpic,
     SetEndWorkSessionEpic,
+    UpdateWorkSessionEpic,
     WorkSessionErrorEpic,
 } from "./epics/WorkSessionEpics";
 
