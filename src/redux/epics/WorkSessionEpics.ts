@@ -124,12 +124,7 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
     action$.pipe(
         ofType(UPDATE_WORK_SESSION_ACTION),
         map(action => action.payload),
-        mergeMap((workSession) => {
-            if (workSession.end && new Date(workSession.start) >= new Date(workSession.end)) {
-                return of(SetWorkSessionError("Start date should be before end date"));
-            }
-
-            return RequestUpdateWorkSession(workSession).pipe(
+        mergeMap((workSession) => RequestUpdateWorkSession(workSession).pipe(
                 map((res) => {
                     if (res.errors) {
                         return workSessionErrorActionCreator(res, "Failed to update session");
@@ -141,5 +136,5 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
                 startWith(SetIsWorkSessionLoading(true)),
                 endWith(SetIsWorkSessionLoading(false))
             )
-        })
+        )
     );

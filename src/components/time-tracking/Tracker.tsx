@@ -8,6 +8,7 @@ import {
     getActiveWorkSessionActionCreator,
     setEndWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
+import {isoDateToNumber, parseIsoDateToLocal} from "../../helpers/date";
 
 interface TrackerProps {
     handleSetTrackerDisplay: (value: string) => void
@@ -29,7 +30,7 @@ export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
     useEffect(() => {
         if (workSessionData.activeWorkSession) {
             setNow(Date.now());
-            setStartTime(new Date(workSessionData.activeWorkSession.start).getTime());
+            setStartTime(isoDateToNumber(parseIsoDateToLocal(workSessionData.activeWorkSession.start)));
             setIntervalID(setInterval(() => setNow(Date.now()), 500));
         }
     }, [workSessionData.activeWorkSession]);

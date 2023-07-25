@@ -19,8 +19,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import {Link, Outlet} from "react-router-dom";
 import {getUserWorkSessionsActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
-import moment, {Moment} from "moment";
-import {getNewIsoDate} from "../../services/WorkSessionService";
+import {Moment} from "moment";
+import {countIsoDateDiff, formatIsoDateTime, parseIsoDateToLocal} from "../../helpers/date";
 
 export default function WorkSessionList() {
     const dispatch = useAppDispatch();
@@ -54,7 +54,7 @@ export default function WorkSessionList() {
             orderByDesc: orderByDesc,
             offset: (page - 1) * limit,
             limit: limit,
-            filterDate: filterDate ? getNewIsoDate(filterDate.toDate()) : null
+            filterDate: filterDate ? filterDate.toISOString() : null
         }));
     }, [page, limit, filterDate, orderByDesc, activeWorkSession]);
 
@@ -170,11 +170,15 @@ export default function WorkSessionList() {
                                                 <TableBody>
                                                     {workSessionsList.items.map((workSession) => (
                                                         <TableRow key={workSession.id}>
-                                                            <TableCell>{formatIso(workSession.start)}</TableCell>
+                                                            <TableCell>
+                                                                {
+                                                                    formatIsoDateTime(parseIsoDateToLocal(workSession.start))
+                                                                }
+                                                            </TableCell>
                                                             <TableCell>
                                                                 {
                                                                     workSession.end ?
-                                                                        formatIso(workSession.end) :
+                                                                        formatIsoDateTime(parseIsoDateToLocal(workSession.start)) :
                                                                         <div className="stage">
                                                                             <div className="dot-pulse"></div>
                                                                         </div>
@@ -218,7 +222,7 @@ export default function WorkSessionList() {
                                     </>
                                 ) : (
                                     <Alert severity="info" sx={{m: 2}}>
-                                        There are no records for this date
+                                        There are no records for now
                                     </Alert>
                                 )
                             }
@@ -230,16 +234,6 @@ export default function WorkSessionList() {
 
     );
 };
-
-function countIsoDateDiff(startIsoDate: string, finishIsoDate: string) {
-    let start = moment(startIsoDate);
-    let finish = moment(finishIsoDate);
-    return moment.utc(finish.diff(start)).format("HH:mm:ss");
-}
-
-function formatIso(dateStr: string) {
-    return moment(dateStr).format("MM/DD/YYYY HH:mm:ss");
-}
 
 const BootstrapInput = styled(InputBase)(({theme}) => ({
     'label + &': {

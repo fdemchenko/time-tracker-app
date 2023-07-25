@@ -13,9 +13,6 @@ import {
     GetActiveWorkSessionEpic, GetUsersWorkSessionsEpic,
     SetEndWorkSessionEpic, UpdateWorkSessionEpic,
     WorkSessionErrorEpic
-    GetActiveWorkSessionEpic,
-    SetEndWorkSessionEpic,
-    WorkSessionErrorEpic,
 } from "./epics/WorkSessionEpics";
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>

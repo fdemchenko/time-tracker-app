@@ -16,7 +16,6 @@ import {useState} from "react";
 import moment, {Moment} from "moment";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
-import {getNewIsoDate} from "../../services/WorkSessionService";
 
 export default function WorkSessionUpdateDialog() {
     const dispatch = useAppDispatch();
@@ -28,17 +27,19 @@ export default function WorkSessionUpdateDialog() {
     const {error} = useAppSelector(state => state.workSession);
 
     const [start, setStart] =
-        useState<Moment | null>(workSession ? moment(workSession.start) : null);
+        useState<Moment | null>(workSession ? moment.utc(workSession.start).local() : null);
     const [end, setEnd] =
-        useState<Moment | null>(workSession ? moment(workSession.end) : null);
+        useState<Moment | null>(workSession ? moment.utc(workSession.end).local() : null);
 
     function handleUpdate() {
         if (workSession && start && end) {
+            start.set("seconds", 0);
+            end.set("seconds", 0);
             dispatch(updateWorkSessionActionCreator({
                 id: workSession.id,
                 userId: workSession.userId,
-                start: getNewIsoDate(start.toDate()),
-                end: getNewIsoDate(end.toDate())
+                start: start.toISOString(),
+                end: end.toISOString()
             }));
             navigate(-1);
         }
