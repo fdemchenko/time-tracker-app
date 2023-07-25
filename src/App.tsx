@@ -16,7 +16,6 @@ import SetPasswordFrom from "./components/user/SetPasswordForm";
 import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
 import FireUserForm from "./components/user/FireUserForm";
-import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
@@ -36,9 +35,9 @@ function App() {
 
 	useEffect(() => {
 		if (globalErrorData.message) {
-			Notify("Error", globalErrorData.message);
+			Notify(globalErrorData.title, globalErrorData.message, globalErrorData.type);
 		}
-	}, [globalErrorData.message]);
+	}, [globalErrorData.requireShowMessageToggle]);
 
 	return (
 		<div>

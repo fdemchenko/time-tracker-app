@@ -178,7 +178,7 @@ export default function WorkSessionList() {
                                                             <TableCell>
                                                                 {
                                                                     workSession.end ?
-                                                                        formatIsoDateTime(parseIsoDateToLocal(workSession.start)) :
+                                                                        formatIsoDateTime(parseIsoDateToLocal(workSession.end)) :
                                                                         <div className="stage">
                                                                             <div className="dot-pulse"></div>
                                                                         </div>

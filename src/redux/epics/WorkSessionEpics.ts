@@ -20,6 +20,7 @@ import {
 } from "../slices/WorkSessionSlice";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
 import WorkSession from "../../models/WorkSession";
+import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
 
 export const workSessionErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: WORK_SESSION_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -125,11 +126,12 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
         ofType(UPDATE_WORK_SESSION_ACTION),
         map(action => action.payload),
         mergeMap((workSession) => RequestUpdateWorkSession(workSession).pipe(
-                map((res) => {
+                mergeMap((res) => {
                     if (res.errors) {
-                        return workSessionErrorActionCreator(res, "Failed to update session");
+                        return of(workSessionErrorActionCreator(res, "Failed to update session"));
                     }
-                    return getActiveWorkSessionActionCreator(workSession.userId);
+                    return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
+                        getActiveWorkSessionActionCreator(workSession.userId));
                 }),
                 //??? mb update this without extra request
                 catchError((err) => of(workSessionErrorActionCreator(err))),

@@ -24,6 +24,7 @@ export default function WorkSessionUpdateDialog() {
 
     const workSession = useAppSelector(state =>
         state.workSession.workSessionsList.items.find(ws => ws.id === id));
+    const {user} = useAppSelector(state => state.user);
     const {error} = useAppSelector(state => state.workSession);
 
     const [start, setStart] =
@@ -41,11 +42,9 @@ export default function WorkSessionUpdateDialog() {
                 start: start.toISOString(),
                 end: end.toISOString()
             }));
-            navigate(-1);
         }
     }
 
-    //isLoading required
     return (
         <Dialog
             open={true}
@@ -72,7 +71,7 @@ export default function WorkSessionUpdateDialog() {
             </DialogTitle>
             <Divider sx={{mb: 2}}/>
             {
-                workSession ?
+                workSession && workSession.userId === user.id ?
                     (
                         <>
                             <DialogContent>
@@ -123,7 +122,7 @@ export default function WorkSessionUpdateDialog() {
                         </>
                     ) :
                     (
-                        <Alert severity="error" sx={{m: 2}}>There is record session with this id</Alert>
+                        <Alert severity="error" sx={{m: 2}}>You have no access for this work session</Alert>
                     )
             }
         </Dialog>

@@ -8,10 +8,12 @@ const defaultErrorMessage = "Fatal error, something went wrong with server conne
 export interface HandleErrorMessageType {
     response: any,
     message?: string,
+    title?: string,
     sendGlobalMessage: boolean
 }
 export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: ActionCreatorWithPayload<string>) {
     let message = data.message ? data.message: defaultErrorMessage;
+    let title = data.title ? data.title: "Error";
     let response = data.response;
     if (process.env.REACT_APP_MODE === 'DEVELOPMENT' && response.errors?.[0]) {
         console.error(`${response.errors?.[0].extensions?.code}: ${response.errors?.[0].message}`);
@@ -21,7 +23,7 @@ export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: 
     }
 
     if (data.sendGlobalMessage) {
-        return of(actionCreator(message), SetGlobalMessage(message));
+        return of(actionCreator(message), SetGlobalMessage({title: title, message: message, type: "danger"}));
     }
     else {
         return of(actionCreator(message));
