@@ -1,14 +1,14 @@
 import {
-    CREATE_WORK_SESSION_ACTION,
+    CREATE_WORK_SESSION_ACTION, DELETE_WORK_SESSION_ACTION,
     GET_ACTIVE_WORK_SESSION_ACTION, GET_USER_WORK_SESSIONS_ACTION,
     SET_END_WORK_SESSION_ACTION, UPDATE_WORK_SESSION_ACTION,
     WORK_SESSION_ERROR_ACTION
 } from "../actions";
-import {Epic, ofType} from "redux-observable";
+import {Epic, ofType, StateObservable} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
-    RequestCreateWorkSession,
+    RequestCreateWorkSession, RequestDeleteWorkSession,
     RequestGetActiveWorkSession, RequestGetUserWorkSessions,
     RequestSetEndWorkSession, RequestUpdateWorkSession
 } from "../../services/WorkSessionService";
@@ -18,8 +18,16 @@ import {
     SetWorkSessionError,
     SetWorkSessionList
 } from "../slices/WorkSessionSlice";
-import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
+import {
+    ActiveWorkSessionErrorMessage,
+    ErrorCodes,
+    handleErrorMessage,
+    HandleErrorMessageType,
+    NoPermissionErrorMessage
+} from "../../helpers/errors";
 import WorkSession from "../../models/WorkSession";
+import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
+import {RootState} from "../store";
 
 export const workSessionErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: WORK_SESSION_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -124,22 +132,50 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
     action$.pipe(
         ofType(UPDATE_WORK_SESSION_ACTION),
         map(action => action.payload),
-        mergeMap((workSession) => {
-            if (workSession.end && new Date(workSession.start) >= new Date(workSession.end)) {
-                return of(SetWorkSessionError("Start date should be before end date"));
-            }
-
-            return RequestUpdateWorkSession(workSession).pipe(
-                map((res) => {
+        mergeMap((workSession) => RequestUpdateWorkSession(workSession).pipe(
+                mergeMap((res) => {
                     if (res.errors) {
-                        return workSessionErrorActionCreator(res, "Failed to update session");
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.NO_PERMISSION]) {
+                            return of(SetGlobalMessage({title: "Error", message: NoPermissionErrorMessage, type: "danger"}));
+                        }
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.WORK_SESSION_IS_ACTIVE]) {
+                            return of(SetGlobalMessage({title: "Error", message: ActiveWorkSessionErrorMessage, type: "danger"}));
+                        }
+                        return of(SetGlobalMessage({title: "Error", message: "Failed to update session", type: "danger"}));
                     }
-                    return getActiveWorkSessionActionCreator(workSession.userId);
+                    return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
+                        getActiveWorkSessionActionCreator(workSession.userId));
                 }),
-                //??? mb update this without extra request
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),
                 endWith(SetIsWorkSessionLoading(false))
             )
-        })
+        )
+    );
+
+export const deleteWorkSessionActionCreator = (id: string) =>
+    ({type: DELETE_WORK_SESSION_ACTION, payload: id});
+export const DeleteWorkSessionEpic: Epic = (action$: Observable<PayloadAction<string>>, state$: StateObservable<RootState>) =>
+    action$.pipe(
+        ofType(DELETE_WORK_SESSION_ACTION),
+        map(action => action.payload),
+        mergeMap((id) => RequestDeleteWorkSession(id).pipe(
+                mergeMap((res) => {
+                    if (res.errors) {
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.NO_PERMISSION]) {
+                            return of(SetGlobalMessage({title: "Error", message: NoPermissionErrorMessage, type: "danger"}));
+                        }
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.WORK_SESSION_IS_ACTIVE]) {
+                            return of(SetGlobalMessage({title: "Error", message: ActiveWorkSessionErrorMessage, type: "danger"}));
+                        }
+                        return of(SetGlobalMessage({title: "Error", message: "Failed to delete session", type: "danger"}));
+                    }
+                    return of(SetGlobalMessage({title: "Success", message: "Deleted successfully", type: "success"}),
+                        getActiveWorkSessionActionCreator(state$.value.user.user.id));
+                }),
+                catchError((err) => of(workSessionErrorActionCreator(err))),
+                startWith(SetIsWorkSessionLoading(true)),
+                endWith(SetIsWorkSessionLoading(false))
+            )
+        )
     );

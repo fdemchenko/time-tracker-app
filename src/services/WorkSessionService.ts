@@ -3,14 +3,6 @@ import {map} from "rxjs";
 import WorkSession from "../models/WorkSession";
 import {GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
 
-export function getNewIsoDate(date?: Date) {
-    if (date === undefined) {
-        date = new Date();
-    }
-    date.setTime(date.getTime() + (-date.getTimezoneOffset() * 60 * 1000));
-    return date.toISOString();
-}
-
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
     data?: {
         workSession: {
@@ -58,7 +50,7 @@ export function RequestSetEndWorkSession(id: string) {
             `,
         variables: {
             "id": id,
-            "endDateTime": getNewIsoDate()
+            "endDateTime": new Date().toISOString()
         }
     })).pipe(
         map((res) => res.response)
@@ -89,7 +81,7 @@ export function RequestCreateWorkSession(userId: string) {
         variables: {
             "workSession": {
                 "userId": userId,
-                "start": getNewIsoDate()
+                "start": new Date().toISOString()
             }
         }
     })).pipe(
@@ -157,9 +149,33 @@ export function RequestUpdateWorkSession(workSession: WorkSession) {
             "id": workSession.id,
             "workSession": {
                 "userId": workSession.userId,
-                "start": getNewIsoDate(new Date(workSession.start)),
-                "end": workSession.end ? getNewIsoDate(new Date(workSession.end)) : getNewIsoDate()
+                "start": workSession.start,
+                "end": workSession.end
             }
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface DeleteWorkSessionResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            delete: boolean | null
+        }
+    }
+}
+export function RequestDeleteWorkSession(id: string) {
+    return ajaxAuth<DeleteWorkSessionResponse>(JSON.stringify({
+        query: `
+                mutation DeleteWorkSession($id: ID!) {
+                  workSession {
+                    delete(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": id
         }
     })).pipe(
         map((res) => res.response)
