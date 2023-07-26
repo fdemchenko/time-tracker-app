@@ -1,4 +1,4 @@
-import {Box, Button} from "@mui/material";
+import {Box, Button, Grid} from "@mui/material";
 
 import React from "react";
 import {Link} from "react-router-dom";
@@ -17,54 +17,65 @@ export default function LogoutForm({userData}: LogoutFormProps) {
     }
 
     return (
-        <div>
-            <Box
-                sx={{
-                    color: 'primary',
-                    fontFamily: 'default',
-                    fontSize: 20,
-                    mb: 3,
-                    textAlign: "center"
-                }}
-            >
-                Are you sure that you want to log out?
-            </Box>
-
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between"
-                }}
-            >
-                <Link to="/">
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        type="submit"
-                        size='large'
+        <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ minHeight: '80vh' }}
+        >
+            <Grid item xs={3}>
+                <div>
+                    <Box
                         sx={{
-                            mx: 2
+                            color: 'primary',
+                            fontFamily: 'default',
+                            fontSize: 20,
+                            mb: 3,
+                            textAlign: "center"
                         }}
                     >
-                        Go back
-                    </Button>
-                </Link>
+                        Are you sure that you want to log out?
+                    </Box>
 
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    type="submit"
-                    size='large'
-                    sx={{
-                        mx: 2
-                    }}
-                    onClick={handleLogout}
-                >
-                    Log out
-                </Button>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between"
+                        }}
+                    >
+                        <Link to="/">
+                            <Button
+                                variant="outlined"
+                                color="secondary"
+                                type="submit"
+                                size='large'
+                                sx={{
+                                    mx: 2
+                                }}
+                            >
+                                Go back
+                            </Button>
+                        </Link>
 
-                {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
-            </Box>
-        </div>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            type="submit"
+                            size='large'
+                            sx={{
+                                mx: 2
+                            }}
+                            onClick={handleLogout}
+                        >
+                            Log out
+                        </Button>
+
+                        {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
+                    </Box>
+                </div>
+            </Grid>
+        </Grid>
     );
 }

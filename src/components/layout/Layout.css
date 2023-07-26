@@ -8,6 +8,7 @@
     transition: all 0.3s ease;
     transform: translateX(100%);
     color: white;
+    z-index: 10;
 }
 .timer_bar.active {
     transform: translateX(0);

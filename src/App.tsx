@@ -20,6 +20,7 @@ import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
+import Scheduler from "./components/scheduler/Scheduler";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -85,6 +86,11 @@ function App() {
 						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
 						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
 					</Route>
+					<Route path="/scheduler" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<Scheduler />
+						</ProtectedRoute>
+					}/>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

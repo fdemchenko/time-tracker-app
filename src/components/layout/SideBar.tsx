@@ -189,16 +189,15 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </Link>
                             </ListItemButton>
                         </ListItem>
-                        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton>
-                                    <ListItemIcon>
-                                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                                    </ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
+                                <Link to="/scheduler" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        Scheduler
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
                     </List>
                     <Divider />
                     <List>
@@ -227,20 +226,10 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                         }
                     </List>
                 </Drawer>
-                <Main open={open} sx={{pr: 0}}>
+                <Main open={open}>
                     <DrawerHeader />
-                    <Grid
-                        container
-                        spacing={0}
-                        direction="column"
-                        alignItems="center"
-                        justifyContent="center"
-                        sx={{ minHeight: '80vh' }}
-                    >
-                        <Grid item xs={3}>
-                            {children}
-                        </Grid>
-                    </Grid>
+
+                    {children}
                 </Main>
             </Box>
         </div>
