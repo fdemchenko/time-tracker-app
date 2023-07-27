@@ -20,7 +20,7 @@ import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
-import Scheduler from "./components/scheduler/Scheduler";
+import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -88,7 +88,7 @@ function App() {
 					</Route>
 					<Route path="/scheduler" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
-							<Scheduler />
+							<TrackerScheduler />
 						</ProtectedRoute>
 					}/>
 					<Route path="*" element={<NotFound />} />

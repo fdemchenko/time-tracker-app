@@ -96,7 +96,6 @@ export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
 
 export const getUserWorkSessionsActionCreator = (fetchData: GetWorkSessionsInput) =>
     ({type: GET_USER_WORK_SESSIONS_ACTION, payload: fetchData});
-
 export interface GetWorkSessionsInput {
     userId: string,
     orderByDesc: boolean,
@@ -104,7 +103,6 @@ export interface GetWorkSessionsInput {
     limit: number,
     filterDate: string | null
 }
-
 export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction<GetWorkSessionsInput>>) =>
     action$.pipe(
         ofType(GET_USER_WORK_SESSIONS_ACTION),

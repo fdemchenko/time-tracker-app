@@ -7,7 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import {TransitionProps} from '@mui/material/transitions';
 import {useNavigate, useParams} from "react-router-dom";
-import {Alert, Box, Button} from "@mui/material";
+import {Alert, Box, Button, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
@@ -92,12 +92,14 @@ export default function WorkSessionUpdateDialog() {
                                         ampm={false}
                                         value={start}
                                         onChange={(newValue) => setStart(newValue)}
+                                        renderInput={(params) => <TextField {...params} />}
                                     />
                                     <DateTimePicker
                                         label="Session end date"
                                         ampm={false}
                                         value={end}
                                         onChange={(newValue) => setEnd(newValue)}
+                                        renderInput={(params) => <TextField {...params} />}
                                     />
                                 </Box>
                                 {
