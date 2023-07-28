@@ -92,14 +92,12 @@ export default function WorkSessionUpdateDialog() {
                                         ampm={false}
                                         value={start}
                                         onChange={(newValue) => setStart(newValue)}
-                                        renderInput={(params) => <TextField {...params} />}
                                     />
                                     <DateTimePicker
                                         label="Session end date"
                                         ampm={false}
                                         value={end}
                                         onChange={(newValue) => setEnd(newValue)}
-                                        renderInput={(params) => <TextField {...params} />}
                                     />
                                 </Box>
                                 {

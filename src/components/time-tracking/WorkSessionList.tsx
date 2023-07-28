@@ -97,7 +97,6 @@ export default function WorkSessionList() {
                                     label="Filter by date"
                                     value={filterDate}
                                     onChange={(newDate) => setFilterDate(newDate)}
-                                    renderInput={(params) => <TextField {...params} />}
                                 />
                                 <FormControl variant="standard">
                                     <NativeSelect
