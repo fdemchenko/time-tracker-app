@@ -10,6 +10,7 @@ import {
 } from "../../redux/epics/WorkSessionEpics";
 import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
 import {EventActions, ProcessedEvent, RemoteQuery} from "@aldabil/react-scheduler/types";
+import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 
 export default function TrackerScheduler() {
     const {workSessionsList, activeWorkSession, isLoading} = useAppSelector(state => state.workSession);
@@ -65,14 +66,27 @@ export default function TrackerScheduler() {
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> {
-        return new Promise(res => {
+        return new Promise((res, rej) => {
             if (action === "edit") {
-                dispatch(updateWorkSessionActionCreator({
-                    id: typeof event.event_id == "string" ? event.event_id : "",
-                    userId: event.user_id,
-                    start: event.start.toISOString(),
-                    end: event.end.toISOString()
-                }))
+                console.log(event.end.getTime())
+                if (isNaN(event.start.getTime()) && isNaN(event.end.getTime())) {
+                    // dispatch(updateWorkSessionActionCreator({
+                    //     id: typeof event.event_id == "string" ? event.event_id : "",
+                    //     userId: event.user_id,
+                    //     start: event.start.toISOString(),
+                    //     end: event.end.toISOString()
+                    // }))
+                    console.log("update")
+                }
+                else {
+                    dispatch(SetGlobalMessage({
+                        title: "Validation Error",
+                        message: "Date is invalid",
+                        type: "warning"
+                    }));
+                    rej(event);
+
+                }
             } else if (action === "create") {
                 /**POST event to remote DB */
             }

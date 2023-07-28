@@ -7,7 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import {TransitionProps} from '@mui/material/transitions';
 import {useNavigate, useParams} from "react-router-dom";
-import {Alert, Box, Button, TextField} from "@mui/material";
+import {Alert, Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
@@ -16,6 +16,7 @@ import {useState} from "react";
 import moment, {Moment} from "moment";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 
 export default function WorkSessionUpdateDialog() {
     const dispatch = useAppDispatch();
@@ -31,9 +32,10 @@ export default function WorkSessionUpdateDialog() {
         useState<Moment | null>(workSession ? moment.utc(workSession.start).local() : null);
     const [end, setEnd] =
         useState<Moment | null>(workSession ? moment.utc(workSession.end).local() : null);
+    const [isRequireChange, setIsRequireChange] = useState<boolean>(true);
 
     function handleUpdate() {
-        if (workSession && start && end) {
+        if (workSession && start?.isValid() && end?.isValid()) {
             start.set("seconds", 0);
             end.set("seconds", 0);
             dispatch(updateWorkSessionActionCreator({
@@ -43,6 +45,14 @@ export default function WorkSessionUpdateDialog() {
                 end: end.toISOString()
             }));
         }
+        else {
+            dispatch(SetGlobalMessage({
+                title: "Validation Error",
+                message: "Date is invalid",
+                type: "warning"
+            }));
+        }
+        setIsRequireChange(true);
     }
 
     return (
@@ -91,13 +101,19 @@ export default function WorkSessionUpdateDialog() {
                                         label="Session start date"
                                         ampm={false}
                                         value={start}
-                                        onChange={(newValue) => setStart(newValue)}
+                                        onChange={(newValue) => {
+                                            setIsRequireChange(false);
+                                            setStart(newValue);
+                                        }}
                                     />
                                     <DateTimePicker
                                         label="Session end date"
                                         ampm={false}
                                         value={end}
-                                        onChange={(newValue) => setEnd(newValue)}
+                                        onChange={(newValue) => {
+                                            setIsRequireChange(false);
+                                            setEnd(newValue);
+                                        }}
                                     />
                                 </Box>
                                 {
@@ -108,6 +124,7 @@ export default function WorkSessionUpdateDialog() {
                                 <Button
                                     size="large"
                                     onClick={handleUpdate}
+                                    disabled={isRequireChange}
                                 >
                                     Update
                                 </Button>

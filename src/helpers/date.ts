@@ -62,3 +62,7 @@ export function separateDateOnMidnight(start: string, end: string): {start: Date
 
   return result;
 }
+
+export function checkDateisValid(date: Date){
+  return !isNaN(date.getTime());
+}
