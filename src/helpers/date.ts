@@ -30,12 +30,39 @@ export function formatIsoDateTime(dateStr: string) {
   return moment(dateStr).format("MM/DD/YYYY HH:mm:ss");
 }
 
-export function formatIsoTime(dateStr: string) {
+export function formatIsoTimeWithSeconds(dateStr: string) {
   return moment(dateStr).format("HH:mm:ss");
+}
+
+export function formatIsoTime(dateStr: string) {
+  return moment(dateStr).format("HH:mm");
 }
 
 export function countIsoDateDiff(startIsoDate: string, finishIsoDate: string) {
   let start = moment(startIsoDate);
   let finish = moment(finishIsoDate);
-  return formatIsoTime(moment(finish.diff(start)).subtract(3, "hours").toISOString());
+  return formatIsoTimeWithSeconds(moment(finish.diff(start)).subtract(3, "hours").toISOString());
+}
+
+export function separateDateOnMidnight(start: string, end: string): {start: Date, end: Date}[] {
+  const startDate = moment(start);
+  const endDate = moment(end);
+
+  const result: {start: Date, end: Date}[] = [];
+
+  let currentStart = startDate.clone();
+  while (currentStart.isBefore(endDate, 'day') || currentStart.isSame(endDate, 'day')) {
+    const currentEnd = currentStart.clone().endOf('day').isBefore(endDate) ? currentStart.clone().endOf('day') : endDate.clone();
+    result.push({ start: currentStart.toDate(), end: currentEnd.toDate() });
+    if (currentEnd.isSame(endDate, 'day')) {
+      break;
+    }
+    currentStart = currentEnd.clone().add(1, 'second');
+  }
+
+  return result;
+}
+
+export function checkDateisValid(date: Date){
+  return !isNaN(date.getTime());
 }

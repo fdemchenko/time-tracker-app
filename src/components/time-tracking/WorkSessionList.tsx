@@ -13,7 +13,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    styled, InputBase, NativeSelect
+    styled, InputBase, NativeSelect, TextField
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -166,7 +166,6 @@ export default function WorkSessionList() {
                                                             </Box>
                                                         </TableCell>
                                                         <TableCell style={{fontWeight: 'bold'}}></TableCell>
-                                                        <TableCell style={{fontWeight: 'bold'}}></TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
@@ -190,8 +189,7 @@ export default function WorkSessionList() {
                                                                 {
                                                                     workSession.end ?
                                                                         countIsoDateDiff(workSession.start, workSession.end) :
-                                                                        <div className="stage"
-                                                                             style={{paddingLeft: "0"}}>
+                                                                        <div className="stage">
                                                                             <div className="dot-pulse"></div>
                                                                         </div>
                                                                 }
@@ -199,17 +197,20 @@ export default function WorkSessionList() {
                                                             <TableCell>
                                                                 {
                                                                     workSession.end &&
-                                                                    <Link to={`/worksession/update/${workSession.id}`}>
-                                                                        <EditIcon />
-                                                                    </Link>
-                                                                }
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {
-                                                                    workSession.end &&
-                                                                    <Link to={`/worksession/delete/${workSession.id}`}>
-                                                                        <DeleteIcon />
-                                                                    </Link>
+                                                                    <Box
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            gap: "30px"
+                                                                        }}
+                                                                    >
+                                                                        <Link to={`/worksession/update/${workSession.id}`}>
+                                                                            <EditIcon />
+                                                                        </Link>
+                                                                        <Link to={`/worksession/delete/${workSession.id}`}>
+                                                                            <DeleteIcon />
+                                                                        </Link>
+                                                                    </Box>
                                                                 }
                                                             </TableCell>
                                                         </TableRow>

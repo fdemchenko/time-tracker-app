@@ -96,7 +96,6 @@ export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
 
 export const getUserWorkSessionsActionCreator = (fetchData: GetWorkSessionsInput) =>
     ({type: GET_USER_WORK_SESSIONS_ACTION, payload: fetchData});
-
 export interface GetWorkSessionsInput {
     userId: string,
     orderByDesc: boolean,
@@ -104,7 +103,6 @@ export interface GetWorkSessionsInput {
     limit: number,
     filterDate: string | null
 }
-
 export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction<GetWorkSessionsInput>>) =>
     action$.pipe(
         ofType(GET_USER_WORK_SESSIONS_ACTION),
@@ -145,6 +143,7 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
                         getActiveWorkSessionActionCreator(workSession.userId));
+                    //change getActiveWorkSessionEpic to getUserWorkSessions
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),
@@ -172,6 +171,7 @@ export const DeleteWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Deleted successfully", type: "success"}),
                         getActiveWorkSessionActionCreator(state$.value.user.user.id));
+                    //change getActiveWorkSessionEpic to getUserWorkSessions
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),

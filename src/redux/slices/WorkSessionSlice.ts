@@ -7,7 +7,8 @@ export interface WorkSessionSliceState {
         count: number,
         items: WorkSession[]
     },
-    isLoading: boolean
+    isLoading: boolean,
+    requireUpdateToggle: boolean
     error: string | null
 }
 const initialState: WorkSessionSliceState = {
@@ -17,6 +18,7 @@ const initialState: WorkSessionSliceState = {
         items: []
     },
     isLoading: false,
+    requireUpdateToggle: false,
     error: null
 }
 
@@ -32,15 +34,18 @@ export const WorkSessionSlice = createSlice({
                                , action: PayloadAction<WorkSession | null>) => {
             state.activeWorkSession = action.payload;
             state.error = null;
+            state.requireUpdateToggle = !state.requireUpdateToggle;
         },
         RemoveActiveWorkSession: (state) => {
             state.activeWorkSession = null;
             state.error = null;
+            state.requireUpdateToggle = !state.requireUpdateToggle;
         },
         SetWorkSessionList: (state,
                              action: PayloadAction<{count: number, items: WorkSession[]}>) => {
             state.workSessionsList = action.payload;
             state.error = null;
+            state.requireUpdateToggle = !state.requireUpdateToggle;
         },
         RemoveWorkSessionList: (state) => {
             state.workSessionsList = {
@@ -48,6 +53,7 @@ export const WorkSessionSlice = createSlice({
                 items: []
             };
             state.error = null;
+            state.requireUpdateToggle = !state.requireUpdateToggle;
         },
         SetIsWorkSessionLoading: (state,
                        action: PayloadAction<boolean>) => {
