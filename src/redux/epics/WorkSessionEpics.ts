@@ -143,6 +143,7 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
                         getActiveWorkSessionActionCreator(workSession.userId));
+                    //change getActiveWorkSessionEpic to getUserWorkSessions
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),
@@ -170,6 +171,7 @@ export const DeleteWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Deleted successfully", type: "success"}),
                         getActiveWorkSessionActionCreator(state$.value.user.user.id));
+                    //change getActiveWorkSessionEpic to getUserWorkSessions
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),
