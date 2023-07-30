@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
@@ -11,6 +11,8 @@ import {
 import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
 import {EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
+import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
+import {Link, Outlet} from "react-router-dom";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
@@ -28,6 +30,8 @@ export default function TrackerScheduler() {
             limit: 9999999,
             filterDate: null
         }));
+
+        dispatch(getHolidaysActionCreator());
     }, []);
 
     useEffect(() => {
@@ -98,6 +102,16 @@ export default function TrackerScheduler() {
             <Typography variant="h2" gutterBottom>
                 Work sessions
             </Typography>
+            <Link to="/scheduler/holidays">
+                <Button
+                    sx={{mb: 2}}
+                    size="large"
+                    variant="contained"
+                >
+                    Manage holidays
+                </Button>
+            </Link>
+            <Outlet />
             <Scheduler
                 //custom scheduler fields
                 fields={[
