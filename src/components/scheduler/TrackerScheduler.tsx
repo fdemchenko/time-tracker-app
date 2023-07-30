@@ -75,6 +75,7 @@ export default function TrackerScheduler() {
                     dispatch(updateWorkSessionActionCreator({
                         id: typeof event.event_id == "string" ? event.event_id : "",
                         userId: event.user_id,
+                        type: "planned",
                         start: event.start.toISOString(),
                         end: event.end.toISOString()
                     }))

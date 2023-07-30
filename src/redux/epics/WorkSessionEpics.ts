@@ -76,9 +76,17 @@ export const SetEndWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
         ))
     );
 
-export const createWorkSessionActionCreator = (userId: string) =>
-    ({type: CREATE_WORK_SESSION_ACTION, payload: userId});
-export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+export interface CreateWorkSessionPayload {
+  UserId: string,
+  Start?: number,
+  End?: number,
+  Type: string,
+  Title?: string,
+  Description?: string
+}
+export const createWorkSessionActionCreator = (workSession: CreateWorkSessionPayload) =>
+    ({type: CREATE_WORK_SESSION_ACTION, payload: workSession});
+export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<CreateWorkSessionPayload>>) =>
     action$.pipe(
         ofType(CREATE_WORK_SESSION_ACTION),
         map(action => action.payload),

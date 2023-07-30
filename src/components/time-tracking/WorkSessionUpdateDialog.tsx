@@ -41,6 +41,7 @@ export default function WorkSessionUpdateDialog() {
             dispatch(updateWorkSessionActionCreator({
                 id: workSession.id,
                 userId: workSession.userId,
+                type: "active",
                 start: start.toISOString(),
                 end: end.toISOString()
             }));

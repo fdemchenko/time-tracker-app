@@ -1,7 +1,7 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
 import WorkSession from "../models/WorkSession";
-import {GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
+import {CreateWorkSessionPayload, GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
 
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
     data?: {
@@ -64,7 +64,7 @@ interface CreateWorkSessionResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestCreateWorkSession(userId: string) {
+export function RequestCreateWorkSession(workSession: CreateWorkSessionPayload) {
     return ajaxAuth<CreateWorkSessionResponse>(JSON.stringify({
         query: `
                 mutation CreateWorkSession($workSession: WorkSessionInputType!) {
@@ -80,8 +80,9 @@ export function RequestCreateWorkSession(userId: string) {
             `,
         variables: {
             "workSession": {
-                "userId": userId,
-                "start": new Date().toISOString()
+                "userId": workSession.UserId,
+                "start": workSession.Start ?? new Date().toISOString(),
+                "type": workSession.Type ?? "active",
             }
         }
     })).pipe(

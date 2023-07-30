@@ -44,7 +44,10 @@ export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
             setNow(Date.now());
             setStartTime(now);
 
-            dispatch(createWorkSessionActionCreator(user.id));
+            dispatch(createWorkSessionActionCreator({
+                UserId: user.id,
+                Type: "active"
+            }));
         }
     };
 

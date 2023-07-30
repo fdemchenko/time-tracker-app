@@ -25,6 +25,7 @@ import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
 import {Grid} from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import {hasPermit} from "../../helpers/hasPermit";
 
 const drawerWidth = 240;
 
@@ -189,6 +190,19 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </Link>
                             </ListItemButton>
                         </ListItem>
+
+                        {hasPermit(userData.user.permissions, "GetUsers") &&
+                          <ListItem disablePadding>
+                              <ListItemButton sx={{width: 100}}>
+                                  <Link to="/users" style={{width: '100%'}}>
+                                      <ListItemText>
+                                          List of employees
+                                      </ListItemText>
+                                  </Link>
+                              </ListItemButton>
+                          </ListItem>
+                        }
+
                         <ListItem disablePadding>
                             <ListItemButton sx={{width: 100}}>
                                 <Link to="/scheduler" style={{width: '100%'}}>
