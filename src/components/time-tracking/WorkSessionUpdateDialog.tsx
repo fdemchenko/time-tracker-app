@@ -7,7 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import {TransitionProps} from '@mui/material/transitions';
 import {useNavigate, useParams} from "react-router-dom";
-import {Alert, Box, Button} from "@mui/material";
+import {Alert, Box, Button, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
@@ -32,18 +32,23 @@ export default function WorkSessionUpdateDialog() {
         useState<Moment | null>(workSession ? moment.utc(workSession.start).local() : null);
     const [end, setEnd] =
         useState<Moment | null>(workSession ? moment.utc(workSession.end).local() : null);
+    const [title, setTitle] = useState<string>(workSession?.title || ``);
+    const [description, setDescription] = useState<string>(workSession?.description || ``);
+
     const [isRequireChange, setIsRequireChange] = useState<boolean>(true);
 
     function handleUpdate() {
-        if (workSession && start?.isValid() && end?.isValid()) {
+        if (workSession && start?.isValid() && ((workSession.end && end?.isValid()) || !workSession.end)) {
             start.set("seconds", 0);
-            end.set("seconds", 0);
+            end?.set("seconds", 0);
             dispatch(updateWorkSessionActionCreator({
                 id: workSession.id,
                 userId: workSession.userId,
-                type: "active",
                 start: start.toISOString(),
-                end: end.toISOString()
+                end: end?.toISOString(),
+                type: workSession.type,
+                title,
+                description
             }));
         }
         else {
@@ -98,6 +103,18 @@ export default function WorkSessionUpdateDialog() {
                                         gap: "45px"
                                     }}
                                 >
+                                    <TextField
+                                      label="Title"
+                                      value={title}
+                                      onChange={(e) => {
+                                          setTitle(e.target.value);
+                                          setIsRequireChange(false);
+                                      }}
+                                      variant="outlined"
+                                      style={{ width: 260 }}
+                                      size="small"
+                                    />
+
                                     <DateTimePicker
                                         label="Session start date"
                                         ampm={false}
@@ -107,6 +124,7 @@ export default function WorkSessionUpdateDialog() {
                                             setStart(newValue);
                                         }}
                                     />
+                                    {workSession.end &&
                                     <DateTimePicker
                                         label="Session end date"
                                         ampm={false}
@@ -115,6 +133,20 @@ export default function WorkSessionUpdateDialog() {
                                             setIsRequireChange(false);
                                             setEnd(newValue);
                                         }}
+                                    />}
+
+                                    <TextField
+                                      label="Description"
+                                      value={description}
+                                      onChange={(e) => {
+                                          setDescription(e.target.value);
+                                          setIsRequireChange(false);
+                                      }}
+                                      variant="outlined"
+                                      multiline
+                                      rows={4}
+                                      size="small"
+                                      style={{ width: 260 }}
                                     />
                                 </Box>
                                 {
