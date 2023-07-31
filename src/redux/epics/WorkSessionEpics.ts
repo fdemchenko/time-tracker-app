@@ -13,10 +13,11 @@ import {
     RequestSetEndWorkSession, RequestUpdateWorkSession
 } from "../../services/WorkSessionService";
 import {
-    RemoveActiveWorkSession,
-    SetActiveWorkSession, SetIsWorkSessionLoading,
-    SetWorkSessionError,
-    SetWorkSessionList
+  CreateWorkSession,
+  RemoveActiveWorkSession, RemoveWorkSessionById,
+  SetActiveWorkSession, SetIsWorkSessionLoading,
+  SetWorkSessionError,
+  SetWorkSessionList, UpdateSession
 } from "../slices/WorkSessionSlice";
 import {
     ActiveWorkSessionErrorMessage,
@@ -76,19 +77,34 @@ export const SetEndWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
         ))
     );
 
-export const createWorkSessionActionCreator = (userId: string) =>
-    ({type: CREATE_WORK_SESSION_ACTION, payload: userId});
-export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+export interface CreateWorkSessionPayload {
+  UserId: string,
+  Start?: string,
+  End?: string,
+  Type: string,
+  Title?: string,
+  Description?: string
+}
+export const createWorkSessionActionCreator = (workSession: CreateWorkSessionPayload) =>
+    ({type: CREATE_WORK_SESSION_ACTION, payload: workSession});
+export const CreateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<CreateWorkSessionPayload>>) =>
     action$.pipe(
         ofType(CREATE_WORK_SESSION_ACTION),
         map(action => action.payload),
         mergeMap((userId) => RequestCreateWorkSession(userId).pipe(
-            map((res) => {
+            mergeMap((res) => {
                 let workSession = res.data?.workSession?.create;
+
                 if (workSession) {
-                    return SetActiveWorkSession(workSession);
+                  if (workSession.type === "active") {
+                    return of(SetActiveWorkSession(workSession));
+                  }
+
+                  return of(SetGlobalMessage({title: "Success", message: "Created successfully", type: "success"}),
+                    CreateWorkSession(workSession));
                 }
-                return workSessionErrorActionCreator(res, "Failed to start new session");
+
+                return of(workSessionErrorActionCreator(res, "Failed to start new session"));
             }),
             catchError((err) => of(workSessionErrorActionCreator(err))),
         ))
@@ -98,10 +114,10 @@ export const getUserWorkSessionsActionCreator = (fetchData: GetWorkSessionsInput
     ({type: GET_USER_WORK_SESSIONS_ACTION, payload: fetchData});
 export interface GetWorkSessionsInput {
     userId: string,
-    orderByDesc: boolean,
-    offset: number,
-    limit: number,
-    filterDate: string | null
+    orderByDesc?: boolean,
+    offset?: number,
+    limit?: number,
+    filterDate?: string | null
 }
 export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction<GetWorkSessionsInput>>) =>
     action$.pipe(
@@ -142,8 +158,7 @@ export const UpdateWorkSessionEpic: Epic = (action$: Observable<PayloadAction<Wo
                         return of(SetGlobalMessage({title: "Error", message: "Failed to update session", type: "danger"}));
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Updated successfully", type: "success"}),
-                        getActiveWorkSessionActionCreator(workSession.userId));
-                    //change getActiveWorkSessionEpic to getUserWorkSessions
+                        UpdateSession(workSession));
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),
@@ -170,8 +185,7 @@ export const DeleteWorkSessionEpic: Epic = (action$: Observable<PayloadAction<st
                         return of(SetGlobalMessage({title: "Error", message: "Failed to delete session", type: "danger"}));
                     }
                     return of(SetGlobalMessage({title: "Success", message: "Deleted successfully", type: "success"}),
-                        getActiveWorkSessionActionCreator(state$.value.user.user.id));
-                    //change getActiveWorkSessionEpic to getUserWorkSessions
+                        RemoveWorkSessionById(id));
                 }),
                 catchError((err) => of(workSessionErrorActionCreator(err))),
                 startWith(SetIsWorkSessionLoading(true)),

@@ -17,6 +17,10 @@ interface CreateUserFormData {
     fireUserPermission: boolean;
     getUsersPermission: boolean;
     approveVacationsPermission: boolean;
+    getWorkSessionsPermission: boolean;
+    createWorkSessionsPermission: boolean,
+    updateWorkSessionsPermission: boolean,
+    deleteWorkSessionsPermission: boolean,
     status: string;
 }
 
@@ -33,10 +37,14 @@ export default function CreateUserForm() {
           .max(100, 'Employment rate must be no more than 100')
           .required('Employment rate is required'),
         employmentDate: Yup.date().required('Employment date is required'),
+        getWorkSessionsPermission: Yup.boolean(),
         createUserPermission: Yup.boolean(),
         updateUserPermission: Yup.boolean(),
         fireUserPermission: Yup.boolean(),
         getUsersPermission: Yup.boolean(),
+        createWorkSessionsPermission: Yup.boolean(),
+        updateWorkSessionsPermission: Yup.boolean(),
+        deleteWorkSessionsPermission:Yup.boolean(),
         status: Yup.string().required('Status is required'),
     });
 
@@ -50,6 +58,10 @@ export default function CreateUserForm() {
         fireUserPermission: false,
         getUsersPermission: false,
         approveVacationsPermission: false,
+        getWorkSessionsPermission: false,
+        createWorkSessionsPermission: false,
+        updateWorkSessionsPermission: false,
+        deleteWorkSessionsPermission: false,
         status: '',
     };
 
@@ -58,8 +70,12 @@ export default function CreateUserForm() {
           GetUsers: values.getUsersPermission,
           CreateUser: values.createUserPermission,
           FireUser: values.fireUserPermission,
-          ApproveVacation: values.approveVacationsPermission,
+          ApproveVacations: values.approveVacationsPermission,
           UpdateUser: values.updateUserPermission,
+          GetWorkSessions: values.getWorkSessionsPermission,
+          UpdateWorkSessions: values.updateWorkSessionsPermission,
+          CreateWorkSessions: values.createWorkSessionsPermission,
+          DeleteWorkSessions: values.deleteWorkSessionsPermission,
         });
 
         dispatch(createUserActionCreator({
@@ -254,7 +270,68 @@ export default function CreateUserForm() {
                   </Grid>
 
                   <Grid item xs={4}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="secondary"
+                          checked={formik.values.getWorkSessionsPermission}
+                          onChange={(e) => {
+                            formik.handleChange(e);
 
+                            if (!e.target.checked) {
+                              formik.setFieldValue('createWorkSessionsPermission', false);
+                              formik.setFieldValue('updateWorkSessionsPermission', false);
+                              formik.setFieldValue('deleteWorkSessionsPermission', false);
+                            }
+                          }}
+                          onBlur={formik.handleBlur}
+                          name="getWorkSessionsPermission"
+                        />
+                      }
+                      label="Get work sessions"
+                    />
+
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="secondary"
+                          checked={!formik.values.getWorkSessionsPermission ? false : formik.values.createWorkSessionsPermission}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          name="createWorkSessionsPermission"
+                          disabled={!formik.values.getWorkSessionsPermission}
+                        />
+                      }
+                      label="Create work sessions"
+                    />
+
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="secondary"
+                          checked={!formik.values.getWorkSessionsPermission ? false : formik.values.updateWorkSessionsPermission}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          name="updateWorkSessionsPermission"
+                          disabled={!formik.values.getWorkSessionsPermission}
+                        />
+                      }
+                      label="Update work sessions"
+                    />
+
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="secondary"
+                          checked={!formik.values.getWorkSessionsPermission ? false : formik.values.deleteWorkSessionsPermission}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          name="deleteWorkSessionsPermission"
+                          disabled={!formik.values.getWorkSessionsPermission}
+                        />
+                      }
+                      label="Delete work sessions"
+                    />
                   </Grid>
                 </Grid>
               </Grid>

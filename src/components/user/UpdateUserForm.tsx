@@ -19,6 +19,10 @@ interface UpdateUserFormData {
   fireUserPermission: boolean;
   getUsersPermission: boolean;
   approveVacationsPermission: boolean;
+  getWorkSessionsPermission: boolean;
+  createWorkSessionsPermission: boolean,
+  updateWorkSessionsPermission: boolean,
+  deleteWorkSessionsPermission: boolean,
   status: string;
 }
 
@@ -44,6 +48,11 @@ const UpdateUserForm = () => {
     updateUserPermission: Yup.boolean(),
     fireUserPermission: Yup.boolean(),
     getUsersPermission: Yup.boolean(),
+    approveVacationsPermission: Yup.boolean(),
+    getWorkSessionsPermission: Yup.boolean(),
+    createWorkSessionsPermission: Yup.boolean(),
+    updateWorkSessionsPermission: Yup.boolean(),
+    deleteWorkSessionsPermission: Yup.boolean(),
     status: Yup.string().required('Status is required'),
   });
 
@@ -57,6 +66,10 @@ const UpdateUserForm = () => {
     fireUserPermission: inputUser ? hasPermit(inputUser.permissions, 'FireUser') : false,
     getUsersPermission: inputUser ? hasPermit(inputUser.permissions, 'GetUsers') : false,
     approveVacationsPermission: inputUser ? hasPermit(inputUser.permissions, 'ApproveVacations') : false,
+    getWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'GetWorkSessions') : false,
+    createWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateWorkSessions') : false,
+    updateWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateWorkSessions') : false,
+    deleteWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'DeleteWorkSessions') : false,
     status: inputUser ? inputUser.status : '',
   };
 
@@ -65,8 +78,12 @@ const UpdateUserForm = () => {
       GetUsers: values.getUsersPermission,
       CreateUser: values.createUserPermission,
       FireUser: values.fireUserPermission,
-      ApproveVacation: values.approveVacationsPermission,
+      ApproveVacations: values.approveVacationsPermission,
       UpdateUser: values.updateUserPermission,
+      GetWorkSessions: values.getWorkSessionsPermission,
+      UpdateWorkSessions: values.updateWorkSessionsPermission,
+      CreateWorkSessions: values.createWorkSessionsPermission,
+      DeleteWorkSessions: values.deleteWorkSessionsPermission,
     });
 
     if (id) {
@@ -199,7 +216,15 @@ const UpdateUserForm = () => {
                             <Checkbox
                               color="secondary"
                               checked={formik.values.getUsersPermission}
-                              onChange={formik.handleChange}
+                              onChange={(e) => {
+                                formik.handleChange(e);
+
+                                if (!e.target.checked) {
+                                  formik.setFieldValue('createUserPermission', false);
+                                  formik.setFieldValue('updateUserPermission', false);
+                                  formik.setFieldValue('fireUserPermission', false);
+                                }
+                              }}
                               onBlur={formik.handleBlur}
                               name="getUsersPermission"
                             />
@@ -266,7 +291,68 @@ const UpdateUserForm = () => {
                       </Grid>
 
                       <Grid item xs={4}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="secondary"
+                              checked={formik.values.getWorkSessionsPermission}
+                              onChange={(e) => {
+                                formik.handleChange(e);
 
+                                if (!e.target.checked) {
+                                  formik.setFieldValue('createWorkSessionsPermission', false);
+                                  formik.setFieldValue('updateWorkSessionsPermission', false);
+                                  formik.setFieldValue('deleteWorkSessionsPermission', false);
+                                }
+                              }}
+                              onBlur={formik.handleBlur}
+                              name="getWorkSessionsPermission"
+                            />
+                          }
+                          label="Get work sessions"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="secondary"
+                              checked={!formik.values.getWorkSessionsPermission ? false : formik.values.createWorkSessionsPermission}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              name="createWorkSessionsPermission"
+                              disabled={!formik.values.getWorkSessionsPermission}
+                            />
+                          }
+                          label="Create work sessions"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="secondary"
+                              checked={!formik.values.getWorkSessionsPermission ? false : formik.values.updateWorkSessionsPermission}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              name="updateWorkSessionsPermission"
+                              disabled={!formik.values.getWorkSessionsPermission}
+                            />
+                          }
+                          label="Update work sessions"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="secondary"
+                              checked={!formik.values.getWorkSessionsPermission ? false : formik.values.deleteWorkSessionsPermission}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              name="deleteWorkSessionsPermission"
+                              disabled={!formik.values.getWorkSessionsPermission}
+                            />
+                          }
+                          label="Delete work sessions"
+                        />
                       </Grid>
                     </Grid>
                   </Grid>
