@@ -1,8 +1,8 @@
 import {NOTIFICATION_TYPE, Store} from "react-notifications-component";
 
-export function Notify(title: string, message: string, type: NOTIFICATION_TYPE = "danger") {
+export function Notify(title: string | null, message: string, type: NOTIFICATION_TYPE = "danger") {
     Store.addNotification({
-        title: title,
+        title: title ? title : "Message",
         message: message,
         type: type,
         insert: "top",

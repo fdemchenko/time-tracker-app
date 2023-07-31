@@ -7,7 +7,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Slide from '@mui/material/Slide';
 import {TransitionProps} from '@mui/material/transitions';
 import {useNavigate, useParams} from "react-router-dom";
-import {Alert, Box, Button} from "@mui/material";
+import {Alert, Box, Button, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
@@ -16,7 +16,7 @@ import {useState} from "react";
 import moment, {Moment} from "moment";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
-import {getNewIsoDate} from "../../services/WorkSessionService";
+import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 
 export default function WorkSessionUpdateDialog() {
     const dispatch = useAppDispatch();
@@ -25,26 +25,42 @@ export default function WorkSessionUpdateDialog() {
 
     const workSession = useAppSelector(state =>
         state.workSession.workSessionsList.items.find(ws => ws.id === id));
+    const {user} = useAppSelector(state => state.user);
     const {error} = useAppSelector(state => state.workSession);
 
     const [start, setStart] =
-        useState<Moment | null>(workSession ? moment(workSession.start) : null);
+        useState<Moment | null>(workSession ? moment.utc(workSession.start).local() : null);
     const [end, setEnd] =
-        useState<Moment | null>(workSession ? moment(workSession.end) : null);
+        useState<Moment | null>(workSession ? moment.utc(workSession.end).local() : null);
+    const [title, setTitle] = useState<string>(workSession?.title || ``);
+    const [description, setDescription] = useState<string>(workSession?.description || ``);
+
+    const [isRequireChange, setIsRequireChange] = useState<boolean>(true);
 
     function handleUpdate() {
-        if (workSession && start && end) {
+        if (workSession && start?.isValid() && ((workSession.end && end?.isValid()) || !workSession.end)) {
+            start.set("seconds", 0);
+            end?.set("seconds", 0);
             dispatch(updateWorkSessionActionCreator({
                 id: workSession.id,
                 userId: workSession.userId,
-                start: getNewIsoDate(start.toDate()),
-                end: getNewIsoDate(end.toDate())
+                start: start.toISOString(),
+                end: end?.toISOString(),
+                type: workSession.type,
+                title,
+                description
             }));
-            navigate(-1);
         }
+        else {
+            dispatch(SetGlobalMessage({
+                title: "Validation Error",
+                message: "Date is invalid",
+                type: "warning"
+            }));
+        }
+        setIsRequireChange(true);
     }
 
-    //isLoading required
     return (
         <Dialog
             open={true}
@@ -71,7 +87,7 @@ export default function WorkSessionUpdateDialog() {
             </DialogTitle>
             <Divider sx={{mb: 2}}/>
             {
-                workSession ?
+                workSession && workSession.userId === user.id ?
                     (
                         <>
                             <DialogContent>
@@ -87,17 +103,50 @@ export default function WorkSessionUpdateDialog() {
                                         gap: "45px"
                                     }}
                                 >
+                                    <TextField
+                                      label="Title"
+                                      value={title}
+                                      onChange={(e) => {
+                                          setTitle(e.target.value);
+                                          setIsRequireChange(false);
+                                      }}
+                                      variant="outlined"
+                                      style={{ width: 260 }}
+                                      size="small"
+                                    />
+
                                     <DateTimePicker
                                         label="Session start date"
                                         ampm={false}
                                         value={start}
-                                        onChange={(newValue) => setStart(newValue)}
+                                        onChange={(newValue) => {
+                                            setIsRequireChange(false);
+                                            setStart(newValue);
+                                        }}
                                     />
+                                    {workSession.end &&
                                     <DateTimePicker
                                         label="Session end date"
                                         ampm={false}
                                         value={end}
-                                        onChange={(newValue) => setEnd(newValue)}
+                                        onChange={(newValue) => {
+                                            setIsRequireChange(false);
+                                            setEnd(newValue);
+                                        }}
+                                    />}
+
+                                    <TextField
+                                      label="Description"
+                                      value={description}
+                                      onChange={(e) => {
+                                          setDescription(e.target.value);
+                                          setIsRequireChange(false);
+                                      }}
+                                      variant="outlined"
+                                      multiline
+                                      rows={4}
+                                      size="small"
+                                      style={{ width: 260 }}
                                     />
                                 </Box>
                                 {
@@ -107,22 +156,23 @@ export default function WorkSessionUpdateDialog() {
                             <DialogActions sx={{mx: 3, my: 2}}>
                                 <Button
                                     size="large"
+                                    onClick={handleUpdate}
+                                    disabled={isRequireChange}
+                                >
+                                    Update
+                                </Button>
+                                <Button
+                                    size="large"
                                     color="secondary"
                                     onClick={() => navigate(-1)}
                                 >
                                     Back
                                 </Button>
-                                <Button
-                                    size="large"
-                                    onClick={handleUpdate}
-                                >
-                                    Update
-                                </Button>
                             </DialogActions>
                         </>
                     ) :
                     (
-                        <Alert severity="error" sx={{m: 2}}>There is record session with this id</Alert>
+                        <Alert severity="error" sx={{m: 2}}>You have no access for this work session</Alert>
                     )
             }
         </Dialog>

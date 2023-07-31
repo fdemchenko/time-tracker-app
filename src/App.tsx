@@ -16,10 +16,12 @@ import SetPasswordFrom from "./components/user/SetPasswordForm";
 import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
 import FireUserForm from "./components/user/FireUserForm";
-import {getActiveWorkSessionActionCreator} from "./redux/epics/WorkSessionEpics";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
+import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
+import TrackerScheduler from "./components/scheduler/TrackerScheduler";
+import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -36,9 +38,9 @@ function App() {
 
 	useEffect(() => {
 		if (globalErrorData.message) {
-			Notify("Error", globalErrorData.message);
+			Notify(globalErrorData.title, globalErrorData.message, globalErrorData.type);
 		}
-	}, [globalErrorData.message]);
+	}, [globalErrorData.requireShowMessageToggle]);
 
 	return (
 		<div>
@@ -56,13 +58,6 @@ function App() {
 							<LogoutForm userData={userData} />
 						</ProtectedRoute>
 					} />
-					<Route path="/worksession" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
-							<WorkSessionList />
-						</ProtectedRoute>
-					}>
-						<Route path="/worksession/:id" element={<WorkSessionUpdateDialog />}/>
-					</Route>
 					<Route path="/users" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<UsersList />
@@ -83,6 +78,21 @@ function App() {
 							<FireUserForm />
 						</ProtectedRoute>
 					} />
+
+					<Route path="/worksession" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<WorkSessionList />
+						</ProtectedRoute>
+					}>
+						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
+						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
+						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
+					</Route>
+					<Route path="/scheduler" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<TrackerScheduler />
+						</ProtectedRoute>
+					}/>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

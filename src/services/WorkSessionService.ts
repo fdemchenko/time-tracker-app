@@ -1,15 +1,7 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
 import WorkSession from "../models/WorkSession";
-import {GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
-
-export function getNewIsoDate(date?: Date) {
-    if (date === undefined) {
-        date = new Date();
-    }
-    date.setTime(date.getTime() + (-date.getTimezoneOffset() * 60 * 1000));
-    return date.toISOString();
-}
+import {CreateWorkSessionPayload, GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
 
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
     data?: {
@@ -58,7 +50,7 @@ export function RequestSetEndWorkSession(id: string) {
             `,
         variables: {
             "id": id,
-            "endDateTime": getNewIsoDate()
+            "endDateTime": new Date().toISOString()
         }
     })).pipe(
         map((res) => res.response)
@@ -72,7 +64,7 @@ interface CreateWorkSessionResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestCreateWorkSession(userId: string) {
+export function RequestCreateWorkSession(workSession: CreateWorkSessionPayload) {
     return ajaxAuth<CreateWorkSessionResponse>(JSON.stringify({
         query: `
                 mutation CreateWorkSession($workSession: WorkSessionInputType!) {
@@ -81,15 +73,22 @@ export function RequestCreateWorkSession(userId: string) {
                       id,
                       userId,
                       start,
-                      end
+                      end,
+                      type,
+                      title,
+                      description,
                     }
                   }
                 }
             `,
         variables: {
             "workSession": {
-                "userId": userId,
-                "start": getNewIsoDate()
+                "userId": workSession.UserId,
+                "start": workSession.Start ?? new Date().toISOString(),
+                "end": workSession.End ?? null,
+                "type": workSession.Type ?? "active",
+                "title": workSession.Title,
+                "description": workSession.Description
             }
         }
     })).pipe(
@@ -110,8 +109,8 @@ interface GetUsersWorkSessionsResponse extends GraphQLResponse {
 export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
     return ajaxAuth<GetUsersWorkSessionsResponse>(JSON.stringify({
         query: `
-                query GetWorkSessionsByUserId($userId: ID!, $orderByDesc: Boolean!,
-                             $offset: Int!, $limit: Int!, $filterDate: DateTime) {
+                query GetWorkSessionsByUserId($userId: ID!, $orderByDesc: Boolean,
+                             $offset: Int, $limit: Int, $filterDate: DateTime) {
                   workSession {
                     getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset, limit: $limit, filterDate: $filterDate) {
                       count,
@@ -119,7 +118,10 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
                         id,
                         userId,
                         start,
-                        end
+                        end,
+                        title,
+                        description,
+                        type
                       }
                     } 
                   }
@@ -127,10 +129,10 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
             `,
         variables: {
             "userId": fetchData.userId,
-            "orderByDesc": fetchData.orderByDesc,
-            "offset": fetchData.offset,
-            "limit": fetchData.limit,
-            "filterDate": fetchData.filterDate
+            "orderByDesc": fetchData.orderByDesc ?? null,
+            "offset": fetchData.offset ?? null,
+            "limit": fetchData.limit ?? null,
+            "filterDate": fetchData.filterDate ?? null
         }
     })).pipe(
         map((res) => res.response)
@@ -147,7 +149,7 @@ interface UpdateWorkSessionResponse extends GraphQLResponse {
 export function RequestUpdateWorkSession(workSession: WorkSession) {
     return ajaxAuth<UpdateWorkSessionResponse>(JSON.stringify({
         query: `
-                mutation UpdateWorkSession($id: ID!, $workSession: WorkSessionInputType!) {
+                mutation UpdateWorkSession($id: ID!, $workSession: WorkSessionInputUpdateType!) {
                   workSession {
                     update(id: $id, workSession: $workSession)
                   }
@@ -157,9 +159,35 @@ export function RequestUpdateWorkSession(workSession: WorkSession) {
             "id": workSession.id,
             "workSession": {
                 "userId": workSession.userId,
-                "start": getNewIsoDate(new Date(workSession.start)),
-                "end": workSession.end ? getNewIsoDate(new Date(workSession.end)) : getNewIsoDate()
+                "start": workSession.start,
+                "end": workSession.end,
+                "title": workSession.title,
+                "description": workSession.description
             }
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface DeleteWorkSessionResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            delete: boolean | null
+        }
+    }
+}
+export function RequestDeleteWorkSession(id: string) {
+    return ajaxAuth<DeleteWorkSessionResponse>(JSON.stringify({
+        query: `
+                mutation DeleteWorkSession($id: ID!) {
+                  workSession {
+                    delete(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": id
         }
     })).pipe(
         map((res) => res.response)

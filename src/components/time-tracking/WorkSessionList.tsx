@@ -13,17 +13,21 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    styled, InputBase, NativeSelect
+    styled, InputBase, NativeSelect, TextField
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
-import {Link, Outlet} from "react-router-dom";
+import DeleteIcon from '@mui/icons-material/Delete';
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getUserWorkSessionsActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
-import moment, {Moment} from "moment";
-import {getNewIsoDate} from "../../services/WorkSessionService";
+import {Moment} from "moment";
+import {countIsoDateDiff, formatIsoDateTime, parseIsoDateToLocal} from "../../helpers/date";
+import {hasPermit} from "../../helpers/hasPermit";
 
 export default function WorkSessionList() {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const {
         workSessionsList, error, isLoading,
         activeWorkSession
@@ -54,7 +58,7 @@ export default function WorkSessionList() {
             orderByDesc: orderByDesc,
             offset: (page - 1) * limit,
             limit: limit,
-            filterDate: filterDate ? getNewIsoDate(filterDate.toDate()) : null
+            filterDate: filterDate ? filterDate.toISOString() : null
         }));
     }, [page, limit, filterDate, orderByDesc, activeWorkSession]);
 
@@ -71,6 +75,21 @@ export default function WorkSessionList() {
                         <>
                             <h3 style={{marginBottom: '10px'}}>
                                 List of work session
+
+                                {hasPermit(user.permissions, "CreateWorkSessions")
+                                  &&   <Button
+                                    onClick={() => navigate('/worksession/create')}
+                                    variant="outlined"
+                                    color="success"
+                                    type="submit"
+                                    size="small"
+                                    sx={{
+                                        mx: 1,
+                                    }}
+                                  >
+                                      Create new
+                                  </Button>
+                                }
                             </h3>
 
                             <Box
@@ -132,6 +151,14 @@ export default function WorkSessionList() {
                                                 <TableHead>
                                                     <TableRow>
                                                         <TableCell style={{fontWeight: 'bold'}}>
+                                                            Title
+                                                        </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
+                                                            Type
+                                                        </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
                                                             Start
                                                             <Box
                                                                 sx={{
@@ -164,17 +191,33 @@ export default function WorkSessionList() {
                                                                 HH:mm:ss
                                                             </Box>
                                                         </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
+                                                            Description
+                                                        </TableCell>
                                                         <TableCell style={{fontWeight: 'bold'}}></TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     {workSessionsList.items.map((workSession) => (
                                                         <TableRow key={workSession.id}>
-                                                            <TableCell>{formatIso(workSession.start)}</TableCell>
+                                                            <TableCell>
+                                                                {workSession.title || ``}
+                                                            </TableCell>
+
+                                                            <TableCell>
+                                                                {workSession.type}
+                                                            </TableCell>
+
+                                                            <TableCell>
+                                                                {
+                                                                    formatIsoDateTime(parseIsoDateToLocal(workSession.start))
+                                                                }
+                                                            </TableCell>
                                                             <TableCell>
                                                                 {
                                                                     workSession.end ?
-                                                                        formatIso(workSession.end) :
+                                                                        formatIsoDateTime(parseIsoDateToLocal(workSession.end)) :
                                                                         <div className="stage">
                                                                             <div className="dot-pulse"></div>
                                                                         </div>
@@ -184,18 +227,32 @@ export default function WorkSessionList() {
                                                                 {
                                                                     workSession.end ?
                                                                         countIsoDateDiff(workSession.start, workSession.end) :
-                                                                        <div className="stage"
-                                                                             style={{paddingLeft: "0"}}>
+                                                                        <div className="stage">
                                                                             <div className="dot-pulse"></div>
                                                                         </div>
                                                                 }
                                                             </TableCell>
                                                             <TableCell>
-                                                                {
-                                                                    workSession.end &&
-                                                                    <Link to={`/worksession/${workSession.id}`}>
-                                                                        <EditIcon/>
-                                                                    </Link>
+                                                                {workSession.description}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {workSession.end &&
+                                                                    <Box
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            gap: "30px"
+                                                                        }}
+                                                                    >
+                                                                        <Link to={`/worksession/update/${workSession.id}`}>
+                                                                            <EditIcon />
+                                                                        </Link>
+
+
+                                                                        <Link to={`/worksession/delete/${workSession.id}`}>
+                                                                            <DeleteIcon />
+                                                                        </Link>
+                                                                    </Box>
                                                                 }
                                                             </TableCell>
                                                         </TableRow>
@@ -218,7 +275,7 @@ export default function WorkSessionList() {
                                     </>
                                 ) : (
                                     <Alert severity="info" sx={{m: 2}}>
-                                        There are no records for this date
+                                        There are no records for now
                                     </Alert>
                                 )
                             }
@@ -230,16 +287,6 @@ export default function WorkSessionList() {
 
     );
 };
-
-function countIsoDateDiff(startIsoDate: string, finishIsoDate: string) {
-    let start = moment(startIsoDate);
-    let finish = moment(finishIsoDate);
-    return moment.utc(finish.diff(start)).format("HH:mm:ss");
-}
-
-function formatIso(dateStr: string) {
-    return moment(dateStr).format("MM/DD/YYYY HH:mm:ss");
-}
 
 const BootstrapInput = styled(InputBase)(({theme}) => ({
     'label + &': {

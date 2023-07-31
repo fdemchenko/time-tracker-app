@@ -103,7 +103,10 @@ export const LogoutEpic: Epic = (action$) =>
                 RemoveAccessToken();
                 return RemoveUser();
             }),
-            catchError((err) => of(userErrorActionCreator(err))),
+            catchError((err) => {
+                RemoveAccessToken();
+                return of(RemoveUser());
+            }),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))

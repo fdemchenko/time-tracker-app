@@ -9,7 +9,7 @@ export interface GraphQLResponse {
         extensions: {
             "code": string
         }
-    }
+    }[]
 }
 function ajaxWithToken<T>(url: string, body: string, accessToken: string | null) {
     let headers = {
