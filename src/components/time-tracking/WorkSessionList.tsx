@@ -17,14 +17,17 @@ import {
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getUserWorkSessionsActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
 import {Moment} from "moment";
 import {countIsoDateDiff, formatIsoDateTime, parseIsoDateToLocal} from "../../helpers/date";
+import {hasPermit} from "../../helpers/hasPermit";
 
 export default function WorkSessionList() {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+
     const {
         workSessionsList, error, isLoading,
         activeWorkSession
@@ -72,6 +75,21 @@ export default function WorkSessionList() {
                         <>
                             <h3 style={{marginBottom: '10px'}}>
                                 List of work session
+
+                                {hasPermit(user.permissions, "CreateWorkSessions")
+                                  &&   <Button
+                                    onClick={() => navigate('/worksession/create')}
+                                    variant="outlined"
+                                    color="success"
+                                    type="submit"
+                                    size="small"
+                                    sx={{
+                                        mx: 1,
+                                    }}
+                                  >
+                                      Create new
+                                  </Button>
+                                }
                             </h3>
 
                             <Box
@@ -133,6 +151,14 @@ export default function WorkSessionList() {
                                                 <TableHead>
                                                     <TableRow>
                                                         <TableCell style={{fontWeight: 'bold'}}>
+                                                            Title
+                                                        </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
+                                                            Type
+                                                        </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
                                                             Start
                                                             <Box
                                                                 sx={{
@@ -165,12 +191,24 @@ export default function WorkSessionList() {
                                                                 HH:mm:ss
                                                             </Box>
                                                         </TableCell>
+
+                                                        <TableCell style={{fontWeight: 'bold'}}>
+                                                            Description
+                                                        </TableCell>
                                                         <TableCell style={{fontWeight: 'bold'}}></TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
                                                     {workSessionsList.items.map((workSession) => (
                                                         <TableRow key={workSession.id}>
+                                                            <TableCell>
+                                                                {workSession.title || ``}
+                                                            </TableCell>
+
+                                                            <TableCell>
+                                                                {workSession.type}
+                                                            </TableCell>
+
                                                             <TableCell>
                                                                 {
                                                                     formatIsoDateTime(parseIsoDateToLocal(workSession.start))
@@ -195,8 +233,10 @@ export default function WorkSessionList() {
                                                                 }
                                                             </TableCell>
                                                             <TableCell>
-                                                                {
-                                                                    workSession.end &&
+                                                                {workSession.description}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {workSession.end &&
                                                                     <Box
                                                                         sx={{
                                                                             display: "flex",
@@ -207,6 +247,8 @@ export default function WorkSessionList() {
                                                                         <Link to={`/worksession/update/${workSession.id}`}>
                                                                             <EditIcon />
                                                                         </Link>
+
+
                                                                         <Link to={`/worksession/delete/${workSession.id}`}>
                                                                             <DeleteIcon />
                                                                         </Link>

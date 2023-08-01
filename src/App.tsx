@@ -22,6 +22,7 @@ import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdat
 import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
+import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -84,6 +85,7 @@ function App() {
 							<WorkSessionList />
 						</ProtectedRoute>
 					}>
+						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
 						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
 						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
 					</Route>

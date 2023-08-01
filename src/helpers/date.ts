@@ -1,7 +1,7 @@
 import moment from "moment/moment";
 
 export function getNewIsoDateWithTimeZone(existingDate?: Date): string {
-  const date = existingDate ? new Date(existingDate) : new Date;
+  const date = existingDate ? new Date(existingDate) : new Date();
   const timeZoneOffset = date.getTimezoneOffset() * 60 * 1000;
   const newDateInTimeZone = new Date(date.getTime() - timeZoneOffset);
 
@@ -12,6 +12,7 @@ export function getNewIsoDateWithTimeZone(existingDate?: Date): string {
 
 export function parseIsoDateToLocal(isoDate: string): string {
   let date = new Date(isoDate);
+
   return new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000)).toISOString();
 }
 

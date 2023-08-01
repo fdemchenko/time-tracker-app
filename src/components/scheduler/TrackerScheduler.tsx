@@ -4,6 +4,7 @@ import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {useEffect, useRef} from "react";
 import {
+    createWorkSessionActionCreator,
     deleteWorkSessionActionCreator,
     getUserWorkSessionsActionCreator,
     updateWorkSessionActionCreator
@@ -22,13 +23,9 @@ export default function TrackerScheduler() {
     const schedulerRef = useRef<SchedulerRef>(null);
 
     useEffect(() => {
-        //need to change on the same dispatch but without offset, limit and filterDate parameters
         dispatch(getUserWorkSessionsActionCreator({
             userId: user.id,
             orderByDesc: true,
-            offset: 0,
-            limit: 9999999,
-            filterDate: null
         }));
 
         dispatch(getHolidaysActionCreator());
@@ -49,10 +46,11 @@ export default function TrackerScheduler() {
                         events.push({
                             event_id: ws.id,
                             user_id: ws.userId,
-                            title: "Work",
+                            title: ws.title || "Work",
+                            type: ws.type,
                             start: new Date(timePassesDay.start),
                             end: new Date(timePassesDay.end),
-                            description: "Some random description",
+                            description: ws.description || "",
                             allDay: false
                         });
                     });
@@ -79,12 +77,21 @@ export default function TrackerScheduler() {
                     dispatch(updateWorkSessionActionCreator({
                         id: typeof event.event_id == "string" ? event.event_id : "",
                         userId: event.user_id,
+                        type: event.type,
                         start: event.start.toISOString(),
-                        end: event.end.toISOString()
+                        end: event.end.toISOString(),
+                        title: event.title,
+                        description: event.description
                     }))
                 } else if (action === "create") {
-                    //dispatch to create work session
-                    /**POST event to remote DB */
+                    dispatch(createWorkSessionActionCreator({
+                        Type: "planned",
+                        UserId: user.id,
+                        Description: event.description,
+                        Title: event.title,
+                        Start: event.start.toISOString(),
+                        End: event.end.toISOString(),
+                    }))
                 }
             }
             else {
@@ -116,10 +123,10 @@ export default function TrackerScheduler() {
                 //custom scheduler fields
                 fields={[
                     {
-                        name: "comment",
+                        name: "description",
                         type: "input",
                         config: {
-                            label: "Comment",
+                            label: "Description",
                             required: false,
                             multiline: true,
                             rows: 4
@@ -127,6 +134,10 @@ export default function TrackerScheduler() {
                     },
                     {
                         name: "user_id",
+                        type: "hidden"
+                    },
+                    {
+                        name: "type",
                         type: "hidden"
                     }
                 ]}
@@ -139,8 +150,8 @@ export default function TrackerScheduler() {
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],
                     weekStartOn: 1,
-                    startHour: 0,
-                    endHour: 24,
+                    startHour: 8,
+                    endHour: 20,
                     step: 60,
                     navigation: true,
                     disableGoToDay: false
@@ -168,7 +179,7 @@ export default function TrackerScheduler() {
                             justifyContent: "flex-start",
                             gap: "5px",
                             height: "100%",
-                            background: "#222E50",
+                            background: `${event.type === 'planned' ? '#33126e' : '#1e8c1c'}`,
                             padding: "10px",
                             textOverflow: "ellipsis",
                         }}
