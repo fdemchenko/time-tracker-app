@@ -163,6 +163,7 @@ export default function HolidaysDialog() {
                                                         label="Year"
                                                         value={year}
                                                         onChange={(newYear) => setYear(newYear)}
+                                                        format="YYYY-MM-DD"
                                                         slotProps={{
                                                             textField: {
                                                                 sx: {
@@ -176,6 +177,7 @@ export default function HolidaysDialog() {
                                                         label="Month"
                                                         value={month}
                                                         onChange={(newMonth) => setMonth(newMonth)}
+                                                        format="YYYY-MM-DD"
                                                         disabled={!year}
                                                     />
                                                 </Box>
@@ -277,6 +279,7 @@ export default function HolidaysDialog() {
                                                 <DatePicker
                                                     views={["year", "month", "day"]}
                                                     label="Date"
+                                                    format="YYYY-MM-DD"
                                                     sx={{width: 1, mb: 3}}
                                                     value={moment(formik.values.holiday.date)}
                                                     onChange={(newDate) => formik.setFieldValue("holiday.date",
@@ -291,6 +294,7 @@ export default function HolidaysDialog() {
                                                 <DatePicker
                                                     label="End date"
                                                     sx={{width: 1, mb: 3}}
+                                                    format="YYYY-MM-DD"
                                                     value={moment(formik.values.holiday.endDate)}
                                                     onChange={(newDate) => formik.setFieldValue("holiday.endDate",
                                                         newDate ? newDate.toISOString() : undefined, true)}
