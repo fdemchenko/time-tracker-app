@@ -14,6 +14,13 @@ import {
     SetEndWorkSessionEpic, UpdateWorkSessionEpic,
     WorkSessionErrorEpic,
 } from "./epics/WorkSessionEpics";
+import {
+    CreateHolidayEpic,
+    DeleteHolidayEpic,
+    GetHolidaysEpic,
+    SchedulerErrorEpic,
+    UpdateHolidayEpic
+} from "./epics/SchedulerEpics";
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>
     combineEpics(
@@ -33,7 +40,12 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         CreateWorkSessionEpic,
         GetUsersWorkSessionsEpic,
         UpdateWorkSessionEpic,
-        DeleteWorkSessionEpic
+        DeleteWorkSessionEpic,
+        SchedulerErrorEpic,
+        GetHolidaysEpic,
+        CreateHolidayEpic,
+        UpdateHolidayEpic,
+        DeleteHolidayEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

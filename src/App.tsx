@@ -21,6 +21,7 @@ import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
+import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 
 function App() {
@@ -92,7 +93,9 @@ function App() {
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<TrackerScheduler />
 						</ProtectedRoute>
-					}/>
+					}>
+						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

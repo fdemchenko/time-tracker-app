@@ -3,7 +3,8 @@ import {configureStore} from "@reduxjs/toolkit";
 import UserReducer from "./slices/UserSlice";
 import ManageUsersReducer from "./slices/ManageUsersSlice";
 import WorkSessionReducer from "./slices/WorkSessionSlice";
-import GlobalMessageReducer, {GlobalMessageSliceState} from "./slices/GlobalMessageSlice";
+import SchedulerReducer from "./slices/SchedulerSlice";
+import GlobalMessageReducer from "./slices/GlobalMessageSlice";
 import {RootEpic} from "./Root";
 
 const epicMiddleware = createEpicMiddleware();
@@ -13,7 +14,8 @@ const store = configureStore({
         user: UserReducer,
         manageUsers: ManageUsersReducer,
         workSession: WorkSessionReducer,
-        message: GlobalMessageReducer
+        message: GlobalMessageReducer,
+        scheduler: SchedulerReducer
     },
     middleware: [epicMiddleware]
 });
