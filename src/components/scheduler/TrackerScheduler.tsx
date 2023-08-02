@@ -15,6 +15,7 @@ import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
 import {Link, Outlet} from "react-router-dom";
 import moment from "moment/moment";
+import {hasPermit} from "../../helpers/hasPermit";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
@@ -65,7 +66,7 @@ export default function TrackerScheduler() {
                     title: holiday.title,
                     description: holiday.type,
                     start: moment(holiday.date).toDate(),
-                    end: holiday.endDate ? moment(holiday.endDate).toDate() : moment(holiday.date).toDate(),
+                    end: holiday.endDate ? moment(holiday.endDate).add(1,"minute").toDate() : moment(holiday.date).toDate(),
                     allDay: true,
                     editable: false,
                     deletable: false,
@@ -124,15 +125,18 @@ export default function TrackerScheduler() {
             <Typography variant="h2" gutterBottom>
                 Work sessions
             </Typography>
-            <Link to="/scheduler/holidays">
-                <Button
-                    sx={{mb: 2}}
-                    size="large"
-                    variant="contained"
-                >
-                    Manage holidays
-                </Button>
-            </Link>
+            {hasPermit(user.permissions, "ManageHolidays") &&
+                <Link to="/scheduler/holidays">
+                    <Button
+                        sx={{mb: 2}}
+                        size="large"
+                        variant="contained"
+                    >
+                        Manage holidays
+                    </Button>
+                </Link>
+            }
+
             <Outlet/>
             <Scheduler
                 //custom scheduler fields

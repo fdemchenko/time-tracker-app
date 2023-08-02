@@ -123,6 +123,7 @@ export default function WorkSessionUpdateDialog() {
                                             setIsRequireChange(false);
                                             setStart(newValue);
                                         }}
+                                        dayOfWeekFormatter={(day) => `${day}`}
                                     />
                                     {workSession.end &&
                                     <DateTimePicker
@@ -133,6 +134,7 @@ export default function WorkSessionUpdateDialog() {
                                             setIsRequireChange(false);
                                             setEnd(newValue);
                                         }}
+                                        dayOfWeekFormatter={(day) => `${day}`}
                                     />}
 
                                     <TextField

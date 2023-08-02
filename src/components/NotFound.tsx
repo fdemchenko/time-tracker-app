@@ -1,5 +1,3 @@
-import {isRouteErrorResponse, useRouteError} from "react-router-dom";
-
 export default function NotFound() {
     return (
         <div style={{textAlign: "center"}}>

@@ -23,6 +23,7 @@ interface UpdateUserFormData {
   createWorkSessionsPermission: boolean,
   updateWorkSessionsPermission: boolean,
   deleteWorkSessionsPermission: boolean,
+  manageHolidaysPermission: boolean,
   status: string;
 }
 
@@ -53,6 +54,7 @@ const UpdateUserForm = () => {
     createWorkSessionsPermission: Yup.boolean(),
     updateWorkSessionsPermission: Yup.boolean(),
     deleteWorkSessionsPermission: Yup.boolean(),
+    manageHolidaysPermission: Yup.boolean(),
     status: Yup.string().required('Status is required'),
   });
 
@@ -70,6 +72,7 @@ const UpdateUserForm = () => {
     createWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateWorkSessions') : false,
     updateWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateWorkSessions') : false,
     deleteWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'DeleteWorkSessions') : false,
+    manageHolidaysPermission: inputUser ? hasPermit(inputUser.permissions, "ManageHolidays") : false,
     status: inputUser ? inputUser.status : '',
   };
 
@@ -84,6 +87,7 @@ const UpdateUserForm = () => {
       UpdateWorkSessions: values.updateWorkSessionsPermission,
       CreateWorkSessions: values.createWorkSessionsPermission,
       DeleteWorkSessions: values.deleteWorkSessionsPermission,
+      ManageHolidays: values.manageHolidaysPermission
     });
 
     if (id) {
@@ -287,6 +291,18 @@ const UpdateUserForm = () => {
                             />
                           }
                           label="Approve vacations"
+                        />
+                        <FormControlLabel
+                            control={
+                              <Checkbox
+                                  color="secondary"
+                                  checked={formik.values.manageHolidaysPermission}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  name="manageHolidaysPermission"
+                              />
+                            }
+                            label="Manage holidays"
                         />
                       </Grid>
 

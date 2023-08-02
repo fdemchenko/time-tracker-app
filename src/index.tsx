@@ -10,10 +10,16 @@ import store from "./redux/store";
 import { ReactNotifications } from 'react-notifications-component'
 import {AdapterMoment} from "@mui/x-date-pickers/AdapterMoment";
 import {LocalizationProvider} from "@mui/x-date-pickers";
+import moment from "moment";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+moment.updateLocale("en", {
+    week: {
+        dow: 1
+    }
+});
 
 root.render(
     <Provider store={store}>
