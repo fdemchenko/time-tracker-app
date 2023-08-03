@@ -268,12 +268,12 @@ interface FireUserResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestFireUser(payload: string) {
+export function RequestDeactivateUser(payload: string) {
     return ajaxAuth<FireUserResponse>(JSON.stringify({
         query: `
-                mutation fireUser($id: ID!) {
+                mutation deactivateUser($id: ID!) {
                   user {
-                    fire(id: $id)
+                    deactivate(id: $id)
                   }
                 }
             `,

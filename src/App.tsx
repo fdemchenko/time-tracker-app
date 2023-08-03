@@ -15,7 +15,7 @@ import UsersList from "./components/user/UsersList";
 import SetPasswordFrom from "./components/user/SetPasswordForm";
 import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
-import FireUserForm from "./components/user/FireUserForm";
+import DeactivateUserForm from "./components/user/DeactivateUserForm";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
@@ -74,9 +74,9 @@ function App() {
 							<UpdateUserForm />
 						</ProtectedRoute>
 					} />
-					<Route path="/user/fire/:id" element={
+					<Route path="/user/deactivate/:id" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
-							<FireUserForm />
+							<DeactivateUserForm />
 						</ProtectedRoute>
 					} />
 
