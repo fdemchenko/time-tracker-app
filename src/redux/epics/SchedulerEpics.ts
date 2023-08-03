@@ -8,8 +8,9 @@ import {
 import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {
+    ErrorCodes,
     handleErrorMessage,
-    HandleErrorMessageType
+    HandleErrorMessageType, InvalidInputErrorMessage, NoPermissionErrorMessage
 } from "../../helpers/errors";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {SetHolidays, SetIsSchedulerLoading, SetSchedulerError} from "../slices/SchedulerSlice";
@@ -61,6 +62,13 @@ export const CreateHolidayEpic: Epic = (action$: Observable<PayloadAction<Holida
         mergeMap((holidayToCreate) => RequestCreateHoliday(holidayToCreate).pipe(
                 mergeMap((res) => {
                     if (res.errors) {
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.INVALID_INPUT_DATA]) {
+                            return of(SetGlobalMessage({
+                                title: "Error",
+                                message: res.errors[0]?.message || InvalidInputErrorMessage,
+                                type: "warning"
+                            }));
+                        }
                         return of(schedulerErrorActionCreator(res,"Failed to create holiday"));
                     }
                     let holiday = res.data?.holiday?.create;
@@ -86,6 +94,13 @@ export const UpdateHolidayEpic: Epic = (action$: Observable<PayloadAction<Holida
         mergeMap((holiday) => RequestUpdateHoliday(holiday).pipe(
                 mergeMap((res) => {
                     if (res.errors) {
+                        if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.INVALID_INPUT_DATA]) {
+                            return of(SetGlobalMessage({
+                                title: "Error",
+                                message: res.errors[0]?.message || InvalidInputErrorMessage,
+                                type: "warning"
+                            }));
+                        }
                         return of(schedulerErrorActionCreator(res,"Failed to update holiday"));
                     }
                     let holiday = res.data?.holiday?.update;

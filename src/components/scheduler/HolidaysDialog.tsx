@@ -51,7 +51,7 @@ export default function HolidaysDialog() {
     const dispatch = useAppDispatch();
 
     const {user} = useAppSelector(state => state.user);
-    const {holidays, error, isLoading} = useAppSelector(state => state.scheduler);
+    const {holidays, error, isLoading, requireUpdateToggle} = useAppSelector(state => state.scheduler);
 
     const [year, setYear] = useState<Moment | null>(moment());
     const [month, setMonth] = useState<Moment | null>(null);
@@ -90,6 +90,11 @@ export default function HolidaysDialog() {
         }));
     }, [year, month, filterTitle, holidays]);
 
+    useEffect(() => {
+        formik.setValues({holiday: InitialHolidayValue});
+        formik.setTouched({}, false);
+    }, [requireUpdateToggle]);
+
     const validationSchema = Yup.object().shape({
         holiday: Yup.object().shape({
             id: Yup.string(),
@@ -112,8 +117,6 @@ export default function HolidaysDialog() {
             else {
                 dispatch(createHolidayActionCreator(holiday));
             }
-            formik.setValues({holiday: InitialHolidayValue});
-            formik.setTouched({}, false);
         }
     });
 
