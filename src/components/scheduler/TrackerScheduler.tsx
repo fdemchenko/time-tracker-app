@@ -2,7 +2,7 @@ import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import {
     createWorkSessionActionCreator,
     deleteWorkSessionActionCreator,
@@ -10,18 +10,23 @@ import {
     updateWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
-import {EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
+import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
 import {Link, Outlet} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
+import {TimePicker} from "@mui/x-date-pickers";
+import {Moment} from "moment";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
     const {holidays} = useAppSelector(state => state.scheduler);
     const {user} = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
+
+    const [startRange, setStartRange] = useState<number>(8);
+    const [endRange, setEndRange] = useState<number>(20);
 
     const schedulerRef = useRef<SchedulerRef>(null);
 
@@ -137,7 +142,49 @@ export default function TrackerScheduler() {
                 </Link>
             }
 
+            <Box
+                sx={{
+                    my: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "15px"
+                }}
+            >
+                <TimePicker
+                    label="Scheduler start"
+                    ampm={false}
+                    views={["hours"]}
+                    slotProps={{
+                        textField: {
+                            size: "small",
+                            sx: {
+                                width: "130px"
+                            }
+                        }
+                    }}
+                    value={moment().set("hours", startRange)}
+                    onChange={(newValue) => newValue && setStartRange(newValue.hours())}
+                />
+                <TimePicker
+                    label="Scheduler end"
+                    ampm={false}
+                    views={["hours"]}
+                    slotProps={{
+                        textField: {
+                            size: "small",
+                            sx: {
+                                width: "130px"
+                            }
+                        }
+                    }}
+                    minTime={moment().set("hours", startRange + 1)}
+                    value={moment().set("hours", endRange)}
+                    onChange={(newValue) => newValue && setEndRange(newValue.hours())}
+                />
+            </Box>
+
             <Outlet/>
+
             <Scheduler
                 //custom scheduler fields
                 fields={[
@@ -169,8 +216,8 @@ export default function TrackerScheduler() {
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],
                     weekStartOn: 1,
-                    startHour: 8,
-                    endHour: 20,
+                    startHour: startRange as DayHours,
+                    endHour: endRange as DayHours,
                     step: 60,
                     navigation: true,
                     disableGoToDay: false
