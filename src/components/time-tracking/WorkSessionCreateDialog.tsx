@@ -44,6 +44,8 @@ const WorkSessionCreateDialog = () => {
         Description: description,
         Type: type
       }));
+
+      navigate('/worksession');
     }
     else {
       dispatch(SetGlobalMessage({

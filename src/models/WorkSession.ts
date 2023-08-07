@@ -5,5 +5,7 @@ export default interface WorkSession {
     end?: string | null //datetime,
     type: string,
     title?: string | null,
-    description?: string | null
+    description?: string | null,
+    lastModifierId: string,
+    lastModifierName: string
 }

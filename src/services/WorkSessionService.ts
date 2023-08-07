@@ -19,7 +19,9 @@ export function RequestGetActiveWorkSession(userId: string) {
                       id
                       userId
                       start
-                      end
+                      end,
+                      lastModifierId,
+                      lastModifierName
                     } 
                   }
                 }
@@ -77,6 +79,8 @@ export function RequestCreateWorkSession(workSession: CreateWorkSessionPayload) 
                       type,
                       title,
                       description,
+                      lastModifierId,
+                      lastModifierName
                     }
                   }
                 }
@@ -88,7 +92,7 @@ export function RequestCreateWorkSession(workSession: CreateWorkSessionPayload) 
                 "end": workSession.End ?? null,
                 "type": workSession.Type ?? "active",
                 "title": workSession.Title,
-                "description": workSession.Description
+                "description": workSession.Description,
             }
         }
     })).pipe(
@@ -110,9 +114,9 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
     return ajaxAuth<GetUsersWorkSessionsResponse>(JSON.stringify({
         query: `
                 query GetWorkSessionsByUserId($userId: ID!, $orderByDesc: Boolean,
-                             $offset: Int, $limit: Int, $filterDate: DateTime) {
+                             $offset: Int, $limit: Int, $startDate: DateTime, $endDate: DateTime) {
                   workSession {
-                    getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset, limit: $limit, filterDate: $filterDate) {
+                    getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset, limit: $limit, startDate: $startDate, endDate: $endDate) {
                       count,
                       items {
                         id,
@@ -121,7 +125,9 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
                         end,
                         title,
                         description,
-                        type
+                        type,
+                        lastModifierId,
+                        lastModifierName
                       }
                     } 
                   }
@@ -132,7 +138,8 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
             "orderByDesc": fetchData.orderByDesc ?? null,
             "offset": fetchData.offset ?? null,
             "limit": fetchData.limit ?? null,
-            "filterDate": fetchData.filterDate ?? null
+            "startDate": fetchData.startDate ?? null,
+            "endDate": fetchData.endDate ?? null
         }
     })).pipe(
         map((res) => res.response)
