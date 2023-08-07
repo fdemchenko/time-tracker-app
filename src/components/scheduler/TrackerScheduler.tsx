@@ -1,8 +1,8 @@
-import {Box} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {useEffect, useRef} from "react";
+import {useEffect, useRef, useState} from "react";
 import {
     createWorkSessionActionCreator,
     deleteWorkSessionActionCreator,
@@ -10,13 +10,23 @@ import {
     updateWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
-import {EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
+import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
+import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
+import {Link, Outlet, useNavigate} from "react-router-dom";
+import moment from "moment/moment";
+import {hasPermit} from "../../helpers/hasPermit";
+import {TimePicker} from "@mui/x-date-pickers";
+import {Moment} from "moment";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
+    const {holidays} = useAppSelector(state => state.scheduler);
     const {user} = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
+
+    const [startRange, setStartRange] = useState<number>(8);
+    const [endRange, setEndRange] = useState<number>(20);
 
     const schedulerRef = useRef<SchedulerRef>(null);
 
@@ -25,18 +35,19 @@ export default function TrackerScheduler() {
             userId: user.id,
             orderByDesc: true,
         }));
+
+        dispatch(getHolidaysActionCreator());
     }, []);
 
     useEffect(() => {
         if (schedulerRef.current) {
-            //map workSessionsList to ProcessedEvent[]
             let events: ProcessedEvent[] = [];
 
             workSessionsList.items.map(ws => {
                 if (ws.end) {
                     let startLocal = parseIsoDateToLocal(ws.start);
                     let endLocal = parseIsoDateToLocal(ws.end);
-                    //function to separate date on multiple dates if event is crossing midnight
+
                     let timePassed = separateDateOnMidnight(startLocal, endLocal);
                     timePassed.map(timePassesDay => {
                         events.push({
@@ -44,6 +55,7 @@ export default function TrackerScheduler() {
                             user_id: ws.userId,
                             title: ws.title || "Work",
                             type: ws.type,
+                            lastModifierName: ws.lastModifierName,
                             start: new Date(timePassesDay.start),
                             end: new Date(timePassesDay.end),
                             description: ws.description || "",
@@ -53,9 +65,23 @@ export default function TrackerScheduler() {
                 }
             });
 
+            holidays.map(holiday => {
+                events.push({
+                    event_id: holiday.id,
+                    title: holiday.title,
+                    description: holiday.type,
+                    start: moment(holiday.date).toDate(),
+                    end: holiday.endDate ? moment(holiday.endDate).add(1,"minute").toDate() : moment(holiday.date).toDate(),
+                    allDay: true,
+                    editable: false,
+                    deletable: false,
+                    draggable: false
+                });
+            });
+
             schedulerRef.current.scheduler.handleState(events, "events")
         }
-    }, [requireUpdateToggle]);
+    }, [requireUpdateToggle, holidays]);
 
     async function handleDelete(deletedId: string) {
         dispatch(deleteWorkSessionActionCreator(deletedId));
@@ -65,8 +91,6 @@ export default function TrackerScheduler() {
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> {
-        //mb we need to make resolve to close update dialog
-        //or we can use some method in chedulerRef.current.scheduler...
         return new Promise(() => {
             if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime())) {
                 if (action === "edit") {
@@ -77,8 +101,11 @@ export default function TrackerScheduler() {
                         start: event.start.toISOString(),
                         end: event.end.toISOString(),
                         title: event.title,
-                        description: event.description
-                    }))
+                        description: event.description,
+                        lastModifierId: user.id,
+                        lastModifierName: user.fullName,
+                    }));
+
                 } else if (action === "create") {
                     dispatch(createWorkSessionActionCreator({
                         Type: "planned",
@@ -87,10 +114,10 @@ export default function TrackerScheduler() {
                         Title: event.title,
                         Start: event.start.toISOString(),
                         End: event.end.toISOString(),
-                    }))
+                    }));
                 }
-            }
-            else {
+
+            } else {
                 dispatch(SetGlobalMessage({
                     title: "Validation Error",
                     message: "Date is invalid",
@@ -105,8 +132,62 @@ export default function TrackerScheduler() {
             <Typography variant="h2" gutterBottom>
                 Work sessions
             </Typography>
+            {hasPermit(user.permissions, "ManageHolidays") &&
+                <Link to="/scheduler/holidays">
+                    <Button
+                        sx={{mb: 2}}
+                        size="large"
+                        variant="contained"
+                    >
+                        Manage holidays
+                    </Button>
+                </Link>
+            }
+
+            <Box
+                sx={{
+                    my: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "15px"
+                }}
+            >
+                <TimePicker
+                    label="Scheduler start"
+                    ampm={false}
+                    views={["hours"]}
+                    slotProps={{
+                        textField: {
+                            size: "small",
+                            sx: {
+                                width: "130px"
+                            }
+                        }
+                    }}
+                    value={moment().set("hours", startRange)}
+                    onChange={(newValue) => newValue && setStartRange(newValue.hours())}
+                />
+                <TimePicker
+                    label="Scheduler end"
+                    ampm={false}
+                    views={["hours"]}
+                    slotProps={{
+                        textField: {
+                            size: "small",
+                            sx: {
+                                width: "130px"
+                            }
+                        }
+                    }}
+                    minTime={moment().set("hours", startRange + 1)}
+                    value={moment().set("hours", endRange)}
+                    onChange={(newValue) => newValue && setEndRange(newValue.hours())}
+                />
+            </Box>
+
+            <Outlet/>
+
             <Scheduler
-                //custom scheduler fields
                 fields={[
                     {
                         name: "description",
@@ -136,8 +217,8 @@ export default function TrackerScheduler() {
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],
                     weekStartOn: 1,
-                    startHour: 0,
-                    endHour: 24,
+                    startHour: startRange as DayHours,
+                    endHour: endRange as DayHours,
                     step: 60,
                     navigation: true,
                     disableGoToDay: false
@@ -199,6 +280,14 @@ export default function TrackerScheduler() {
                             }}
                         >
                             {event.description}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                              color: "#edf7f6"
+                          }}
+                        >
+                            {event.lastModifierName}
                         </Typography>
                     </Box>
                 )

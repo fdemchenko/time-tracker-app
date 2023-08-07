@@ -14,9 +14,8 @@ import DialogActions from "@mui/material/DialogActions";
 import {TransitionProps} from "@mui/material/transitions";
 import Slide from "@mui/material/Slide";
 import moment, {Moment} from "moment/moment";
-import {createWorkSessionActionCreator, updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {createWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
-import {hasPermit} from "../../helpers/hasPermit";
 
 const WorkSessionCreateDialog = () => {
   const dispatch = useAppDispatch();
@@ -45,6 +44,8 @@ const WorkSessionCreateDialog = () => {
         Description: description,
         Type: type
       }));
+
+      navigate('/worksession');
     }
     else {
       dispatch(SetGlobalMessage({
@@ -117,6 +118,7 @@ const WorkSessionCreateDialog = () => {
                       setIsRequireChange(false);
                       setStart(newValue);
                     }}
+                    dayOfWeekFormatter={(day) => `${day}`}
                   />
                     <DateTimePicker
                       label="Session end date"
@@ -126,6 +128,7 @@ const WorkSessionCreateDialog = () => {
                         setIsRequireChange(false);
                         setEnd(newValue);
                       }}
+                      dayOfWeekFormatter={(day) => `${day}`}
                     />
 
                   <Select

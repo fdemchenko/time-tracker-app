@@ -15,12 +15,13 @@ import UsersList from "./components/user/UsersList";
 import SetPasswordFrom from "./components/user/SetPasswordForm";
 import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
-import FireUserForm from "./components/user/FireUserForm";
+import DeactivateUserForm from "./components/user/DeactivateUserForm";
 import {Notify} from "./helpers/notifications";
 import WorkSessionList from "./components/time-tracking/WorkSessionList";
 import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
 import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
+import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 
 function App() {
@@ -73,9 +74,9 @@ function App() {
 							<UpdateUserForm />
 						</ProtectedRoute>
 					} />
-					<Route path="/user/fire/:id" element={
+					<Route path="/user/deactivate/:id" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
-							<FireUserForm />
+							<DeactivateUserForm />
 						</ProtectedRoute>
 					} />
 
@@ -92,7 +93,9 @@ function App() {
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<TrackerScheduler />
 						</ProtectedRoute>
-					}/>
+					}>
+						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

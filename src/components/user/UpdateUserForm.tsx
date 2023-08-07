@@ -1,7 +1,7 @@
 import React from 'react';
 import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from '../../redux/CustomHooks';
-import {useNavigate, useParams} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import User from '../../models/User';
 import { Alert, CircularProgress, Box, Button, Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import { getNewIsoDateWithTimeZone } from '../../helpers/date';
@@ -16,13 +16,14 @@ interface UpdateUserFormData {
   employmentDate: string;
   createUserPermission: boolean;
   updateUserPermission: boolean;
-  fireUserPermission: boolean;
+  deactivateUserPermission: boolean;
   getUsersPermission: boolean;
   approveVacationsPermission: boolean;
   getWorkSessionsPermission: boolean;
   createWorkSessionsPermission: boolean,
   updateWorkSessionsPermission: boolean,
   deleteWorkSessionsPermission: boolean,
+  manageHolidaysPermission: boolean,
   status: string;
 }
 
@@ -36,6 +37,8 @@ const UpdateUserForm = () => {
     || recentlyCreatedUsers.find(user => user.id === id)
     || null;
 
+  const {user: userData} = useAppSelector(state => state.user);
+
   const validationSchema = Yup.object().shape({
     email: Yup.string().email('Invalid email').required('Email is required'),
     fullName: Yup.string().required('Full name is required'),
@@ -46,13 +49,14 @@ const UpdateUserForm = () => {
     employmentDate: Yup.date().required('Employment date is required'),
     createUserPermission: Yup.boolean(),
     updateUserPermission: Yup.boolean(),
-    fireUserPermission: Yup.boolean(),
+    deactivateUserPermission: Yup.boolean(),
     getUsersPermission: Yup.boolean(),
     approveVacationsPermission: Yup.boolean(),
     getWorkSessionsPermission: Yup.boolean(),
     createWorkSessionsPermission: Yup.boolean(),
     updateWorkSessionsPermission: Yup.boolean(),
     deleteWorkSessionsPermission: Yup.boolean(),
+    manageHolidaysPermission: Yup.boolean(),
     status: Yup.string().required('Status is required'),
   });
 
@@ -63,13 +67,14 @@ const UpdateUserForm = () => {
     employmentDate: inputUser ? getNewIsoDateWithTimeZone(new Date(inputUser.employmentDate)).slice(0, 10) : getNewIsoDateWithTimeZone().slice(0, 10),
     createUserPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateUser') : false,
     updateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateUser') : false,
-    fireUserPermission: inputUser ? hasPermit(inputUser.permissions, 'FireUser') : false,
+    deactivateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'DeactivateUser') : false,
     getUsersPermission: inputUser ? hasPermit(inputUser.permissions, 'GetUsers') : false,
     approveVacationsPermission: inputUser ? hasPermit(inputUser.permissions, 'ApproveVacations') : false,
     getWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'GetWorkSessions') : false,
     createWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateWorkSessions') : false,
     updateWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateWorkSessions') : false,
     deleteWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'DeleteWorkSessions') : false,
+    manageHolidaysPermission: inputUser ? hasPermit(inputUser.permissions, "ManageHolidays") : false,
     status: inputUser ? inputUser.status : '',
   };
 
@@ -77,13 +82,14 @@ const UpdateUserForm = () => {
     const permissions = JSON.stringify({
       GetUsers: values.getUsersPermission,
       CreateUser: values.createUserPermission,
-      FireUser: values.fireUserPermission,
+      DeactivateUser: values.deactivateUserPermission,
       ApproveVacations: values.approveVacationsPermission,
       UpdateUser: values.updateUserPermission,
       GetWorkSessions: values.getWorkSessionsPermission,
       UpdateWorkSessions: values.updateWorkSessionsPermission,
       CreateWorkSessions: values.createWorkSessionsPermission,
       DeleteWorkSessions: values.deleteWorkSessionsPermission,
+      ManageHolidays: values.manageHolidaysPermission
     });
 
     if (id) {
@@ -222,7 +228,7 @@ const UpdateUserForm = () => {
                                 if (!e.target.checked) {
                                   formik.setFieldValue('createUserPermission', false);
                                   formik.setFieldValue('updateUserPermission', false);
-                                  formik.setFieldValue('fireUserPermission', false);
+                                  formik.setFieldValue('deactivateUserPermission', false);
                                 }
                               }}
                               onBlur={formik.handleBlur}
@@ -264,14 +270,14 @@ const UpdateUserForm = () => {
                           control={
                             <Checkbox
                               color="secondary"
-                              checked={!formik.values.getUsersPermission ? false : formik.values.fireUserPermission}
+                              checked={!formik.values.getUsersPermission ? false : formik.values.deactivateUserPermission}
                               onChange={formik.handleChange}
                               onBlur={formik.handleBlur}
-                              name="fireUserPermission"
+                              name="deactivateUserPermission"
                               disabled={!formik.values.getUsersPermission}
                             />
                           }
-                          label="Fire users"
+                          label="Deactivate users"
                         />
                       </Grid>
 
@@ -287,6 +293,18 @@ const UpdateUserForm = () => {
                             />
                           }
                           label="Approve vacations"
+                        />
+                        <FormControlLabel
+                            control={
+                              <Checkbox
+                                  color="secondary"
+                                  checked={formik.values.manageHolidaysPermission}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  name="manageHolidaysPermission"
+                              />
+                            }
+                            label="Manage holidays"
                         />
                       </Grid>
 
@@ -366,6 +384,21 @@ const UpdateUserForm = () => {
                   Back to list
                 </Button>
               </form>
+
+              {hasPermit(userData.permissions, "DeactivateUser") &&
+                <Link to={`/user/deactivate/${id}`} style={{ textDecoration: 'none' }}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    type="submit"
+                    sx={{
+                      mt: 3
+                    }}
+                  >
+                    Deactivate account
+                  </Button>
+                </Link>
+              }
             </>
           )}
         </>

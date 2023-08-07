@@ -32,7 +32,13 @@ export const WorkSessionSlice = createSlice({
         },
         CreateWorkSession: (state, action:  PayloadAction<WorkSession | null>) => {
             if (action.payload) {
-                state.workSessionsList.items.push(action.payload);
+                const newSessionDate = action.payload.start;
+                const lastIndexWithSameDate = state.workSessionsList.items.map((item) => item.start).lastIndexOf(newSessionDate);
+                const insertionIndex = lastIndexWithSameDate === -1 ? 0 : lastIndexWithSameDate + 1;
+
+                insertionIndex === 0
+                  ? state.workSessionsList.items.push(action.payload)
+                  : state.workSessionsList.items.splice(insertionIndex, 0, action.payload);
                 state.workSessionsList.count += 1;
 
                 state.requireUpdateToggle = !state.requireUpdateToggle;

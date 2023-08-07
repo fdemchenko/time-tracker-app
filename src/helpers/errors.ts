@@ -8,6 +8,7 @@ export const NoPermissionErrorMessage = "You do not have a permission to complet
     "action";
 export const ActiveWorkSessionErrorMessage = "Can not update or delete work session until " +
     "it is finished";
+export const InvalidInputErrorMessage = "Invalid input data";
 
 export interface HandleErrorMessageType {
     response: any,
@@ -41,5 +42,6 @@ export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: 
  **/
 export enum ErrorCodes {
     NO_PERMISSION,
-    WORK_SESSION_IS_ACTIVE
+    WORK_SESSION_IS_ACTIVE,
+    INVALID_INPUT_DATA
 }

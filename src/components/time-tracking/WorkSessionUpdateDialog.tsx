@@ -48,8 +48,12 @@ export default function WorkSessionUpdateDialog() {
                 end: end?.toISOString(),
                 type: workSession.type,
                 title,
-                description
+                description,
+                lastModifierId: user.id,
+                lastModifierName: user.fullName,
             }));
+
+            navigate('/worksession');
         }
         else {
             dispatch(SetGlobalMessage({
@@ -123,6 +127,7 @@ export default function WorkSessionUpdateDialog() {
                                             setIsRequireChange(false);
                                             setStart(newValue);
                                         }}
+                                        dayOfWeekFormatter={(day) => `${day}`}
                                     />
                                     {workSession.end &&
                                     <DateTimePicker
@@ -133,6 +138,7 @@ export default function WorkSessionUpdateDialog() {
                                             setIsRequireChange(false);
                                             setEnd(newValue);
                                         }}
+                                        dayOfWeekFormatter={(day) => `${day}`}
                                     />}
 
                                     <TextField

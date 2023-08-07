@@ -3,9 +3,9 @@ import { useAppDispatch, useAppSelector } from "../../redux/CustomHooks";
 import { useNavigate, useParams } from "react-router-dom";
 import User from "../../models/User";
 import {Alert, Box, Button, Checkbox, CircularProgress, FormControlLabel, Grid, TextField} from "@mui/material";
-import {fireUserActionCreator} from "../../redux/epics/UserEpics";
+import {deactivateUserActionCreator} from "../../redux/epics/UserEpics";
 
-const FireUserForm = () => {
+const DeactivateUserForm = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {id} = useParams();
@@ -19,7 +19,7 @@ const FireUserForm = () => {
 
   const handleConfirm = () => {
     if (id)
-      dispatch(fireUserActionCreator(id));
+      dispatch(deactivateUserActionCreator(id));
 
     if (!error) {
       navigate('/users');
@@ -82,7 +82,7 @@ const FireUserForm = () => {
                   disabled={!isConfirmed}
                   sx={{mt: 2}}
                 >
-                  Fire
+                  Deactivate
                 </Button>
 
                 <Button onClick={() => navigate('/users')} variant="outlined" color="primary" sx={{ml: 2, mt: 2}}>
@@ -97,4 +97,4 @@ const FireUserForm = () => {
   );
 };
 
-export default FireUserForm;
+export default DeactivateUserForm;

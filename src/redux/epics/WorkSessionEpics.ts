@@ -83,7 +83,7 @@ export interface CreateWorkSessionPayload {
   End?: string,
   Type: string,
   Title?: string,
-  Description?: string
+  Description?: string,
 }
 export const createWorkSessionActionCreator = (workSession: CreateWorkSessionPayload) =>
     ({type: CREATE_WORK_SESSION_ACTION, payload: workSession});
@@ -117,7 +117,8 @@ export interface GetWorkSessionsInput {
     orderByDesc?: boolean,
     offset?: number,
     limit?: number,
-    filterDate?: string | null
+    startDate?: string | null,
+    endDate?: string | null,
 }
 export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction<GetWorkSessionsInput>>) =>
     action$.pipe(
