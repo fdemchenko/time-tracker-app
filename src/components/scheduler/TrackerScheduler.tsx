@@ -13,7 +13,7 @@ import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
 import {TimePicker} from "@mui/x-date-pickers";
@@ -41,14 +41,13 @@ export default function TrackerScheduler() {
 
     useEffect(() => {
         if (schedulerRef.current) {
-            //map workSessionsList to ProcessedEvent[]
             let events: ProcessedEvent[] = [];
 
             workSessionsList.items.map(ws => {
                 if (ws.end) {
                     let startLocal = parseIsoDateToLocal(ws.start);
                     let endLocal = parseIsoDateToLocal(ws.end);
-                    //function to separate date on multiple dates if event is crossing midnight
+
                     let timePassed = separateDateOnMidnight(startLocal, endLocal);
                     timePassed.map(timePassesDay => {
                         events.push({
@@ -56,6 +55,7 @@ export default function TrackerScheduler() {
                             user_id: ws.userId,
                             title: ws.title || "Work",
                             type: ws.type,
+                            lastModifierName: ws.lastModifierName,
                             start: new Date(timePassesDay.start),
                             end: new Date(timePassesDay.end),
                             description: ws.description || "",
@@ -91,8 +91,6 @@ export default function TrackerScheduler() {
         event: ProcessedEvent,
         action: EventActions
     ): Promise<ProcessedEvent> {
-        //mb we need to make resolve to close update dialog
-        //or we can use some method in chedulerRef.current.scheduler...
         return new Promise(() => {
             if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime())) {
                 if (action === "edit") {
@@ -103,8 +101,11 @@ export default function TrackerScheduler() {
                         start: event.start.toISOString(),
                         end: event.end.toISOString(),
                         title: event.title,
-                        description: event.description
-                    }))
+                        description: event.description,
+                        lastModifierId: user.id,
+                        lastModifierName: user.fullName,
+                    }));
+
                 } else if (action === "create") {
                     dispatch(createWorkSessionActionCreator({
                         Type: "planned",
@@ -113,8 +114,9 @@ export default function TrackerScheduler() {
                         Title: event.title,
                         Start: event.start.toISOString(),
                         End: event.end.toISOString(),
-                    }))
+                    }));
                 }
+
             } else {
                 dispatch(SetGlobalMessage({
                     title: "Validation Error",
@@ -186,7 +188,6 @@ export default function TrackerScheduler() {
             <Outlet/>
 
             <Scheduler
-                //custom scheduler fields
                 fields={[
                     {
                         name: "description",
@@ -279,6 +280,14 @@ export default function TrackerScheduler() {
                             }}
                         >
                             {event.description}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                              color: "#edf7f6"
+                          }}
+                        >
+                            {event.lastModifierName}
                         </Typography>
                     </Box>
                 )

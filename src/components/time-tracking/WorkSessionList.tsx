@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
+import moment from 'moment';
 import {
     Alert,
     Box,
@@ -23,6 +24,9 @@ import {DesktopDatePicker} from "@mui/x-date-pickers";
 import {Moment} from "moment";
 import {countIsoDateDiff, formatIsoDateTime, parseIsoDateToLocal} from "../../helpers/date";
 import {hasPermit} from "../../helpers/hasPermit";
+import Typography from "@mui/material/Typography";
+import Tooltip from '@mui/material/Tooltip';
+import WorkSession from "../../models/WorkSession";
 
 export default function WorkSessionList() {
     const dispatch = useAppDispatch();
@@ -40,7 +44,8 @@ export default function WorkSessionList() {
 
     const pagesCount: number = Math.ceil(workSessionsList.count / limit);
 
-    const [filterDate, setFilterDate] = useState<Moment | null>(null);
+    const [startDate, setStartDate] = useState<Moment | null>(moment().subtract(7, 'days'));
+    const [endDate, setEndDate] = useState<Moment | null>(() => moment());
     const [orderByDesc, setOrderByDesc] = useState<boolean>(true);
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, newPage: number) => {
@@ -48,8 +53,39 @@ export default function WorkSessionList() {
     };
     const handleClearFilters = () => {
         setPage(1);
-        setFilterDate(null);
+        setStartDate(moment().subtract(7, 'days'));
+        setEndDate(() => moment());
         setOrderByDesc(true);
+    };
+
+    const calculateWorkSessionWidth = (start: string, end?: string | null | undefined) => {
+        const startDate = new Date(start);
+        const timeZoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        const endDate = end ? new Date(end) : new Date(new Date().getTime() + timeZoneOffset);
+
+        const eightHoursInMillis = 8 * 60 * 60 * 1000;
+        const durationInMillis = endDate.getTime() - startDate.getTime();
+
+        let percentage = (durationInMillis / eightHoursInMillis) * 100;
+        percentage = Math.min(Math.max(percentage, 3), 100);
+
+        return percentage;
+    }
+
+    const generateToolTipString = (workSession: WorkSession): string[] => {
+        const { type, title, description, lastModifierName } = workSession;
+
+        const tooltipStrings: string[] = [];
+        if (title) {
+            tooltipStrings.push(`Title: ${title}`);
+        }
+        if (description) {
+            tooltipStrings.push(`Description: ${description}`);
+        }
+
+        tooltipStrings.push(`Type: ${type}`);
+        tooltipStrings.push(`Last modifier: ${lastModifierName}`);
+        return tooltipStrings;
     };
 
     useEffect(() => {
@@ -58,9 +94,10 @@ export default function WorkSessionList() {
             orderByDesc: orderByDesc,
             offset: (page - 1) * limit,
             limit: limit,
-            filterDate: filterDate ? filterDate.toISOString() : null
+            startDate: startDate ? startDate.toISOString() : null,
+            endDate: endDate ? endDate.toISOString() : null,
         }));
-    }, [page, limit, filterDate, orderByDesc, activeWorkSession]);
+    }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession]);
 
     return (
         <>
@@ -73,7 +110,7 @@ export default function WorkSessionList() {
                         ? <div className="lds-dual-ring"></div>
                         :
                         <>
-                            <h3 style={{marginBottom: '10px'}}>
+                            <h2 style={{marginBottom: '10px'}}>
                                 List of work session
 
                                 {hasPermit(user.permissions, "CreateWorkSessions")
@@ -90,7 +127,7 @@ export default function WorkSessionList() {
                                       Create new
                                   </Button>
                                 }
-                            </h3>
+                            </h2>
 
                             <Box
                                 sx={{
@@ -100,22 +137,30 @@ export default function WorkSessionList() {
                                     gap: "10px"
                                 }}
                             >
+
+                                <DesktopDatePicker
+                                    label="Start date"
+                                    value={startDate}
+                                    onChange={(newDate) => setStartDate(newDate)}
+                                />
+                                <DesktopDatePicker
+                                  label="End date"
+                                  value={endDate}
+                                  onChange={(newDate) => setEndDate(newDate)}
+                                />
+
                                 <Button
-                                    variant={orderByDesc ? "outlined" : "contained"}
-                                    color="secondary"
-                                    size="large"
-                                    sx={{
-                                        p: "14px"
-                                    }}
-                                    onClick={() => setOrderByDesc(!orderByDesc)}
+                                  variant={orderByDesc ? "outlined" : "contained"}
+                                  color="secondary"
+                                  size="small"
+                                  sx={{
+                                      p: "14px"
+                                  }}
+                                  onClick={() => setOrderByDesc(!orderByDesc)}
                                 >
                                     {orderByDesc ? "New records first" : "Old records first"}
                                 </Button>
-                                <DesktopDatePicker
-                                    label="Filter by date"
-                                    value={filterDate}
-                                    onChange={(newDate) => setFilterDate(newDate)}
-                                />
+
                                 <FormControl variant="standard">
                                     <NativeSelect
                                         value={limit.toString()}
@@ -131,7 +176,7 @@ export default function WorkSessionList() {
                                     </NativeSelect>
                                 </FormControl>
                                 {
-                                    filterDate &&
+                                    startDate &&
                                     <Button
                                         variant="contained"
                                         size="medium"
@@ -145,118 +190,85 @@ export default function WorkSessionList() {
                             {
                                 workSessionsList.items.length > 0 ? (
                                     <>
-                                        <TableContainer sx={{mt: 2}} className="custom-table-container"
-                                                        component={Paper}>
+                                        <TableContainer  sx={{ mt: 2 , "& td": { border: 0 }}}
+                                                         className="custom-table-container"
+                                        >
                                             <Table>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            Title
-                                                        </TableCell>
-
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            Type
-                                                        </TableCell>
-
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            Start
-                                                            <Box
-                                                                sx={{
-                                                                    color: 'text.disabled',
-                                                                    fontSize: "0.875rem"
-                                                                }}
-                                                            >
-                                                                MM/DD/YYYY HH:mm:ss
-                                                            </Box>
-                                                        </TableCell>
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            End
-                                                            <Box
-                                                                sx={{
-                                                                    color: 'text.disabled',
-                                                                    fontSize: "0.875rem"
-                                                                }}
-                                                            >
-                                                                MM/DD/YYYY HH:mm:ss
-                                                            </Box>
-                                                        </TableCell>
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            Duration
-                                                            <Box
-                                                                sx={{
-                                                                    color: 'text.disabled',
-                                                                    fontSize: "0.875rem"
-                                                                }}
-                                                            >
-                                                                HH:mm:ss
-                                                            </Box>
-                                                        </TableCell>
-
-                                                        <TableCell style={{fontWeight: 'bold'}}>
-                                                            Description
-                                                        </TableCell>
-                                                        <TableCell style={{fontWeight: 'bold'}}></TableCell>
-                                                    </TableRow>
-                                                </TableHead>
                                                 <TableBody>
-                                                    {workSessionsList.items.map((workSession) => (
-                                                        <TableRow key={workSession.id}>
-                                                            <TableCell>
-                                                                {workSession.title || ``}
-                                                            </TableCell>
+                                                    {workSessionsList.items.map((workSession, index) => {
+                                                       return <React.Fragment key={workSession.id}>
+                                                           {index === 0 &&
+                                                             <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
+                                                                 {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                             </Typography>
+                                                           }
+                                                           {index > 0 && new Date(workSessionsList.items[index - 1].start).getDate() !== new Date(workSession.start).getDate()  &&
+                                                             <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
+                                                                 {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                             </Typography>
+                                                           }
+                                                           <TableRow key={workSession.id}>
+                                                               <Tooltip
+                                                                 title={
+                                                                     <React.Fragment>
+                                                                         {generateToolTipString(workSession).map((line, index) => (
+                                                                           <React.Fragment key={index}>
+                                                                               {line}
+                                                                               <br />
+                                                                           </React.Fragment>
+                                                                         ))}
+                                                                     </React.Fragment>
+                                                                 }
+                                                                 arrow
+                                                                 placement="right"
+                                                               >
+                                                                   <div style={{backgroundColor: '#faec8e', width: `${calculateWorkSessionWidth(workSession.start, workSession.end)}%`, display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
+                                                                       <Typography style={{fontSize: '12px'}}>
+                                                                           {
+                                                                               `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSession.start))}`
+                                                                           }
+                                                                       </Typography>
 
-                                                            <TableCell>
-                                                                {workSession.type}
-                                                            </TableCell>
+                                                                       {workSession.end &&
+                                                                         <Typography style={{fontSize: '12px'}}>
+                                                                             {
+                                                                                 `${workSession.end ? `End: ${formatIsoDateTime(parseIsoDateToLocal(workSession.end))}` : ''}`
+                                                                             }
+                                                                         </Typography>
+                                                                       }
 
-                                                            <TableCell>
-                                                                {
-                                                                    formatIsoDateTime(parseIsoDateToLocal(workSession.start))
-                                                                }
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {
-                                                                    workSession.end ?
-                                                                        formatIsoDateTime(parseIsoDateToLocal(workSession.end)) :
-                                                                        <div className="stage">
-                                                                            <div className="dot-pulse"></div>
-                                                                        </div>
-                                                                }
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {
-                                                                    workSession.end ?
-                                                                        countIsoDateDiff(workSession.start, workSession.end) :
-                                                                        <div className="stage">
-                                                                            <div className="dot-pulse"></div>
-                                                                        </div>
-                                                                }
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {workSession.description}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {workSession.end &&
-                                                                    <Box
-                                                                        sx={{
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                            gap: "30px"
-                                                                        }}
-                                                                    >
-                                                                        <Link to={`/worksession/update/${workSession.id}`}>
-                                                                            <EditIcon />
-                                                                        </Link>
+                                                                       <Typography style={{fontSize: '12px'}}>
+                                                                           {
+                                                                             workSession.end &&
+                                                                             `Duration: ${countIsoDateDiff(workSession.start, workSession.end)}`
+                                                                           }
+                                                                       </Typography>
+                                                                   </div>
+                                                               </Tooltip>
+
+                                                               <TableCell>
+                                                                   {workSession.end &&
+                                                                     <Box
+                                                                       sx={{
+                                                                           display: "flex",
+                                                                           alignItems: "center",
+                                                                           gap: "30px"
+                                                                       }}
+                                                                     >
+                                                                         <Link to={`/worksession/update/${workSession.id}`}>
+                                                                             <EditIcon />
+                                                                         </Link>
 
 
-                                                                        <Link to={`/worksession/delete/${workSession.id}`}>
-                                                                            <DeleteIcon />
-                                                                        </Link>
-                                                                    </Box>
-                                                                }
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
+                                                                         <Link to={`/worksession/delete/${workSession.id}`}>
+                                                                             <DeleteIcon />
+                                                                         </Link>
+                                                                     </Box>
+                                                                   }
+                                                               </TableCell>
+                                                           </TableRow>
+                                                       </React.Fragment>
+                                                    })}
                                                 </TableBody>
                                             </Table>
                                         </TableContainer>

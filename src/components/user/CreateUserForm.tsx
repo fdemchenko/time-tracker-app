@@ -14,7 +14,7 @@ interface CreateUserFormData {
     employmentDate: string;
     createUserPermission: boolean;
     updateUserPermission: boolean;
-    fireUserPermission: boolean;
+    deactivateUserPermission: boolean;
     getUsersPermission: boolean;
     approveVacationsPermission: boolean;
     getWorkSessionsPermission: boolean;
@@ -41,7 +41,7 @@ export default function CreateUserForm() {
         getWorkSessionsPermission: Yup.boolean(),
         createUserPermission: Yup.boolean(),
         updateUserPermission: Yup.boolean(),
-        fireUserPermission: Yup.boolean(),
+        deactivateUserPermission: Yup.boolean(),
         getUsersPermission: Yup.boolean(),
         createWorkSessionsPermission: Yup.boolean(),
         updateWorkSessionsPermission: Yup.boolean(),
@@ -57,7 +57,7 @@ export default function CreateUserForm() {
         employmentDate: getNewIsoDateWithTimeZone().slice(0, 10),
         createUserPermission: false,
         updateUserPermission: false,
-        fireUserPermission: false,
+        deactivateUserPermission: false,
         getUsersPermission: false,
         approveVacationsPermission: false,
         getWorkSessionsPermission: false,
@@ -72,7 +72,7 @@ export default function CreateUserForm() {
         const permissions = JSON.stringify({
             GetUsers: values.getUsersPermission,
             CreateUser: values.createUserPermission,
-            FireUser: values.fireUserPermission,
+            DeactivateUser: values.deactivateUserPermission,
             ApproveVacations: values.approveVacationsPermission,
             UpdateUser: values.updateUserPermission,
             GetWorkSessions: values.getWorkSessionsPermission,
@@ -205,7 +205,7 @@ export default function CreateUserForm() {
                                                     if (!e.target.checked) {
                                                         formik.setFieldValue('createUserPermission', false);
                                                         formik.setFieldValue('updateUserPermission', false);
-                                                        formik.setFieldValue('fireUserPermission', false);
+                                                        formik.setFieldValue('deactivateUserPermission', false);
                                                     }
                                                 }}
                                                 onBlur={formik.handleBlur}
@@ -247,14 +247,14 @@ export default function CreateUserForm() {
                                         control={
                                             <Checkbox
                                                 color="secondary"
-                                                checked={!formik.values.getUsersPermission ? false : formik.values.fireUserPermission}
+                                                checked={!formik.values.getUsersPermission ? false : formik.values.deactivateUserPermission}
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
-                                                name="fireUserPermission"
+                                                name="deactivateUserPermission"
                                                 disabled={!formik.values.getUsersPermission}
                                             />
                                         }
-                                        label="Fire users"
+                                        label="Deactivate users"
                                     />
                                 </Grid>
 

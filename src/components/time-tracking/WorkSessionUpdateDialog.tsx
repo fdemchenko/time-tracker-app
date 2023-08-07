@@ -48,8 +48,12 @@ export default function WorkSessionUpdateDialog() {
                 end: end?.toISOString(),
                 type: workSession.type,
                 title,
-                description
+                description,
+                lastModifierId: user.id,
+                lastModifierName: user.fullName,
             }));
+
+            navigate('/worksession');
         }
         else {
             dispatch(SetGlobalMessage({

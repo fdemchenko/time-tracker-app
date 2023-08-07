@@ -1,6 +1,6 @@
 import {
   CREATE_USER_ACTION,
-  FIRE_USER_ACTION,
+  DEACTIVATE_USER_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
   LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, SET_PASSWORD_ACTION,
@@ -20,7 +20,7 @@ import {
 import {PayloadAction} from "@reduxjs/toolkit";
 
 import {
-  RequestCreateUser, RequestFireUser,
+  RequestCreateUser, RequestDeactivateUser,
   RequestGetUsers,
   RequestLogin,
   RequestLogout,
@@ -234,14 +234,14 @@ export const UpdateUserEpic: Epic = (action$: Observable<PayloadAction<UpdateUse
     ))
   );
 
-export const fireUserActionCreator = (payload: string) => (
-  {type: FIRE_USER_ACTION, payload: payload});
-export const FireUserEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+export const deactivateUserActionCreator = (payload: string) => (
+  {type: DEACTIVATE_USER_ACTION, payload: payload});
+export const DeactivateUserEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
   action$.pipe(
-    ofType(FIRE_USER_ACTION),
+    ofType(DEACTIVATE_USER_ACTION),
     mergeMap(action => {
       const payload = action.payload;
-      return RequestFireUser(payload).pipe(
+      return RequestDeactivateUser(payload).pipe(
         mergeMap(() => of(FireUser(payload))),
         catchError((err) => of(manageUsersErrorActionCreator(err))),
         startWith(SetManageUsersLoading(true)),

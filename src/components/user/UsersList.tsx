@@ -236,7 +236,7 @@ const UsersList = () => {
                       </TableHead>
                       <TableBody>
                         {manageUsers.items.map((user) => (
-                          <TableRow style={{backgroundColor: user.status === 'fired' ? 'rgba(255, 0, 0, 0.3)' : 'inherit'}} key={user.id}>
+                          <TableRow style={{backgroundColor: user.status === 'deactivated' ? 'rgba(255, 0, 0, 0.3)' : 'inherit'}} key={user.id}>
                             <TableCell>{user.fullName}</TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>{user.employmentRate}</TableCell>
@@ -245,7 +245,7 @@ const UsersList = () => {
                               {user.status}
                             </TableCell>
                             <TableCell>
-                              {user.status === 'fired' || user.permissions.toLowerCase() === "all"
+                              {user.status === 'deactivated' || user.permissions.toLowerCase() === "all"
                                 ? <span>Actions are not available</span>
                                 :
                                 <>
@@ -261,21 +261,6 @@ const UsersList = () => {
                                       }}
                                     >
                                       Edit
-                                    </Button>
-                                  }
-
-                                  {hasPermit(userData.permissions, "FireUser")
-                                    &&  <Button
-                                      onClick={() => navigate(`/user/fire/${user.id}`)}
-                                      variant="outlined"
-                                      color="error"
-                                      type="submit"
-                                      size='small'
-                                      sx={{
-                                        mx: 1
-                                      }}
-                                    >
-                                      Fire
                                     </Button>
                                   }
 
@@ -359,19 +344,6 @@ const UsersList = () => {
                                         }}
                                       >
                                         Edit
-                                      </Button>
-
-                                      <Button
-                                        onClick={() => navigate(`/user/fire/${user.id}`)}
-                                        variant="outlined"
-                                        color="error"
-                                        type="submit"
-                                        size='small'
-                                        sx={{
-                                          mx: 1
-                                        }}
-                                      >
-                                        Fire
                                       </Button>
 
                                       {!user.hasPassword && !user.hasValidSetPasswordLink

@@ -43,11 +43,11 @@ export const ManageUsersSlice = createSlice({
     },
     FireUser: (state, action: PayloadAction<string>) => {
       state.manageUsers.items = state.manageUsers.items.map((user) =>
-        user.id === action.payload ? { ...user, status: 'fired' } : user
+        user.id === action.payload ? { ...user, status: 'deactivated' } : user
       );
 
       state.recentlyCreatedUsers = state.recentlyCreatedUsers.map((user) =>
-        user.id === action.payload ? { ...user, status: 'fired' } : user
+        user.id === action.payload ? { ...user, status: 'deactivated' } : user
       );
     },
     CreateUser: (state, action: PayloadAction<User | null>) => {
