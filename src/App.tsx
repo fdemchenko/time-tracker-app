@@ -23,6 +23,7 @@ import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDelet
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
+import VacationList from "./components/vacation/VacationList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -48,40 +49,40 @@ function App() {
 			<SideBar userData={userData} workSessionData={workSessionData}>
 				<Routes>
 					<Route path="/" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<MainPage userData={userData} />
 						</ProtectedRoute>
 					} />
 					<Route path="/user/login" element={<AuthForm userData={userData} />} />
 					<Route path="/set-password/:link" element={<SetPasswordFrom />} />
 					<Route path="/user/logout" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<LogoutForm userData={userData} />
 						</ProtectedRoute>
 					} />
 					<Route path="/users" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<UsersList />
 						</ProtectedRoute>
 					} />
 					<Route path="/user/create" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<CreateUserForm />
 						</ProtectedRoute>
 					} />
 					<Route path="/user/update/:id" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<UpdateUserForm />
 						</ProtectedRoute>
 					} />
 					<Route path="/user/deactivate/:id" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<DeactivateUserForm />
 						</ProtectedRoute>
 					} />
 
 					<Route path="/worksession" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<WorkSessionList />
 						</ProtectedRoute>
 					}>
@@ -90,12 +91,21 @@ function App() {
 						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
 					</Route>
 					<Route path="/scheduler" element={
-						<ProtectedRoute isLogged={userData.isLogged}>
+						<ProtectedRoute>
 							<TrackerScheduler />
 						</ProtectedRoute>
 					}>
 						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
 					</Route>
+
+					<Route path="/vacations" element={
+						<ProtectedRoute>
+							<VacationList />
+						</ProtectedRoute>
+					}
+					>
+					</Route>
+
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>
