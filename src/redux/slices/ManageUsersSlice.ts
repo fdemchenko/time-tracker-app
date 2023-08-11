@@ -26,7 +26,7 @@ export const ManageUsersSlice = createSlice({
     SetUsers: (state, action: PayloadAction<ManageUsers>) => {
       state.manageUsers = action.payload;
     },
-    SetError: (state, action: PayloadAction<string>) => {
+    SetError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
     SetLoading: (state, action: PayloadAction<boolean>) => {

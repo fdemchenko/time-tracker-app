@@ -27,7 +27,7 @@ export const WorkSessionSlice = createSlice({
     initialState,
     reducers: {
         SetWorkSessionError: (state,
-                  action: PayloadAction<string>) => {
+                  action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
         CreateWorkSession: (state, action:  PayloadAction<WorkSession | null>) => {

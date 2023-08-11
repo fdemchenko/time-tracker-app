@@ -14,16 +14,12 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import {ReactNode, useState} from "react";
 import {Link} from "react-router-dom";
 import TrackerBar from "../time-tracking/TrackerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
-import {Grid} from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import {hasPermit} from "../../helpers/hasPermit";
 
@@ -208,6 +204,16 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 <Link to="/scheduler" style={{width: '100%'}}>
                                     <ListItemText>
                                         Scheduler
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
+                                <Link to="/vacations" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        Vacations
                                     </ListItemText>
                                 </Link>
                             </ListItemButton>
