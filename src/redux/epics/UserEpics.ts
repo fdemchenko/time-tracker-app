@@ -1,9 +1,9 @@
 import {
   CREATE_USER_ACTION,
-  DEACTIVATE_USER_ACTION,
+  DEACTIVATE_USER_ACTION, GET_PROFILES_ACTION,
   GET_USERS_ACTION,
   LOGIN_ACTION,
-  LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, SET_PASSWORD_ACTION,
+  LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, PROFILE_ERROR_ACTION, SET_PASSWORD_ACTION,
   SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
@@ -20,7 +20,7 @@ import {
 import {PayloadAction} from "@reduxjs/toolkit";
 
 import {
-  RequestCreateUser, RequestDeactivateUser,
+  RequestCreateUser, RequestDeactivateUser, RequestGetProfiles,
   RequestGetUsers,
   RequestLogin,
   RequestLogout,
@@ -36,6 +36,11 @@ import {
   CreateUser,
   UpdateUser, FireUser
 } from "../slices/ManageUsersSlice";
+import {
+  SetProfiles,
+  SetError as SetProfilesError,
+  SetLoading as SetProfilesLoading,
+} from "../slices/ProfileSlice";
 import User from "../../models/User";
 import {
     SetUserError,
@@ -63,6 +68,15 @@ export const ManageUsersErrorEpic: Epic = (action$: Observable<PayloadAction<Han
     ofType(MANAGE_USERS_ERROR_ACTION),
     map(action => action.payload),
     mergeMap((payload) => handleErrorMessage(payload, SetManageUsersError))
+  );
+
+export const profileErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
+  {type: PROFILE_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
+export const ProfileErrorEpic: Epic = (action$: Observable<PayloadAction<HandleErrorMessageType>>) =>
+  action$.pipe(
+    ofType(PROFILE_ERROR_ACTION),
+    map(action => action.payload),
+    mergeMap((payload) => handleErrorMessage(payload, SetProfilesError))
   );
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
@@ -139,6 +153,32 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
             endWith(SetManageUsersLoading(false)),
         ))
     );
+
+export const getProfilesActionCreator = (payload: GetProfilesActionPayload ) =>
+  ({type: GET_PROFILES_ACTION, payload: payload});
+export interface GetProfilesActionPayload {
+  Offset?: number,
+  Limit?: number,
+  Search?: string,
+  FilteringStatus?: string
+}
+export const GetProfilesEpic: Epic = (action$:  Observable<PayloadAction<GetProfilesActionPayload>>) =>
+  action$.pipe(
+    ofType(GET_PROFILES_ACTION),
+    mergeMap((action) => RequestGetProfiles(action.payload).pipe(
+      map(res => {
+        if (res.data)
+          return res.data.user.getAllProfiles;
+        else
+          return {items: [], count: 0};
+      }),
+
+      mergeMap(payload => of(SetProfiles(payload))),
+      catchError((err) => of(profileErrorActionCreator(err))),
+      startWith(SetProfilesLoading(true)),
+      endWith(SetProfilesLoading(false)),
+    ))
+  );
 
 export const createUserActionCreator = (payload: CreateUserActionPayload) => (
   {type: CREATE_USER_ACTION, payload: payload});
