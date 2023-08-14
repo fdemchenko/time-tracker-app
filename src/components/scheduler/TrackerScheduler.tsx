@@ -98,7 +98,7 @@ export default function TrackerScheduler() {
     ): Promise<ProcessedEvent> {
         return new Promise(() => {
             if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && id) {
-                if (action === "edit") {
+                if (action === "edit" && (id === user.id || hasPermit(user.permissions, "UpdateWorkSessions"))) {
                     dispatch(updateWorkSessionActionCreator({
                         id: typeof event.event_id == "string" ? event.event_id : "",
                         userId: event.user_id,
@@ -111,7 +111,7 @@ export default function TrackerScheduler() {
                         lastModifierName: user.fullName,
                     }));
 
-                } else if (action === "create") {
+                } else if (action === "create" && (id === user.id || hasPermit(user.permissions, "CreateWorkSessions"))) {
                     dispatch(createWorkSessionActionCreator({
                         Type: "planned",
                         UserId: id,
