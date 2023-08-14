@@ -97,7 +97,7 @@ export default function TrackerScheduler() {
         action: EventActions
     ): Promise<ProcessedEvent> {
         return new Promise(() => {
-            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime())) {
+            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && id) {
                 if (action === "edit") {
                     dispatch(updateWorkSessionActionCreator({
                         id: typeof event.event_id == "string" ? event.event_id : "",
@@ -114,7 +114,7 @@ export default function TrackerScheduler() {
                 } else if (action === "create") {
                     dispatch(createWorkSessionActionCreator({
                         Type: "planned",
-                        UserId: user.id,
+                        UserId: id,
                         Description: event.description,
                         Title: event.title,
                         Start: event.start.toISOString(),
@@ -125,7 +125,7 @@ export default function TrackerScheduler() {
             } else {
                 dispatch(SetGlobalMessage({
                     title: "Validation Error",
-                    message: "Date is invalid",
+                    message: "Date or user is invalid",
                     type: "warning"
                 }));
             }
