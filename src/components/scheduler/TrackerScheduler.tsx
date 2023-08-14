@@ -129,7 +129,7 @@ export default function TrackerScheduler() {
 
     return (
         <Box>
-            <Typography variant="h2" gutterBottom>
+            <Typography variant="h3" gutterBottom>
                 Work sessions
             </Typography>
             {hasPermit(user.permissions, "ManageHolidays") &&

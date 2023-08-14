@@ -3,7 +3,13 @@ import {map} from "rxjs";
 import {VacationResponse} from "../models/vacation/VacationResponse";
 import {GetVacationsByUserIdInput} from "../redux/epics/VacationEpics";
 import {VacationInfo} from "../models/vacation/VacationInfo";
+import moment from "moment";
 
+export const VacationDaysInYear = 30;
+
+export function GetAvailableVacationDays(employmentDate: string): number {
+    return ((moment().diff(employmentDate, "years")) + 1) * VacationDaysInYear;
+}
 interface GetVacationsByUserIdResponse extends GraphQLResponse {
     data?: {
         vacation?: {
@@ -38,7 +44,7 @@ export function RequestGetVacationsByUserId(fetchInput: GetVacationsByUserIdInpu
                         hasPassword
                         hasValidSetPasswordLink
                       }
-                      aprover {
+                      approver {
                         id
                         email
                         fullName

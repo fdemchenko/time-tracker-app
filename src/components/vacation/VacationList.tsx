@@ -5,46 +5,79 @@ import {
     Box,
     Button,
     FormControl, Grid, InputAdornment,
-    InputLabel, MenuItem,
+    InputLabel, makeStyles, MenuItem,
     Pagination,
-    Paper, Select,
+    Paper, Select, SelectChangeEvent,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    TextField
+    TextField, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
-import {FilterAltOutlined} from '@mui/icons-material';
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {getVacationInfoByUserIdActionCreator, getVacationsByUserIdActionCreator} from "../../redux/epics/VacationEpics";
+import {Vacation} from "../../models/vacation/Vacation";
+import InfoIcon from '@mui/icons-material/Info';
+import {GetAvailableVacationDays} from "../../services/VacationService";
+import {formatIsoDateWithoutTime} from "../../helpers/date";
+import Typography from "@mui/material/Typography";
 
 export default  function VacationList() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {manageUsers} = useAppSelector(state => state.manageUsers);
     const {vacationList, vacationInfo, error, isLoading} = useAppSelector(state => state.vacation);
     const {user} = useAppSelector(state => state.user);
 
-    const [sortByDesc, setSortDesc] = useState<boolean>(true);
+    const [orderByDesc, setOrderByDesc] = useState<boolean>(true);
+    const [vacationType, setVacationType] = useState<boolean | null>(null);
+
+    let vacationDaysAvailable = vacationInfo ? GetAvailableVacationDays(vacationInfo.employmentDate) : 0;
+    let vacationDaysLeft = vacationInfo && vacationInfo.daysSpent <= vacationDaysAvailable ?
+        vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
     useEffect(() => {
-        //getVacationList
         dispatch(getVacationsByUserIdActionCreator({
             userId: user.id,
-            onlyApproved: null,
-            orderByDesc: sortByDesc
+            onlyApproved: vacationType,
+            orderByDesc: orderByDesc
         }));
+    }, [orderByDesc, vacationType]);
 
-        //getVacation info if null
+    useEffect(() => {
         dispatch(getVacationInfoByUserIdActionCreator(user.id));
     }, []);
 
-    useEffect(() => {
-        console.log(vacationList);
-        console.log(vacationInfo);
-    }, [vacationInfo]);
+    function getVacationStatus(vacation: Vacation): string {
+        if (vacation.isApproved === null) {
+            return "Waiting fot approve";
+        }
+
+        return vacation ? "Approved" : "Declined";
+    }
+
+    function handleOrderChange(e: React.MouseEvent<HTMLElement>, value: string) {
+        if (value === "asc") {
+            setOrderByDesc(false);
+        }
+        else if(value === "desc") {
+            setOrderByDesc(true);
+        }
+    }
+
+    function handleVacationStatusChange(e: SelectChangeEvent) {
+        let value = e.target.value;
+        if (value === "approved") {
+            setVacationType(true);
+        }
+        else if (value === "declined") {
+            setVacationType(false);
+        }
+        else if (value === "all") {
+            setVacationType(null);
+        }
+    }
 
     return (
         <>
@@ -55,228 +88,137 @@ export default  function VacationList() {
                         ? <div className="lds-dual-ring"></div>
                         :
                         <>
-                            <h3 style={{marginBottom: '10px'}}>
+                            <Typography variant="h3" gutterBottom>
                                 List of vacations
+                            </Typography>
 
-                                <Button
-                                    //onClick={() => navigate('/user/create')}
-                                    variant="outlined"
-                                    color="success"
-                                    type="submit"
-                                    size="small"
-                                    sx={{
-                                        mx: 1,
-                                    }}
-                                >
-                                    Create new
-                                </Button>
-                            </h3>
-
-                            {manageUsers.items && manageUsers.items.length > 0
-                                ? <>LIST</>
-                                // <>
-                                //     <Grid container spacing={2}>
-                                //         <Grid item xs={4}>
-                                //             <FormControl fullWidth>
-                                //                 <TextField
-                                //                     id="fullName"
-                                //                     variant="outlined"
-                                //                     color="secondary"
-                                //                     size="small"
-                                //                     label="Full name"
-                                //                     inputRef={fullNameInputRef}
-                                //                     value={fullNameInput}
-                                //                     onChange={(event) => {
-                                //                         setFullNameInput(event.target.value);
-                                //
-                                //                         if (!event.target.value) {
-                                //                             setFullName('');
-                                //                         }
-                                //                     }}
-                                //                     InputProps={{
-                                //                         endAdornment: (
-                                //                             <InputAdornment position="end">
-                                //                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                //                                     <Button size="small" onClick={() => {setFullName(fullNameInputRef.current ? fullNameInputRef.current?.value : '')}}
-                                //                                     >
-                                //                                         <FilterAltOutlined color="secondary" />
-                                //                                     </Button>
-                                //
-                                //                                 </Box>
-                                //                             </InputAdornment>
-                                //                         ),
-                                //                     }}
-                                //                 />
-                                //             </FormControl>
-                                //         </Grid>
-                                //
-                                //         <Grid item xs={3}>
-                                //             <FormControl fullWidth>
-                                //                 <TextField
-                                //                     id="status"
-                                //                     variant="outlined"
-                                //                     color="secondary"
-                                //                     size="small"
-                                //                     label="Status"
-                                //                     inputRef={statusInputRef}
-                                //                     value={statusInput}
-                                //                     onChange={(event) => {
-                                //                         setStatusInput(event.target.value);
-                                //
-                                //                         if (!event.target.value) {
-                                //                             setStatus('');
-                                //                         }
-                                //                     }}
-                                //                     InputProps={{
-                                //                         endAdornment: (
-                                //                             <InputAdornment position="end">
-                                //                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                //                                     <Button size="small" onClick={() => {setStatus(statusInputRef.current ? statusInputRef.current?.value : '')}}
-                                //                                     >
-                                //                                         <FilterAltOutlined color="secondary" />
-                                //                                     </Button>
-                                //
-                                //                                 </Box>
-                                //                             </InputAdornment>
-                                //                         ),
-                                //                     }}
-                                //                 />
-                                //             </FormControl>
-                                //         </Grid>
-                                //
-                                //         <Grid item xs={3}>
-                                //             <FormControl fullWidth>
-                                //                 <TextField
-                                //                     id="employmentRate"
-                                //                     variant="outlined"
-                                //                     color="secondary"
-                                //                     size="small"
-                                //                     type="number"
-                                //                     label="Employment Rate"
-                                //                     inputRef={employmentRateInputRef}
-                                //                     value={employmentRateInput}
-                                //                     onChange={(event) => {
-                                //                         setEmploymentRateInput(event.target.value);
-                                //
-                                //                         if (!event.target.value) {
-                                //                             setEmploymentRate(null);
-                                //                         }
-                                //                     }}
-                                //                     InputProps={{
-                                //                         endAdornment: (
-                                //                             <InputAdornment position="end">
-                                //                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                //                                     <Button size="small" onClick={() => {setEmploymentRate(employmentRateInputRef.current ? parseInt(employmentRateInputRef.current?.value) : null)}}
-                                //                                     >
-                                //                                         <FilterAltOutlined color="secondary" />
-                                //                                     </Button>
-                                //
-                                //                                 </Box>
-                                //                             </InputAdornment>
-                                //                         ),
-                                //                     }}
-                                //                 />
-                                //             </FormControl>
-                                //         </Grid>
-                                //
-                                //         <Grid item xs={2}>
-                                //             <FormControl fullWidth>
-                                //                 <InputLabel htmlFor="selectBox">Sort by:</InputLabel>
-                                //                 <Select
-                                //                     id="selectBox"
-                                //                     label="Select Option"
-                                //                     variant="outlined"
-                                //                     value={sortBy}
-                                //                     color="secondary"
-                                //                     size="small"
-                                //                     onChange={(event) => setSortBy(event.target.value)}
-                                //                 >
-                                //                     <MenuItem value="fullName">Full Name</MenuItem>
-                                //                     <MenuItem value="employmentDate">Employment Date</MenuItem>
-                                //                 </Select>
-                                //             </FormControl>
-                                //         </Grid>
-                                //     </Grid>
-                                //
-                                //     <TableContainer sx={{ mt: 2 }} className="custom-table-container" component={Paper}>
-                                //         <Table>
-                                //             <TableHead>
-                                //                 <TableRow>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Full Name</TableCell>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Email</TableCell>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Employment Rate</TableCell>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Employment Date</TableCell>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Status</TableCell>
-                                //                     <TableCell style={{fontWeight: 'bold'}}>Actions</TableCell>
-                                //                 </TableRow>
-                                //             </TableHead>
-                                //             <TableBody>
-                                //                 {manageUsers.items.map((user) => (
-                                //                     <TableRow style={{backgroundColor: user.status === 'deactivated' ? 'rgba(255, 0, 0, 0.3)' : 'inherit'}} key={user.id}>
-                                //                         <TableCell>{user.fullName}</TableCell>
-                                //                         <TableCell>{user.email}</TableCell>
-                                //                         <TableCell>{user.employmentRate}</TableCell>
-                                //                         <TableCell>{formatIsoDate(getNewIsoDateWithTimeZone(new Date(user.employmentDate)))}</TableCell>
-                                //                         <TableCell>
-                                //                             {user.status}
-                                //                         </TableCell>
-                                //                         <TableCell>
-                                //                             {user.status === 'deactivated' || user.permissions.toLowerCase() === "all"
-                                //                                 ? <span>Actions are not available</span>
-                                //                                 :
-                                //                                 <>
-                                //                                     {hasPermit(userData.permissions, "UpdateUser")
-                                //                                         &&  <Button
-                                //                                             onClick={() => navigate(`/user/update/${user.id}`)}
-                                //                                             variant="outlined"
-                                //                                             color="primary"
-                                //                                             type="submit"
-                                //                                             size='small'
-                                //                                             sx={{
-                                //                                                 mx: 1
-                                //                                             }}
-                                //                                         >
-                                //                                             Edit
-                                //                                         </Button>
-                                //                                     }
-                                //
-                                //                                     {hasPermit(userData.permissions, "CreateUser") && hasPermit(userData.permissions, "UpdateUser")
-                                //                                         && !user.hasPassword && !user.hasValidSetPasswordLink
-                                //                                         && <Button
-                                //                                             onClick={() => handleSendPasswordLink(user.email)}
-                                //                                             variant="outlined"
-                                //                                             color="secondary"
-                                //                                             type="submit"
-                                //                                             size='small'
-                                //                                             sx={{
-                                //                                                 mx: 1
-                                //                                             }}
-                                //                                         >
-                                //                                             Send password link
-                                //                                         </Button>
-                                //                                     }
-                                //                                 </>
-                                //                             }
-                                //                         </TableCell>
-                                //                     </TableRow>
-                                //                 ))}
-                                //             </TableBody>
-                                //         </Table>
-                                //     </TableContainer>
-                                // </>
-
-                                :  <>
-                                    <Alert severity="error" sx={{ mt: 2 }}>
-                                        Users not found
-                                    </Alert>
-
-                                    <Button
-                                        variant="outlined"
-                                        color="primary" sx={{mt: 2}}
-                                    >
-                                        Back to list
-                                    </Button>
+                            {
+                                vacationInfo &&
+                                <>
+                                    <Typography variant="h4" gutterBottom>
+                                        User vacation info
+                                    </Typography>
+                                    <Grid container sx={{mb: 3}}>
+                                        <Grid item xs={8}>
+                                            <Box
+                                                sx={{
+                                                    pb: 2,
+                                                    display: 'grid',
+                                                    gridTemplateColumns: { md: '1fr 1fr 1fr' },
+                                                    gap: 2,
+                                                    textAlign: "center"
+                                                }}
+                                            >
+                                                <Paper elevation={6} sx={{p: 2}}>
+                                                    <b>{vacationDaysAvailable}</b> vacation days available
+                                                </Paper>
+                                                <Paper elevation={6} sx={{p: 2}}>
+                                                    <b>{vacationInfo.daysSpent}</b> vacation days spent
+                                                </Paper>
+                                                <Paper elevation={6} sx={{p: 2}}>
+                                                    <b>
+                                                        {
+                                                            vacationDaysLeft === 0 ? "less than 0" : vacationDaysLeft
+                                                        }
+                                                    </b> vacation days left
+                                                </Paper>
+                                            </Box>
+                                            <Button
+                                                //onClick={() => navigate('/user/create')}
+                                                variant="outlined"
+                                                color="success"
+                                                size="medium"
+                                            >
+                                                Create new vacation request
+                                            </Button>
+                                        </Grid>
+                                    </Grid>
                                 </>
+                            }
+
+                            <Grid container spacing={2} sx={{mt: 3}}>
+                                <Grid item xs={2}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="vacation_status">Vacation status</InputLabel>
+                                        <Select
+                                            labelId="vacation_status"
+                                            id="vacation_status_select"
+                                            value={vacationType === null ? "all" : vacationType ? "approved" : "declined"}
+                                            label="Vacation status"
+                                            onChange={handleVacationStatusChange}
+                                        >
+                                            <MenuItem value="all">All</MenuItem>
+                                            <MenuItem value="approved">Approved</MenuItem>
+                                            <MenuItem value="declined">Declined</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+
+                                <Grid item xs={3}>
+                                    <ToggleButtonGroup
+                                        value={orderByDesc ? "desc" : "asc"}
+                                        onChange={handleOrderChange}
+                                        exclusive={true}
+                                    >
+                                        <ToggleButton value="asc" key="asc">
+                                            Oldest first
+                                        </ToggleButton>
+                                        <ToggleButton value="desc" key="desc">
+                                            Newest first
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                </Grid>
+                            </Grid>
+                            {vacationList.length > 0
+                                ?
+                                <>
+                                    <TableContainer sx={{ mt: 2 }} className="custom-table-container" component={Paper}>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell style={{fontWeight: 'bold'}}>Start</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}>End</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}>Approver</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}>Status</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {vacationList.map((vacationItem) => (
+                                                    <TableRow style={{backgroundColor: vacationItem.vacation.isApproved ? '#6fbf73' : '#ffa733'}}
+                                                              key={vacationItem.vacation.id}>
+                                                        <TableCell>
+                                                            {formatIsoDateWithoutTime(vacationItem.vacation.start)}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {formatIsoDateWithoutTime(vacationItem.vacation.end)}
+                                                        </TableCell>
+                                                        <TableCell onClick={() => console.log(vacationItem)}>
+                                                            {
+                                                                vacationItem.approver ?
+                                                                    (
+                                                                        <Link to={`/user/${vacationItem.approver.id}`}>
+                                                                            {vacationItem.approver.fullName}
+                                                                        </Link>
+                                                                    ) : "None"
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell>{getVacationStatus(vacationItem.vacation)}</TableCell>
+                                                        <TableCell>
+                                                            <Link to={`/vacation/details/${vacationItem.vacation.id}`}>
+                                                                <InfoIcon />
+                                                            </Link>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </>
+                                :
+                                <Alert severity="info" sx={{ mt: 2 }}>
+                                    There is no vacations to be found
+                                </Alert>
                             }
                         </>
                     }
