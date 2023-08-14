@@ -13,7 +13,13 @@ import {
     RequestGetVacationsByUserId
 } from "../../services/VacationService";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
-import {SetIsVacationLoading, SetVacationError, SetVacationInfo, SetVacationList} from "../slices/VacationSlice";
+import {
+    SetIsVacationLoading,
+    SetRequireUpdate,
+    SetVacationError,
+    SetVacationInfo,
+    SetVacationList
+} from "../slices/VacationSlice";
 import {VacationCreate} from "../../models/vacation/VacationCreate";
 
 export const vacationErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
@@ -78,29 +84,20 @@ export const GetVacationInfoByUserIdEpic: Epic = (action$: Observable<PayloadAct
         ))
     );
 
-export const createVacationActionCreator = (payload: CreateVacationsInput) =>
+export const createVacationActionCreator = (payload: VacationCreate) =>
     ({type: CREATE_VACATION_ACTION, payload: payload});
-export interface CreateVacationsInput {
-    data: VacationCreate,
-    onlyApproved: boolean | null,
-    orderByDesc: boolean
-}
-export const CreateVacationEpic: Epic = (action$: Observable<PayloadAction<CreateVacationsInput>>) =>
+export const CreateVacationEpic: Epic = (action$: Observable<PayloadAction<VacationCreate>>) =>
     action$.pipe(
         ofType(CREATE_VACATION_ACTION),
         map(action => action.payload),
-        mergeMap((payload) => RequestCreateVacation(payload.data).pipe(
+        mergeMap((vacation) => RequestCreateVacation(vacation).pipe(
             map((res) => {
                 const errorMsg = "Failed to create vacation request";
                 if (res.errors) {
                     return vacationErrorActionCreator(res, errorMsg);
                 }
                 if (res.data?.vacation?.createVacation) {
-                    return getVacationsByUserIdActionCreator({
-                        userId: payload.data.userId,
-                        onlyApproved: payload.onlyApproved,
-                        orderByDesc: payload.orderByDesc
-                    });
+                    return SetRequireUpdate();
                 }
                 return vacationErrorActionCreator(res, errorMsg);
             }),

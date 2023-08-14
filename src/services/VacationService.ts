@@ -117,8 +117,8 @@ export function RequestCreateVacation(data: VacationCreate) {
         variables: {
             "vacation": {
                 "userId": data.userId,
-                "start": data.start,
-                "end": data.end,
+                "start": moment(data.start).format("YYYY-MM-DD"),
+                "end": moment(data.end).format("YYYY-MM-DD"),
                 "comment": data.comment
             }
         }

@@ -6,12 +6,14 @@ export interface VacationSliceState {
     vacationList: VacationResponse[],
     vacationInfo: VacationInfo | null,
     isLoading: boolean,
+    requireUpdateToggle: boolean,
     error: string | null
 }
 const initialState: VacationSliceState = {
     vacationList: [],
     vacationInfo: null,
     isLoading: false,
+    requireUpdateToggle: false,
     error: null
 };
 
@@ -32,6 +34,9 @@ export const VacationSlice = createSlice({
         },
         SetIsVacationLoading: (state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload;
+        },
+        SetRequireUpdate: (state) => {
+            state.requireUpdateToggle = !state.requireUpdateToggle;
         }
     }
 });
@@ -40,7 +45,8 @@ export const {
     SetVacationList,
     SetVacationInfo,
     SetVacationError,
-    SetIsVacationLoading
+    SetIsVacationLoading,
+    SetRequireUpdate
 } = VacationSlice.actions;
 
 export default VacationSlice.reducer;

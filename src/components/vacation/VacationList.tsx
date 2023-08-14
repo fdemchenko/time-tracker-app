@@ -4,9 +4,8 @@ import {
     Alert,
     Box,
     Button,
-    FormControl, Grid, InputAdornment,
-    InputLabel, makeStyles, MenuItem,
-    Pagination,
+    FormControl, Grid,
+    InputLabel, MenuItem,
     Paper, Select, SelectChangeEvent,
     Table,
     TableBody,
@@ -14,7 +13,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TextField, ToggleButton, ToggleButtonGroup
+    ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getVacationInfoByUserIdActionCreator, getVacationsByUserIdActionCreator} from "../../redux/epics/VacationEpics";
@@ -27,7 +26,7 @@ import Typography from "@mui/material/Typography";
 export default  function VacationList() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {vacationList, vacationInfo, error, isLoading} = useAppSelector(state => state.vacation);
+    const {vacationList, vacationInfo, error, isLoading, requireUpdateToggle} = useAppSelector(state => state.vacation);
     const {user} = useAppSelector(state => state.user);
 
     const [orderByDesc, setOrderByDesc] = useState<boolean>(true);
@@ -43,7 +42,7 @@ export default  function VacationList() {
             onlyApproved: vacationType,
             orderByDesc: orderByDesc
         }));
-    }, [orderByDesc, vacationType]);
+    }, [orderByDesc, vacationType, requireUpdateToggle]);
 
     useEffect(() => {
         dispatch(getVacationInfoByUserIdActionCreator(user.id));
