@@ -13,11 +13,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import Divider from "@mui/material/Divider";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {deleteWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {hasPermit} from "../../helpers/hasPermit";
 
 export default function WorkSessionDeleteDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {id} = useParams();
+    const {id, userId} = useParams();
 
     const workSession = useAppSelector(state =>
         state.workSession.workSessionsList.items.find(ws => ws.id === id));
@@ -56,7 +57,7 @@ export default function WorkSessionDeleteDialog() {
             </DialogTitle>
             <Divider sx={{mb: 2}}/>
             {
-                workSession && workSession.userId === user.id ?
+                workSession && (workSession.userId === user.id || hasPermit(user.permissions, "DeleteWorkSessions")) ?
                     (
                         <>
                             <DialogContent>

@@ -6,6 +6,7 @@ import WorkSessionReducer from "./slices/WorkSessionSlice";
 import SchedulerReducer from "./slices/SchedulerSlice";
 import VacationReducer from "./slices/VacationSlice";
 import GlobalMessageReducer from "./slices/GlobalMessageSlice";
+import ProfileReducer from "./slices/ProfileSlice";
 import {RootEpic} from "./Root";
 
 const epicMiddleware = createEpicMiddleware();
@@ -13,6 +14,7 @@ const epicMiddleware = createEpicMiddleware();
 const store = configureStore({
     reducer: {
         user: UserReducer,
+        profile: ProfileReducer,
         manageUsers: ManageUsersReducer,
         workSession: WorkSessionReducer,
         scheduler: SchedulerReducer,

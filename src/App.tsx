@@ -25,6 +25,7 @@ import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 import VacationList from "./components/vacation/VacationList";
 import VacationDialog from "./components/vacation/VacationDialog";
+import ProfilesList from "./components/user/ProfilesList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -66,6 +67,11 @@ function App() {
 							<UsersList />
 						</ProtectedRoute>
 					} />
+					<Route path="/profiles" element={
+						<ProtectedRoute>
+							<ProfilesList />
+						</ProtectedRoute>
+					} />
 					<Route path="/user/create" element={
 						<ProtectedRoute>
 							<CreateUserForm />
@@ -82,21 +88,22 @@ function App() {
 						</ProtectedRoute>
 					} />
 
-					<Route path="/worksession" element={
+					<Route path="/worksession/:id" element={
 						<ProtectedRoute>
 							<WorkSessionList />
 						</ProtectedRoute>
-					}>
-						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
-						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
-						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
-					</Route>
-					<Route path="/scheduler" element={
+					}/>
+
+						<Route path="/worksession/create/:id" element={<WorkSessionCreateDialog />}/>
+						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
+						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
+
+
+					<Route path="/scheduler/:id" element={
 						<ProtectedRoute>
 							<TrackerScheduler />
 						</ProtectedRoute>
 					}>
-						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
 					</Route>
 
 					<Route path="/vacations" element={
@@ -108,6 +115,7 @@ function App() {
 						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
 					</Route>
 
+					<Route path="/holidays" element={<HolidaysDialog />}/>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

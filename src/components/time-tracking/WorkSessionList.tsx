@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {Link, Outlet, useNavigate} from "react-router-dom";
+import {Link, Outlet, useNavigate, useParams} from "react-router-dom";
 import {getUserWorkSessionsActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
 import {Moment} from "moment";
@@ -36,6 +36,9 @@ export default function WorkSessionList() {
         workSessionsList, error, isLoading,
         activeWorkSession
     } = useAppSelector(state => state.workSession);
+
+    const {id} = useParams();
+
     const {user} = useAppSelector(state => state.user);
 
     const [limit, setLimit] = useState<number>(8);
@@ -89,211 +92,225 @@ export default function WorkSessionList() {
     };
 
     useEffect(() => {
-        dispatch(getUserWorkSessionsActionCreator({
-            userId: user.id,
-            orderByDesc: orderByDesc,
-            offset: (page - 1) * limit,
-            limit: limit,
-            startDate: startDate ? startDate.toISOString() : null,
-            endDate: endDate ? endDate.toISOString() : null,
-        }));
+        if (id){
+            dispatch(getUserWorkSessionsActionCreator({
+                userId: id,
+                orderByDesc: orderByDesc,
+                offset: (page - 1) * limit,
+                limit: limit,
+                startDate: startDate ? startDate.toISOString() : null,
+                endDate: endDate ? endDate.toISOString() : null,
+            }));
+        }
     }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession]);
 
     return (
         <>
-            {error
-                ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
-                : <>
-                    <Outlet/>
+            {!id
+              ?
+                  <Alert severity="error" sx={{ mt: 2 }}>
+                      User not found
+                  </Alert>
 
-                    {isLoading
-                        ? <div className="lds-dual-ring"></div>
-                        :
-                        <>
-                            <h2 style={{marginBottom: '10px'}}>
-                                List of work session
+              :
+               <>
+                   {error
+                     ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
+                     : <>
+                         <Outlet/>
 
-                                {hasPermit(user.permissions, "CreateWorkSessions")
-                                  &&   <Button
-                                    onClick={() => navigate('/worksession/create')}
-                                    variant="outlined"
-                                    color="success"
-                                    type="submit"
-                                    size="small"
-                                    sx={{
-                                        mx: 1,
-                                    }}
-                                  >
-                                      Create new
-                                  </Button>
-                                }
-                            </h2>
+                         {isLoading
+                           ? <div className="lds-dual-ring"></div>
+                           :
+                           <>
+                               <h2 style={{marginBottom: '10px'}}>
+                                   List of work session
 
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    flexWrap: "wrap",
-                                    alignItems: "flex-end",
-                                    gap: "10px"
-                                }}
-                            >
+                                   {hasPermit(user.permissions, "CreateWorkSessions")
+                                     &&
+                                     <Link to={`/worksession/create/${id}`}>
+                                         <Button
+                                           variant="outlined"
+                                           color="success"
+                                           type="submit"
+                                           size="small"
+                                           sx={{
+                                               mx: 1,
+                                           }}
+                                         >
+                                             Create new
+                                         </Button>
+                                     </Link>
+                                   }
+                               </h2>
 
-                                <DesktopDatePicker
-                                    label="Start date"
-                                    value={startDate}
-                                    onChange={(newDate) => setStartDate(newDate)}
-                                />
-                                <DesktopDatePicker
-                                  label="End date"
-                                  value={endDate}
-                                  onChange={(newDate) => setEndDate(newDate)}
-                                />
+                               <Box
+                                 sx={{
+                                     display: "flex",
+                                     flexWrap: "wrap",
+                                     alignItems: "flex-end",
+                                     gap: "10px"
+                                 }}
+                               >
 
-                                <Button
-                                  variant={orderByDesc ? "outlined" : "contained"}
-                                  color="secondary"
-                                  size="small"
-                                  sx={{
-                                      p: "14px"
-                                  }}
-                                  onClick={() => setOrderByDesc(!orderByDesc)}
-                                >
-                                    {orderByDesc ? "New records first" : "Old records first"}
-                                </Button>
+                                   <DesktopDatePicker
+                                     label="Start date"
+                                     value={startDate}
+                                     onChange={(newDate) => setStartDate(newDate)}
+                                   />
+                                   <DesktopDatePicker
+                                     label="End date"
+                                     value={endDate}
+                                     onChange={(newDate) => setEndDate(newDate)}
+                                   />
 
-                                <FormControl variant="standard">
-                                    <NativeSelect
-                                        value={limit.toString()}
-                                        onChange={(event: { target: { value: string } }) =>
-                                            setLimit(Number(event.target.value))}
-                                        input={<BootstrapInput/>}
-                                    >
-                                        <option value={5}>5</option>
-                                        <option value={8}>8</option>
-                                        <option value={10}>10</option>
-                                        <option value={15}>20</option>
-                                        <option value={30}>30</option>
-                                    </NativeSelect>
-                                </FormControl>
-                                {
-                                    startDate &&
-                                    <Button
-                                        variant="contained"
-                                        size="medium"
-                                        onClick={handleClearFilters}
-                                    >
-                                        Clear filters
-                                    </Button>
-                                }
-                            </Box>
+                                   <Button
+                                     variant={orderByDesc ? "outlined" : "contained"}
+                                     color="secondary"
+                                     size="small"
+                                     sx={{
+                                         p: "14px"
+                                     }}
+                                     onClick={() => setOrderByDesc(!orderByDesc)}
+                                   >
+                                       {orderByDesc ? "New records first" : "Old records first"}
+                                   </Button>
 
-                            {
-                                workSessionsList.items.length > 0 ? (
-                                    <>
-                                        <TableContainer  sx={{ mt: 2 , "& td": { border: 0 }}}
-                                                         className="custom-table-container"
-                                        >
-                                            <Table>
-                                                <TableBody>
-                                                    {workSessionsList.items.map((workSession, index) => {
-                                                       return <React.Fragment key={workSession.id}>
-                                                           {index === 0 &&
-                                                             <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                                 {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
-                                                             </Typography>
-                                                           }
-                                                           {index > 0 && new Date(workSessionsList.items[index - 1].start).getDate() !== new Date(workSession.start).getDate()  &&
-                                                             <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                                 {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
-                                                             </Typography>
-                                                           }
-                                                           <TableRow key={workSession.id}>
-                                                               <Tooltip
-                                                                 title={
-                                                                     <React.Fragment>
-                                                                         {generateToolTipString(workSession).map((line, index) => (
-                                                                           <React.Fragment key={index}>
-                                                                               {line}
-                                                                               <br />
-                                                                           </React.Fragment>
-                                                                         ))}
-                                                                     </React.Fragment>
-                                                                 }
-                                                                 arrow
-                                                                 placement="right"
-                                                               >
-                                                                   <div style={{backgroundColor: '#faec8e', width: `${calculateWorkSessionWidth(workSession.start, workSession.end)}%`, display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
-                                                                       <Typography style={{fontSize: '12px'}}>
-                                                                           {
-                                                                               `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSession.start))}`
-                                                                           }
-                                                                       </Typography>
+                                   <FormControl variant="standard">
+                                       <NativeSelect
+                                         value={limit.toString()}
+                                         onChange={(event: { target: { value: string } }) =>
+                                           setLimit(Number(event.target.value))}
+                                         input={<BootstrapInput/>}
+                                       >
+                                           <option value={5}>5</option>
+                                           <option value={8}>8</option>
+                                           <option value={10}>10</option>
+                                           <option value={15}>20</option>
+                                           <option value={30}>30</option>
+                                       </NativeSelect>
+                                   </FormControl>
+                                   {
+                                     startDate &&
+                                     <Button
+                                       variant="contained"
+                                       size="medium"
+                                       onClick={handleClearFilters}
+                                     >
+                                         Clear filters
+                                     </Button>
+                                   }
+                               </Box>
 
-                                                                       {workSession.end &&
+                               {
+                                   workSessionsList.items.length > 0 ? (
+                                     <>
+                                         <TableContainer  sx={{ mt: 2 , "& td": { border: 0 }}}
+                                                          className="custom-table-container"
+                                         >
+                                             <Table>
+                                                 <TableBody>
+                                                     {workSessionsList.items.map((workSession, index) => {
+                                                         return <React.Fragment key={workSession.id}>
+                                                             {index === 0 &&
+                                                               <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
+                                                                   {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                               </Typography>
+                                                             }
+                                                             {index > 0 && new Date(workSessionsList.items[index - 1].start).getDate() !== new Date(workSession.start).getDate()  &&
+                                                               <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
+                                                                   {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                               </Typography>
+                                                             }
+                                                             <TableRow key={workSession.id}>
+                                                                 <Tooltip
+                                                                   title={
+                                                                       <React.Fragment>
+                                                                           {generateToolTipString(workSession).map((line, index) => (
+                                                                             <React.Fragment key={index}>
+                                                                                 {line}
+                                                                                 <br />
+                                                                             </React.Fragment>
+                                                                           ))}
+                                                                       </React.Fragment>
+                                                                   }
+                                                                   arrow
+                                                                   placement="right"
+                                                                 >
+                                                                     <div style={{backgroundColor: '#faec8e', width: `${calculateWorkSessionWidth(workSession.start, workSession.end)}%`, display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
                                                                          <Typography style={{fontSize: '12px'}}>
                                                                              {
-                                                                                 `${workSession.end ? `End: ${formatIsoDateTime(parseIsoDateToLocal(workSession.end))}` : ''}`
+                                                                                 `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSession.start))}`
                                                                              }
                                                                          </Typography>
-                                                                       }
 
-                                                                       <Typography style={{fontSize: '12px'}}>
-                                                                           {
-                                                                             workSession.end &&
-                                                                             `Duration: ${countIsoDateDiff(workSession.start, workSession.end)}`
-                                                                           }
-                                                                       </Typography>
-                                                                   </div>
-                                                               </Tooltip>
+                                                                         {workSession.end &&
+                                                                           <Typography style={{fontSize: '12px'}}>
+                                                                               {
+                                                                                   `${workSession.end ? `End: ${formatIsoDateTime(parseIsoDateToLocal(workSession.end))}` : ''}`
+                                                                               }
+                                                                           </Typography>
+                                                                         }
 
-                                                               <TableCell>
-                                                                   {workSession.end &&
-                                                                     <Box
-                                                                       sx={{
-                                                                           display: "flex",
-                                                                           alignItems: "center",
-                                                                           gap: "30px"
-                                                                       }}
-                                                                     >
-                                                                         <Link to={`/worksession/update/${workSession.id}`}>
-                                                                             <EditIcon />
-                                                                         </Link>
+                                                                         <Typography style={{fontSize: '12px'}}>
+                                                                             {
+                                                                               workSession.end &&
+                                                                               `Duration: ${countIsoDateDiff(workSession.start, workSession.end)}`
+                                                                             }
+                                                                         </Typography>
+                                                                     </div>
+                                                                 </Tooltip>
+
+                                                                 <TableCell>
+                                                                     {workSession.end &&
+                                                                       <Box
+                                                                         sx={{
+                                                                             display: "flex",
+                                                                             alignItems: "center",
+                                                                             gap: "30px"
+                                                                         }}
+                                                                       >
+                                                                           <Link to={`/worksession/update/${workSession.id}/${id}`}>
+                                                                               <EditIcon />
+                                                                           </Link>
 
 
-                                                                         <Link to={`/worksession/delete/${workSession.id}`}>
-                                                                             <DeleteIcon />
-                                                                         </Link>
-                                                                     </Box>
-                                                                   }
-                                                               </TableCell>
-                                                           </TableRow>
-                                                       </React.Fragment>
-                                                    })}
-                                                </TableBody>
-                                            </Table>
-                                        </TableContainer>
+                                                                           <Link to={`/worksession/delete/${workSession.id}/${id}`}>
+                                                                               <DeleteIcon />
+                                                                           </Link>
+                                                                       </Box>
+                                                                     }
+                                                                 </TableCell>
+                                                             </TableRow>
+                                                         </React.Fragment>
+                                                     })}
+                                                 </TableBody>
+                                             </Table>
+                                         </TableContainer>
 
-                                        <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
-                                            <Pagination
-                                                count={pagesCount}
-                                                page={page}
-                                                onChange={handleChangePage}
-                                                boundaryCount={2}
-                                                siblingCount={2}
-                                                color="secondary"
-                                                variant="outlined"
-                                            />
-                                        </Box>
-                                    </>
-                                ) : (
-                                    <Alert severity="info" sx={{m: 2}}>
-                                        There are no records for now
-                                    </Alert>
-                                )
-                            }
-                        </>
-                    }
-                </>
+                                         <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
+                                             <Pagination
+                                               count={pagesCount}
+                                               page={page}
+                                               onChange={handleChangePage}
+                                               boundaryCount={2}
+                                               siblingCount={2}
+                                               color="secondary"
+                                               variant="outlined"
+                                             />
+                                         </Box>
+                                     </>
+                                   ) : (
+                                     <Alert severity="info" sx={{m: 2}}>
+                                         There are no records for now
+                                     </Alert>
+                                   )
+                               }
+                           </>
+                         }
+                     </>
+                   }
+               </>
             }
         </>
 

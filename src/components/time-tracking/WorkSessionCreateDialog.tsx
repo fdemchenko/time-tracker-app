@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import {Alert, Box, Button, MenuItem, Select, TextField} from "@mui/material";
@@ -16,10 +16,13 @@ import Slide from "@mui/material/Slide";
 import moment, {Moment} from "moment/moment";
 import {createWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
+import {hasPermit} from "../../helpers/hasPermit";
 
 const WorkSessionCreateDialog = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const {id} = useParams();
 
   const {user} = useAppSelector(state => state.user);
   const {error} = useAppSelector(state => state.workSession);
@@ -33,11 +36,11 @@ const WorkSessionCreateDialog = () => {
   const [isRequireChange, setIsRequireChange] = useState<boolean>(true);
 
   function handleUpdate() {
-    if (start?.isValid() && end?.isValid()) {
+    if (start?.isValid() && end?.isValid() && id) {
       start.set("seconds", 0);
       end?.set("seconds", 0);
       dispatch(createWorkSessionActionCreator({
-        UserId: user.id,
+        UserId: id,
         Start: start.toISOString(),
         End: end.toISOString(),
         Title: title,
@@ -45,12 +48,12 @@ const WorkSessionCreateDialog = () => {
         Type: type
       }));
 
-      navigate('/worksession');
+      navigate(`/worksession/${id}`);
     }
     else {
       dispatch(SetGlobalMessage({
         title: "Validation Error",
-        message: "Date is invalid",
+        message: "Date or user is invalid",
         type: "warning"
       }));
     }
@@ -83,6 +86,7 @@ const WorkSessionCreateDialog = () => {
       </DialogTitle>
       <Divider sx={{mb: 2}}/>
       {
+          id === user.id || hasPermit(user.permissions, "CreateWorkSessions") ?
           (
             <>
               <DialogContent>
@@ -182,6 +186,10 @@ const WorkSessionCreateDialog = () => {
               </DialogActions>
             </>
           )
+            :
+        (
+        <Alert severity="error" sx={{m: 2}}>You have no access for create this work session</Alert>
+        )
       }
     </Dialog>
   );

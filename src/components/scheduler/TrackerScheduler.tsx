@@ -1,8 +1,8 @@
-import {Box, Button} from "@mui/material";
+import {Alert, Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
     createWorkSessionActionCreator,
     deleteWorkSessionActionCreator,
@@ -13,7 +13,7 @@ import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet, useNavigate} from "react-router-dom";
+import {Link, Outlet, useNavigate, useParams} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
 import {TimePicker} from "@mui/x-date-pickers";
@@ -22,6 +22,9 @@ import {Moment} from "moment";
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
     const {holidays} = useAppSelector(state => state.scheduler);
+
+    const {id} = useParams()
+
     const {user} = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
 
@@ -31,12 +34,14 @@ export default function TrackerScheduler() {
     const schedulerRef = useRef<SchedulerRef>(null);
 
     useEffect(() => {
-        dispatch(getUserWorkSessionsActionCreator({
-            userId: user.id,
-            orderByDesc: true,
-        }));
+        if (id) {
+            dispatch(getUserWorkSessionsActionCreator({
+                userId: id,
+                orderByDesc: true,
+            }));
 
-        dispatch(getHolidaysActionCreator());
+            dispatch(getHolidaysActionCreator());
+        }
     }, []);
 
     useEffect(() => {
@@ -92,8 +97,8 @@ export default function TrackerScheduler() {
         action: EventActions
     ): Promise<ProcessedEvent> {
         return new Promise(() => {
-            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime())) {
-                if (action === "edit") {
+            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && id) {
+                if (action === "edit" && (id === user.id || hasPermit(user.permissions, "UpdateWorkSessions"))) {
                     dispatch(updateWorkSessionActionCreator({
                         id: typeof event.event_id == "string" ? event.event_id : "",
                         userId: event.user_id,
@@ -106,10 +111,10 @@ export default function TrackerScheduler() {
                         lastModifierName: user.fullName,
                     }));
 
-                } else if (action === "create") {
+                } else if (action === "create" && (id === user.id || hasPermit(user.permissions, "CreateWorkSessions"))) {
                     dispatch(createWorkSessionActionCreator({
                         Type: "planned",
-                        UserId: user.id,
+                        UserId: id,
                         Description: event.description,
                         Title: event.title,
                         Start: event.start.toISOString(),
@@ -120,7 +125,7 @@ export default function TrackerScheduler() {
             } else {
                 dispatch(SetGlobalMessage({
                     title: "Validation Error",
-                    message: "Date is invalid",
+                    message: "Date or user is invalid",
                     type: "warning"
                 }));
             }
@@ -129,11 +134,19 @@ export default function TrackerScheduler() {
 
     return (
         <Box>
-            <Typography variant="h3" gutterBottom>
+            {!id
+              ?
+              <Alert severity="error" sx={{ mt: 2 }}>
+                  User not found
+              </Alert>
+            :
+            <>
+            <Typography variant="h2" gutterBottom>
                 Work sessions
             </Typography>
+
             {hasPermit(user.permissions, "ManageHolidays") &&
-                <Link to="/scheduler/holidays">
+                <Link to="/holidays">
                     <Button
                         sx={{mb: 2}}
                         size="large"
@@ -293,6 +306,7 @@ export default function TrackerScheduler() {
                 )
                 }
             />
+            </>}
         </Box>
     );
 }
