@@ -5,7 +5,8 @@ import {
     LoginEpic,
     LogoutEpic,
     SetSendPasswordLinkEpic,
-    SetPasswordEpic, CreateUserEpic, UpdateUserEpic, DeactivateUserEpic, ManageUsersErrorEpic
+    SetPasswordEpic, CreateUserEpic, UpdateUserEpic, DeactivateUserEpic, ManageUsersErrorEpic,
+    GetProfilesEpic, ProfileErrorEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
 import {
@@ -35,6 +36,8 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         UserErrorEpic,
         ManageUsersErrorEpic,
         WorkSessionErrorEpic,
+        ProfileErrorEpic,
+        GetProfilesEpic,
         GetActiveWorkSessionEpic,
         SetEndWorkSessionEpic,
         CreateWorkSessionEpic,

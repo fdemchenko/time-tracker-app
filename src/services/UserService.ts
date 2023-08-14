@@ -1,13 +1,14 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {
-    CreateUserActionPayload, GetUsersActionPayload,
+    CreateUserActionPayload, GetProfilesActionPayload, GetUsersActionPayload,
     LoginActionPayload,
     SetPasswordPayload,
     UpdateUserActionPayload
 } from "../redux/epics/UserEpics";
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
+import Profile from "../models/Profile";
 
 interface LoginResponse extends GraphQLResponse {
     data?: {
@@ -99,6 +100,44 @@ export function RequestGetUsers(payload: GetUsersActionPayload): Observable<GetU
         }
     })).pipe(
         map(res => res.response)
+    );
+}
+
+interface GetProfilesResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getAllProfiles: {
+                items: Profile[],
+                count: number
+            }
+        }
+    }
+}
+
+export function RequestGetProfiles(payload: GetProfilesActionPayload): Observable<GetProfilesResponse> {
+    return ajaxAuth<GetProfilesResponse>(JSON.stringify({
+        query: `
+               query getAllProfiles($offset: Int, $limit: Int, $search: String, $filteringStatus: String) {
+                  user {
+                    getAllProfiles(offset: $offset, limit: $limit, search: $search, filteringStatus: $filteringStatus) {
+                       items {
+                         id, 
+                         email, 
+                         fullName,
+                         status
+                        }, count
+                    }
+                  }
+                }
+            `,
+        variables: {
+            "offset": payload.Offset,
+            "limit": payload.Limit,
+            "search": payload.Search,
+            "filteringStatus": payload.FilteringStatus
+        }
+    })).pipe(
+      map(res => res.response)
     );
 }
 

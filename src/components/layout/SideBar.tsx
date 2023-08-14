@@ -183,9 +183,19 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                     <List>
                         <ListItem disablePadding>
                             <ListItemButton sx={{width: 100}}>
-                                <Link to="/worksession" style={{width: '100%'}}>
+                                <Link to={`/worksession/${userData.user.id}`} style={{width: '100%'}}>
                                     <ListItemText>
                                         My work sessions
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
+                                <Link to="/profiles" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        List of profiles of employees
                                     </ListItemText>
                                 </Link>
                             </ListItemButton>
@@ -196,7 +206,7 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                               <ListItemButton sx={{width: 100}}>
                                   <Link to="/users" style={{width: '100%'}}>
                                       <ListItemText>
-                                          List of employees
+                                          Manage employees
                                       </ListItemText>
                                   </Link>
                               </ListItemButton>
@@ -205,9 +215,9 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
 
                         <ListItem disablePadding>
                             <ListItemButton sx={{width: 100}}>
-                                <Link to="/scheduler" style={{width: '100%'}}>
+                                <Link to={`/scheduler/${userData.user.id}`} style={{width: '100%'}}>
                                     <ListItemText>
-                                        Scheduler
+                                        My scheduler
                                     </ListItemText>
                                 </Link>
                             </ListItemButton>

@@ -17,11 +17,12 @@ import moment, {Moment} from "moment";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
+import {hasPermit} from "../../helpers/hasPermit";
 
 export default function WorkSessionUpdateDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {id} = useParams();
+    const {id, userId} = useParams();
 
     const workSession = useAppSelector(state =>
         state.workSession.workSessionsList.items.find(ws => ws.id === id));
@@ -52,8 +53,6 @@ export default function WorkSessionUpdateDialog() {
                 lastModifierId: user.id,
                 lastModifierName: user.fullName,
             }));
-
-            navigate('/worksession');
         }
         else {
             dispatch(SetGlobalMessage({
@@ -91,7 +90,8 @@ export default function WorkSessionUpdateDialog() {
             </DialogTitle>
             <Divider sx={{mb: 2}}/>
             {
-                workSession && workSession.userId === user.id ?
+                workSession && (workSession.userId === user.id || hasPermit(user.permissions, "UpdateWorkSessions"))
+                  ?
                     (
                         <>
                             <DialogContent>

@@ -23,6 +23,7 @@ import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDelet
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
+import ProfilesList from "./components/user/ProfilesList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -64,6 +65,11 @@ function App() {
 							<UsersList />
 						</ProtectedRoute>
 					} />
+					<Route path="/profiles" element={
+						<ProtectedRoute isLogged={userData.isLogged}>
+							<ProfilesList />
+						</ProtectedRoute>
+					} />
 					<Route path="/user/create" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<CreateUserForm />
@@ -80,22 +86,25 @@ function App() {
 						</ProtectedRoute>
 					} />
 
-					<Route path="/worksession" element={
+					<Route path="/worksession/:id" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<WorkSessionList />
 						</ProtectedRoute>
-					}>
-						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
-						<Route path="/worksession/update/:id" element={<WorkSessionUpdateDialog />}/>
-						<Route path="/worksession/delete/:id" element={<WorkSessionDeleteDialog />}/>
-					</Route>
-					<Route path="/scheduler" element={
+					}/>
+
+						<Route path="/worksession/create/:id" element={<WorkSessionCreateDialog />}/>
+						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
+						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
+
+
+					<Route path="/scheduler/:id" element={
 						<ProtectedRoute isLogged={userData.isLogged}>
 							<TrackerScheduler />
 						</ProtectedRoute>
 					}>
-						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
 					</Route>
+
+					<Route path="/holidays" element={<HolidaysDialog />}/>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>
