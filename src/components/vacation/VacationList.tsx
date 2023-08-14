@@ -16,7 +16,7 @@ import {
     TableRow,
     TextField, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getVacationInfoByUserIdActionCreator, getVacationsByUserIdActionCreator} from "../../redux/epics/VacationEpics";
 import {Vacation} from "../../models/vacation/Vacation";
 import InfoIcon from '@mui/icons-material/Info';
@@ -92,6 +92,8 @@ export default  function VacationList() {
                                 List of vacations
                             </Typography>
 
+                            <Outlet />
+
                             {
                                 vacationInfo &&
                                 <>
@@ -124,7 +126,7 @@ export default  function VacationList() {
                                                 </Paper>
                                             </Box>
                                             <Button
-                                                //onClick={() => navigate('/user/create')}
+                                                onClick={() => navigate('/vacations/create')}
                                                 variant="outlined"
                                                 color="success"
                                                 size="medium"

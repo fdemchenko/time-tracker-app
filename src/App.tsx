@@ -24,6 +24,7 @@ import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 import VacationList from "./components/vacation/VacationList";
+import VacationDialog from "./components/vacation/VacationDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -104,6 +105,7 @@ function App() {
 						</ProtectedRoute>
 					}
 					>
+						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
 					</Route>
 
 					<Route path="*" element={<NotFound />} />

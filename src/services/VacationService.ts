@@ -4,6 +4,7 @@ import {VacationResponse} from "../models/vacation/VacationResponse";
 import {GetVacationsByUserIdInput} from "../redux/epics/VacationEpics";
 import {VacationInfo} from "../models/vacation/VacationInfo";
 import moment from "moment";
+import {VacationCreate} from "../models/vacation/VacationCreate";
 
 export const VacationDaysInYear = 30;
 
@@ -91,6 +92,35 @@ export function RequestGetVacationInfoByUserId(userId: string) {
             `,
         variables: {
             "userId": userId
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface CreateVacationResponse extends GraphQLResponse {
+    data?: {
+        vacation?: {
+            createVacation: boolean | null
+        }
+    }
+}
+export function RequestCreateVacation(data: VacationCreate) {
+    return ajaxAuth<CreateVacationResponse>(JSON.stringify({
+        query: `
+                mutation CreateVacation($vacation: VacationInputType!) {
+                  vacation {
+                    createVacation(vacation: $vacation)  
+                  }
+                }
+            `,
+        variables: {
+            "vacation": {
+                "userId": data.userId,
+                "start": data.start,
+                "end": data.end,
+                "comment": data.comment
+            }
         }
     })).pipe(
         map((res) => res.response)
