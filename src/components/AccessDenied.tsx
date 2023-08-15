@@ -12,7 +12,7 @@ export default function AccessDenied() {
             direction="column"
             alignItems="center"
             justifyContent="center"
-            sx={{ minHeight: '80vh' }}
+            sx={{ minHeight: '60vh' }}
         >
             <Grid item xs={3}>
                 <Box
@@ -20,7 +20,8 @@ export default function AccessDenied() {
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        gap: "20px"
+                        gap: "20px",
+                        m: 2
                     }}
                 >
                     <Alert color="error">

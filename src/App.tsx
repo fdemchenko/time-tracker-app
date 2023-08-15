@@ -93,12 +93,9 @@ function App() {
 							<WorkSessionList />
 						</ProtectedRoute>
 					}/>
-
 						<Route path="/worksession/create/:id" element={<WorkSessionCreateDialog />}/>
 						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
 						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
-
-
 					<Route path="/scheduler/:id" element={
 						<ProtectedRoute>
 							<TrackerScheduler />
@@ -113,6 +110,8 @@ function App() {
 					}
 					>
 						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
+						<Route path="/vacations/approve/:vacationId" element={<VacationDialog type="approve" />} />
+						<Route path="/vacations/delete/:vacationId" element={<VacationDialog type="delete" />} />
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>

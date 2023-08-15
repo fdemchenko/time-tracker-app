@@ -23,7 +23,7 @@ import {
     UpdateHolidayEpic
 } from "./epics/SchedulerEpics";
 import {
-    CreateVacationEpic,
+    CreateVacationEpic, DeleteVacationEpic,
     GetVacationInfoByUserIdEpic,
     GetVacationsByUserIdEpic,
     VacationErrorEpic
@@ -58,7 +58,8 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         VacationErrorEpic,
         GetVacationsByUserIdEpic,
         GetVacationInfoByUserIdEpic,
-        CreateVacationEpic
+        CreateVacationEpic,
+        DeleteVacationEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

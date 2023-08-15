@@ -1,3 +1,10 @@
+export enum UserStatusEnum {
+  working,
+  deactivated,
+  ill,
+  vacation
+}
+
 export const hasPermit = (permissionJson: string, permission: string): boolean => {
   if (!permissionJson) return false;
 

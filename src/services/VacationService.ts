@@ -126,3 +126,27 @@ export function RequestCreateVacation(data: VacationCreate) {
         map((res) => res.response)
     );
 }
+
+interface DeleteVacationResponse extends GraphQLResponse {
+    data?: {
+        vacation?: {
+            delete: boolean | null
+        }
+    }
+}
+export function RequestDeleteVacation(id: string) {
+    return ajaxAuth<DeleteVacationResponse>(JSON.stringify({
+        query: `
+                mutation DeleteVacation($id: ID!) {
+                  vacation {
+                    delete(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": id
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}

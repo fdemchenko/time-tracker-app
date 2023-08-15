@@ -35,7 +35,7 @@ export const VacationSlice = createSlice({
         SetIsVacationLoading: (state, action: PayloadAction<boolean>) => {
             state.isLoading = action.payload;
         },
-        SetRequireUpdate: (state) => {
+        SetVacationRequireUpdate: (state) => {
             state.requireUpdateToggle = !state.requireUpdateToggle;
         }
     }
@@ -46,7 +46,7 @@ export const {
     SetVacationInfo,
     SetVacationError,
     SetIsVacationLoading,
-    SetRequireUpdate
+    SetVacationRequireUpdate
 } = VacationSlice.actions;
 
 export default VacationSlice.reducer;

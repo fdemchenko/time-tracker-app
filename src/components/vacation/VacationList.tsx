@@ -18,10 +18,12 @@ import {
 import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getVacationInfoByUserIdActionCreator, getVacationsByUserIdActionCreator} from "../../redux/epics/VacationEpics";
 import {Vacation} from "../../models/vacation/Vacation";
-import InfoIcon from '@mui/icons-material/Info';
 import {GetAvailableVacationDays} from "../../services/VacationService";
 import {formatIsoDateWithoutTime} from "../../helpers/date";
 import Typography from "@mui/material/Typography";
+import Tooltip from "@mui/material/Tooltip";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {UserStatusEnum} from "../../helpers/hasPermit";
 
 export default  function VacationList() {
     const dispatch = useAppDispatch();
@@ -35,6 +37,8 @@ export default  function VacationList() {
     let vacationDaysAvailable = vacationInfo ? GetAvailableVacationDays(vacationInfo.employmentDate) : 0;
     let vacationDaysLeft = vacationInfo && vacationInfo.daysSpent <= vacationDaysAvailable ?
         vacationDaysAvailable - vacationInfo.daysSpent : 0;
+
+    let doesUserHasWorkingStatus = user.status === UserStatusEnum[UserStatusEnum.working];
 
     useEffect(() => {
         dispatch(getVacationsByUserIdActionCreator({
@@ -50,10 +54,9 @@ export default  function VacationList() {
 
     function getVacationStatus(vacation: Vacation): string {
         if (vacation.isApproved === null) {
-            return "Waiting fot approve";
+            return "waiting for approve";
         }
-
-        return vacation ? "Approved" : "Declined";
+        return vacation ? "approved" : "declined";
     }
 
     function handleOrderChange(e: React.MouseEvent<HTMLElement>, value: string) {
@@ -129,47 +132,55 @@ export default  function VacationList() {
                                                 variant="outlined"
                                                 color="success"
                                                 size="medium"
+                                                disabled={!doesUserHasWorkingStatus}
                                             >
                                                 Create new vacation request
                                             </Button>
+                                            {
+                                                !doesUserHasWorkingStatus &&
+                                                <Typography sx={{color: 'text.secondary'}}>
+                                                    Can't create vacation request while you are not currently working
+                                                </Typography>
+                                            }
                                         </Grid>
                                     </Grid>
                                 </>
                             }
 
-                            <Grid container spacing={2} sx={{mt: 3}}>
-                                <Grid item xs={2}>
-                                    <FormControl fullWidth>
-                                        <InputLabel id="vacation_status">Vacation status</InputLabel>
-                                        <Select
-                                            labelId="vacation_status"
-                                            id="vacation_status_select"
-                                            value={vacationType === null ? "all" : vacationType ? "approved" : "declined"}
-                                            label="Vacation status"
-                                            onChange={handleVacationStatusChange}
-                                        >
-                                            <MenuItem value="all">All</MenuItem>
-                                            <MenuItem value="approved">Approved</MenuItem>
-                                            <MenuItem value="declined">Declined</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-
-                                <Grid item xs={3}>
-                                    <ToggleButtonGroup
-                                        value={orderByDesc ? "desc" : "asc"}
-                                        onChange={handleOrderChange}
-                                        exclusive={true}
+                            <Box sx={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: "25px"
+                            }}>
+                                <FormControl fullWidth sx={{maxWidth: "200px"}}>
+                                    <InputLabel id="vacation_status">Vacation status</InputLabel>
+                                    <Select
+                                        labelId="vacation_status"
+                                        id="vacation_status_select"
+                                        value={vacationType === null ? "all" : vacationType ? "approved" : "declined"}
+                                        label="Vacation status"
+                                        onChange={handleVacationStatusChange}
                                     >
-                                        <ToggleButton value="asc" key="asc">
-                                            Oldest first
-                                        </ToggleButton>
-                                        <ToggleButton value="desc" key="desc">
-                                            Newest first
-                                        </ToggleButton>
-                                    </ToggleButtonGroup>
-                                </Grid>
-                            </Grid>
+                                        <MenuItem value="all">All</MenuItem>
+                                        <MenuItem value="approved">Approved</MenuItem>
+                                        <MenuItem value="declined">Declined</MenuItem>
+                                    </Select>
+                                </FormControl>
+
+                                <ToggleButtonGroup
+                                    value={orderByDesc ? "desc" : "asc"}
+                                    onChange={handleOrderChange}
+                                    exclusive={true}
+                                >
+                                    <ToggleButton value="asc" key="asc">
+                                        Oldest first
+                                    </ToggleButton>
+                                    <ToggleButton value="desc" key="desc">
+                                        Newest first
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                            </Box>
+
                             {vacationList.length > 0
                                 ?
                                 <>
@@ -179,14 +190,17 @@ export default  function VacationList() {
                                                 <TableRow>
                                                     <TableCell style={{fontWeight: 'bold'}}>Start</TableCell>
                                                     <TableCell style={{fontWeight: 'bold'}}>End</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}>Comment</TableCell>
                                                     <TableCell style={{fontWeight: 'bold'}}>Approver</TableCell>
+                                                    <TableCell style={{fontWeight: 'bold'}}>Approver comment</TableCell>
                                                     <TableCell style={{fontWeight: 'bold'}}>Status</TableCell>
                                                     <TableCell style={{fontWeight: 'bold'}}></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {vacationList.map((vacationItem) => (
-                                                    <TableRow style={{backgroundColor: vacationItem.vacation.isApproved ? '#6fbf73' : '#ffa733'}}
+                                                    <TableRow style={{backgroundColor: vacationItem.vacation.isApproved === null ? '#9e9e9e' :
+                                                            vacationItem.vacation.isApproved ? '#6fbf73' : '#ffa733'}}
                                                               key={vacationItem.vacation.id}>
                                                         <TableCell>
                                                             {formatIsoDateWithoutTime(vacationItem.vacation.start)}
@@ -194,21 +208,48 @@ export default  function VacationList() {
                                                         <TableCell>
                                                             {formatIsoDateWithoutTime(vacationItem.vacation.end)}
                                                         </TableCell>
-                                                        <TableCell onClick={() => console.log(vacationItem)}>
+                                                        <TableCell sx={{maxWidth: "150px"}}>
+                                                            <Tooltip title={vacationItem.vacation.comment}>
+                                                                <Box sx={{
+                                                                    whiteSpace: 'nowrap',
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis'
+                                                                }}>
+                                                                    {vacationItem.vacation.comment || "missing"}
+                                                                </Box>
+                                                            </Tooltip>
+                                                        </TableCell>
+                                                        <TableCell>
                                                             {
                                                                 vacationItem.approver ?
                                                                     (
                                                                         <Link to={`/user/${vacationItem.approver.id}`}>
                                                                             {vacationItem.approver.fullName}
                                                                         </Link>
-                                                                    ) : "None"
+                                                                    ) : "none"
                                                             }
+                                                        </TableCell>
+                                                        <TableCell sx={{maxWidth: "150px"}}>
+                                                            <Tooltip title={vacationItem.vacation.approverComment}>
+                                                                <Box sx={{
+                                                                    whiteSpace: 'nowrap',
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis'
+                                                                }}>
+                                                                    {
+                                                                        vacationItem.vacation.approverComment || "missing"
+                                                                    }
+                                                                </Box>
+                                                            </Tooltip>
                                                         </TableCell>
                                                         <TableCell>{getVacationStatus(vacationItem.vacation)}</TableCell>
                                                         <TableCell>
-                                                            <Link to={`/vacation/details/${vacationItem.vacation.id}`}>
-                                                                <InfoIcon />
-                                                            </Link>
+                                                            {
+                                                                vacationItem.vacation.isApproved === null &&
+                                                                <Link to={`/vacations/delete/${vacationItem.vacation.id}`}>
+                                                                    <DeleteIcon />
+                                                                </Link>
+                                                            }
                                                         </TableCell>
                                                     </TableRow>
                                                 ))}
