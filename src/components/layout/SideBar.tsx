@@ -21,7 +21,7 @@ import TrackerBar from "../time-tracking/TrackerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import {hasPermit} from "../../helpers/hasPermit";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
 
 const drawerWidth = 240;
 
@@ -228,6 +228,18 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </Link>
                             </ListItemButton>
                         </ListItem>
+
+                        {hasPermit(userData.user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
+                            <ListItem disablePadding>
+                                <ListItemButton sx={{width: 100}}>
+                                    <Link to="/vacations/approvement" style={{width: '100%'}}>
+                                        <ListItemText>
+                                            Vacation approvement
+                                        </ListItemText>
+                                    </Link>
+                                </ListItemButton>
+                            </ListItem>
+                        }
                     </List>
                     <Divider />
                     <List>

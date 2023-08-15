@@ -5,6 +5,21 @@ export enum UserStatusEnum {
   vacation
 }
 
+export enum PermissionsEnum {
+  LoggedIn,
+  CreateUser,
+  GetUsers,
+  DeactivateUser,
+  UpdateUser,
+  ManageHolidays,
+  CreateWorkSessions,
+  UpdateWorkSessions,
+  DeleteWorkSessions,
+  GetWorkSession,
+  GetVacations,
+  ApproveVacations
+}
+
 export const hasPermit = (permissionJson: string, permission: string): boolean => {
   if (!permissionJson) return false;
 

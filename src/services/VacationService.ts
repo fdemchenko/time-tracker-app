@@ -98,6 +98,63 @@ export function RequestGetVacationInfoByUserId(userId: string) {
     );
 }
 
+interface GetVacationRequestsResponse extends GraphQLResponse {
+    data?: {
+        vacation?: {
+            getVacationsRequests: VacationResponse[] | null
+        }
+    }
+}
+export function RequestGetVacationRequest(getNotStarted: boolean) {
+    return ajaxAuth<GetVacationRequestsResponse>(JSON.stringify({
+        query: `
+                query GetVacationRequests($getNotStarted: Boolean!) {
+                  vacation {
+                    getVacationsRequests(getNotStarted: $getNotStarted) {
+                      vacation {
+                        id
+                        userId
+                        start
+                        end
+                        comment
+                        isApproved
+                        approverId
+                        approverComment
+                      }
+                      user {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                      approver {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "getNotStarted": getNotStarted
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
 interface CreateVacationResponse extends GraphQLResponse {
     data?: {
         vacation?: {

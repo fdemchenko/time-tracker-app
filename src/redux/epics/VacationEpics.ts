@@ -1,6 +1,6 @@
 import {
     CREATE_VACATION_ACTION, DELETE_VACATION_ACTION,
-    GET_VACATION_INFO_BY_USER_ID_ACTION,
+    GET_VACATION_INFO_BY_USER_ID_ACTION, GET_VACATION_REQUESTS_ACTION,
     GET_VACATIONS_BY_USER_ID_ACTION,
     VACATION_ERROR_ACTION,
 } from "../actions";
@@ -9,7 +9,7 @@ import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxj
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
     RequestCreateVacation, RequestDeleteVacation,
-    RequestGetVacationInfoByUserId,
+    RequestGetVacationInfoByUserId, RequestGetVacationRequest,
     RequestGetVacationsByUserId
 } from "../../services/VacationService";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
@@ -50,6 +50,30 @@ export const GetVacationsByUserIdEpic: Epic = (action$: Observable<PayloadAction
                     return vacationErrorActionCreator(res, errorMsg);
                 }
                 let vacationList = res.data?.vacation?.getVacationsByUserId;
+                if (vacationList) {
+                    return SetVacationList(vacationList);
+                }
+                return vacationErrorActionCreator(res, errorMsg);
+            }),
+            catchError((err) => of(vacationErrorActionCreator(err))),
+            startWith(SetIsVacationLoading(true)),
+            endWith(SetIsVacationLoading(false))
+        ))
+    );
+
+export const getVacationRequestsActionCreator = (getNotStarted: boolean) =>
+    ({type: GET_VACATION_REQUESTS_ACTION, payload: getNotStarted});
+export const GetVacationRequestsEpic: Epic = (action$: Observable<PayloadAction<boolean>>) =>
+    action$.pipe(
+        ofType(GET_VACATION_REQUESTS_ACTION),
+        map(action => action.payload),
+        mergeMap((getNotStarted) => RequestGetVacationRequest(getNotStarted).pipe(
+            map((res) => {
+                const errorMsg = "Failed to load vacation requests";
+                if (res.errors) {
+                    return vacationErrorActionCreator(res, errorMsg);
+                }
+                let vacationList = res.data?.vacation?.getVacationsRequests;
                 if (vacationList) {
                     return SetVacationList(vacationList);
                 }

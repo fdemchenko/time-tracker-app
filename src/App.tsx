@@ -23,9 +23,10 @@ import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDelet
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
-import VacationList from "./components/vacation/VacationList";
+import UserVacations from "./components/vacation/UserVacations";
 import VacationDialog from "./components/vacation/VacationDialog";
 import ProfilesList from "./components/user/ProfilesList";
+import ApproveVacation from "./components/vacation/ApproveVacation";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -105,13 +106,19 @@ function App() {
 
 					<Route path="/vacations" element={
 						<ProtectedRoute>
-							<VacationList />
+							<UserVacations />
 						</ProtectedRoute>
 					}
 					>
 						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
 						<Route path="/vacations/approve/:vacationId" element={<VacationDialog type="approve" />} />
 						<Route path="/vacations/delete/:vacationId" element={<VacationDialog type="delete" />} />
+					</Route>
+					<Route
+						path="/vacations/approvement"
+						element={<ProtectedRoute><ApproveVacation /></ProtectedRoute>}
+					>
+						<Route path="/vacations/approvement/:vacationId" element={<div>dasdads</div>} />
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>

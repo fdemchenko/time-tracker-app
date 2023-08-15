@@ -24,7 +24,7 @@ import {
 } from "./epics/SchedulerEpics";
 import {
     CreateVacationEpic, DeleteVacationEpic,
-    GetVacationInfoByUserIdEpic,
+    GetVacationInfoByUserIdEpic, GetVacationRequestsEpic,
     GetVacationsByUserIdEpic,
     VacationErrorEpic
 } from "./epics/VacationEpics";
@@ -58,6 +58,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         VacationErrorEpic,
         GetVacationsByUserIdEpic,
         GetVacationInfoByUserIdEpic,
+        GetVacationRequestsEpic,
         CreateVacationEpic,
         DeleteVacationEpic
     )(action$, store$, dependencies).pipe(
