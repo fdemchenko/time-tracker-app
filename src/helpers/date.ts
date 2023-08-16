@@ -39,6 +39,10 @@ export function formatIsoTime(dateStr: string) {
   return moment(dateStr).format("HH:mm");
 }
 
+export function formatIsoDateWithoutTime(dateStr: string) {
+  return moment(dateStr).format("MM/DD/YYYY");
+}
+
 export function countIsoDateDiff(startIsoDate: string, finishIsoDate: string) {
   let start = moment(startIsoDate);
   let finish = moment(finishIsoDate);

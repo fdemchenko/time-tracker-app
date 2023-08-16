@@ -101,7 +101,7 @@ export default function HolidaysDialog() {
             title: Yup.string().required("Title is required").min(6, "Title should be longer than 6"),
             type: Yup.string().oneOf(["DayOff", "Holiday", "ShortDay"], "Select holiday type"),
             date: Yup.string().required("Holiday date is required"),
-            endDate: Yup.string()
+            endDate: Yup.string().notRequired().nullable()
         })
     });
     const formik = useFormik({
@@ -325,7 +325,7 @@ export default function HolidaysDialog() {
                                                                 newDate ? newDate.toISOString() : undefined, true)}
                                                             slotProps={{
                                                                 textField: {
-                                                                    error: !!formik.errors.holiday?.date,
+                                                                    error: !!formik.touched.holiday?.date && !!formik.errors.holiday?.date,
                                                                     helperText: formik.touched.holiday?.date && formik.errors.holiday?.date
                                                                 }
                                                             }}

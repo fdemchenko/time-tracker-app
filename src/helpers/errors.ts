@@ -16,7 +16,7 @@ export interface HandleErrorMessageType {
     title?: string,
     sendGlobalMessage: boolean
 }
-export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: ActionCreatorWithPayload<string>) {
+export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: ActionCreatorWithPayload<string | null>) {
     let message = data.message ? data.message: defaultErrorMessage;
     let title = data.title ? data.title: "Error";
     let response = data.response;

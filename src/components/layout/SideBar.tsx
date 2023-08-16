@@ -14,18 +14,14 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import {ReactNode, useState} from "react";
 import {Link} from "react-router-dom";
 import TrackerBar from "../time-tracking/TrackerBar";
 import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
 import {UserSliceState} from "../../redux/slices/UserSlice";
-import {Grid} from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import {hasPermit} from "../../helpers/hasPermit";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
 
 const drawerWidth = 240;
 
@@ -222,6 +218,28 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </Link>
                             </ListItemButton>
                         </ListItem>
+
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
+                                <Link to="/vacations" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        Vacations
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
+
+                        {hasPermit(userData.user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
+                            <ListItem disablePadding>
+                                <ListItemButton sx={{width: 100}}>
+                                    <Link to="/vacations/approvement" style={{width: '100%'}}>
+                                        <ListItemText>
+                                            Vacation approvement
+                                        </ListItemText>
+                                    </Link>
+                                </ListItemButton>
+                            </ListItem>
+                        }
                     </List>
                     <Divider />
                     <List>
