@@ -19,7 +19,7 @@ export const SchedulerSlice = createSlice({
     initialState,
     reducers: {
         SetSchedulerError: (state,
-                              action: PayloadAction<string>) => {
+                              action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
         SetIsSchedulerLoading: (state,

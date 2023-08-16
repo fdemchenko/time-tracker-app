@@ -46,7 +46,7 @@ export const UserSlice = createSlice({
             state = initialState;
         },
         SetUserError: (state,
-                       action: PayloadAction<string>) => {
+                       action: PayloadAction<string | null>) => {
             state.error = action.payload;
         }
     }

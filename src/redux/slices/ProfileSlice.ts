@@ -23,7 +23,7 @@ export const ProfileSlice = createSlice({
     SetProfiles: (state, action: PayloadAction<ProfileList>) => {
       state.profiles = action.payload;
     },
-    SetError: (state, action: PayloadAction<string>) => {
+    SetError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
     SetLoading: (state, action: PayloadAction<boolean>) => {
