@@ -111,14 +111,13 @@ function App() {
 					}
 					>
 						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
-						<Route path="/vacations/approve/:vacationId" element={<VacationDialog type="approve" />} />
 						<Route path="/vacations/delete/:vacationId" element={<VacationDialog type="delete" />} />
 					</Route>
 					<Route
 						path="/vacations/approvement"
 						element={<ProtectedRoute><ApproveVacation /></ProtectedRoute>}
 					>
-						<Route path="/vacations/approvement/:vacationId" element={<div>dasdads</div>} />
+						<Route path="/vacations/approvement/:vacationId" element={<VacationDialog type="approve" />} />
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>

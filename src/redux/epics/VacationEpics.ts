@@ -1,4 +1,5 @@
 import {
+    APPROVER_UPDATE_VACATION_ACTION,
     CREATE_VACATION_ACTION, DELETE_VACATION_ACTION,
     GET_VACATION_INFO_BY_USER_ID_ACTION, GET_VACATION_REQUESTS_ACTION,
     GET_VACATIONS_BY_USER_ID_ACTION,
@@ -8,6 +9,7 @@ import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
+    RequestApproverUpdateVacation,
     RequestCreateVacation, RequestDeleteVacation,
     RequestGetVacationInfoByUserId, RequestGetVacationRequest,
     RequestGetVacationsByUserId
@@ -22,6 +24,7 @@ import {
 } from "../slices/VacationSlice";
 import {VacationCreate} from "../../models/vacation/VacationCreate";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
+import {VacationApprove} from "../../models/vacation/VacationApprove";
 
 export const vacationErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: VACATION_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -125,6 +128,33 @@ export const CreateVacationEpic: Epic = (action$: Observable<PayloadAction<Vacat
                     return of(SetVacationRequireUpdate(), SetGlobalMessage({
                         title: "Success",
                         message: "Vacation request was successfully created",
+                        type: "success"
+                    }));
+                }
+                return of(vacationErrorActionCreator(res, errorMsg));
+            }),
+            catchError((err) => of(vacationErrorActionCreator(err))),
+            startWith(SetIsVacationLoading(true)),
+            endWith(SetIsVacationLoading(false))
+        ))
+    );
+
+export const approverUpdateVacationActionCreator = (vacationApprove: VacationApprove) =>
+    ({type: APPROVER_UPDATE_VACATION_ACTION, payload: vacationApprove});
+export const ApproverUpdateVacationEpic: Epic = (action$: Observable<PayloadAction<VacationApprove>>) =>
+    action$.pipe(
+        ofType(APPROVER_UPDATE_VACATION_ACTION),
+        map(action => action.payload),
+        mergeMap((vacationApprove) => RequestApproverUpdateVacation(vacationApprove).pipe(
+            mergeMap((res) => {
+                const errorMsg = "Failed to update vacation request";
+                if (res.errors) {
+                    return of(vacationErrorActionCreator(res, errorMsg));
+                }
+                if (res.data?.vacation?.updateByApprover) {
+                    return of(SetVacationRequireUpdate(), SetGlobalMessage({
+                        title: "Success",
+                        message: "Vacation request was successfully updated",
                         type: "success"
                     }));
                 }

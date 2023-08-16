@@ -64,7 +64,7 @@ export default function ApproveVacation() {
                                 actionsCellRenderer={(vacation) =>
                                     <>
                                         {
-                                            vacation.isApproved === null &&
+                                            (getNotStarted || vacation.isApproved === null) &&
                                             <Link to={`/vacations/approvement/${vacation.id}`}>
                                                 <PreviewIcon />
                                             </Link>

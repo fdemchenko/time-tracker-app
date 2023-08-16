@@ -62,7 +62,7 @@ export default function VacationList({vacationList, actionsCellRenderer}: Vacati
                                             {
                                                 vacationItem.approver ?
                                                     (
-                                                        <Link to={`/user/${vacationItem.approver.id}`}>
+                                                        <Link to={`/user/${vacationItem.approver.id}`} target="_blank">
                                                             {vacationItem.approver.fullName}
                                                         </Link>
                                                     ) : "none"

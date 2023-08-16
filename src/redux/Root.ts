@@ -23,6 +23,7 @@ import {
     UpdateHolidayEpic
 } from "./epics/SchedulerEpics";
 import {
+    ApproverUpdateVacationEpic,
     CreateVacationEpic, DeleteVacationEpic,
     GetVacationInfoByUserIdEpic, GetVacationRequestsEpic,
     GetVacationsByUserIdEpic,
@@ -60,6 +61,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         GetVacationInfoByUserIdEpic,
         GetVacationRequestsEpic,
         CreateVacationEpic,
+        ApproverUpdateVacationEpic,
         DeleteVacationEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {

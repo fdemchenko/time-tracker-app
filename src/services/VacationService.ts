@@ -5,6 +5,7 @@ import {GetVacationsByUserIdInput} from "../redux/epics/VacationEpics";
 import {VacationInfo} from "../models/vacation/VacationInfo";
 import moment from "moment";
 import {VacationCreate} from "../models/vacation/VacationCreate";
+import {VacationApprove} from "../models/vacation/VacationApprove";
 
 export const VacationDaysInYear = 30;
 
@@ -202,6 +203,35 @@ export function RequestDeleteVacation(id: string) {
             `,
         variables: {
             "id": id
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface ApproverUpdateVacationResponse extends GraphQLResponse {
+    data?: {
+        vacation?: {
+            updateByApprover: boolean | null
+        }
+    }
+}
+export function RequestApproverUpdateVacation(vacationApprove: VacationApprove) {
+    return ajaxAuth<ApproverUpdateVacationResponse>(JSON.stringify({
+        query: `
+                mutation ApproverUpdate($approverUpdate: VacationApproveInputType!) {
+                  vacation {
+                    updateByApprover(approverUpdate: $approverUpdate)
+                  }
+                }
+            `,
+        variables: {
+            "approverUpdate": {
+                "id": vacationApprove.id,
+                "isApproved": vacationApprove.isApproved,
+                "approverId": vacationApprove.approverId,
+                "approverComment": vacationApprove.approverComment
+            }
         }
     })).pipe(
         map((res) => res.response)
