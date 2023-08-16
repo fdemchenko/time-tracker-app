@@ -7,12 +7,13 @@ import {useFormik} from "formik";
 import {createVacationActionCreator} from "../../redux/epics/VacationEpics";
 import {useNavigate} from "react-router-dom";
 import DialogActions from "@mui/material/DialogActions";
-import {Alert, Box, Button, TextField} from "@mui/material";
+import {Alert, Box, Button, Paper, TextField} from "@mui/material";
 import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useEffect} from "react";
+import {GetAvailableVacationDays} from "../../services/VacationService";
 
 const InitialVacationValue: VacationCreate = {
     userId: "",
@@ -28,6 +29,11 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
     const navigate = useNavigate();
 
     const {user} = useAppSelector(state => state.user);
+    const {vacationInfo} = useAppSelector(state => state.vacation);
+
+    let vacationDaysAvailable = vacationInfo ? GetAvailableVacationDays(vacationInfo.employmentDate) : 0;
+    let vacationDaysLeft = vacationInfo && vacationInfo.daysSpent <= vacationDaysAvailable ?
+        vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
     let doesUserHasWorkingStatus = user.status === UserStatusEnum[UserStatusEnum.working];
 
@@ -39,8 +45,8 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
         vacation: Yup.object().shape({
             userId: Yup.string(),
             start: Yup.string().required("Start date is required").test("isBeforeNow",
-                "Start date should be at least tomorrow", (value, context) =>
-                    moment(context.parent.start).isAfter(moment(), "days")),
+                "Start date should be at least after 3 weeks", (value, context) =>
+                    moment(context.parent.start).isAfter(moment().add(3, "weeks"), "days")),
             end: Yup.string().required("End date is required").test("isBefore",
                 "End date should be after start date", (value, context) =>
                     moment(context.parent.start).isBefore(value, "days")),
@@ -60,6 +66,9 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
         }
     });
 
+    let inputVacationDurationInDays = moment(formik.values.vacation.end)
+        .diff(formik.values.vacation.start, "days") + 1;
+
     return (
         <>
             {
@@ -70,6 +79,13 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
                 ) : (
                     <form onSubmit={formik.handleSubmit}>
                         <DialogContent>
+                            <Paper elevation={6} sx={{p: 2, mb: 2, textAlign: "center"}}>
+                                <b>
+                                    {
+                                        vacationDaysLeft === 0 ? "less than 0" : vacationDaysLeft
+                                    }
+                                </b> vacation days left
+                            </Paper>
                             <DialogContentText sx={{mb: 2}}>
                                 Enter vacation data
                             </DialogContentText>
@@ -85,7 +101,7 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
                                     views={["year", "month", "day"]}
                                     label="Start date"
                                     format="YYYY-MM-DD"
-                                    minDate={moment().add(1, "days")}
+                                    minDate={moment().add(3, "weeks").add(1, "days")}
                                     sx={{width: 1}}
                                     value={moment(formik.values.vacation.start)}
                                     onChange={(newDate) => formik.setFieldValue("vacation.start",
@@ -103,7 +119,7 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
                                     views={["year", "month", "day"]}
                                     label="End date"
                                     format="YYYY-MM-DD"
-                                    minDate={moment(formik.values.vacation.start).add(2, "days")}
+                                    minDate={moment(formik.values.vacation.start).add(5, "days")}
                                     sx={{width: 1}}
                                     value={moment(formik.values.vacation.end)}
                                     onChange={(newDate) => formik.setFieldValue("vacation.end",
@@ -131,6 +147,11 @@ export default function VacationCreateDialog({setTitle}: VacationCreateDialogPro
                                     {...formik.getFieldProps('vacation.comment')}
                                 />
                             </Box>
+
+                            {
+                                inputVacationDurationInDays > vacationDaysLeft &&
+                                <Alert severity="warning">Your vacation request time is bigger than you have</Alert>
+                            }
                         </DialogContent>
 
                         <DialogActions sx={{mx: 3, my: 2}}>

@@ -4,7 +4,7 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import * as Yup from "yup";
 import moment from "moment";
 import {useFormik} from "formik";
-import {approverUpdateVacationActionCreator, createVacationActionCreator} from "../../redux/epics/VacationEpics";
+import {approverUpdateVacationActionCreator} from "../../redux/epics/VacationEpics";
 import {
     Alert,
     Box,
@@ -18,7 +18,6 @@ import {
     TextField
 } from "@mui/material";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import {DatePicker} from "@mui/x-date-pickers";
 import DialogActions from "@mui/material/DialogActions";
 import * as React from "react";

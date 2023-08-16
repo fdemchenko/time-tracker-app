@@ -8,9 +8,10 @@ import {Vacation} from "../../models/vacation/Vacation";
 
 interface VacationListProps {
     vacationList: VacationResponse[],
-    actionsCellRenderer: (vacation: Vacation) => React.ReactNode
+    actionsCellRenderer: (vacation: Vacation) => React.ReactNode,
+    showUser?: boolean
 }
-export default function VacationList({vacationList, actionsCellRenderer}: VacationListProps) {
+export default function VacationList({vacationList, actionsCellRenderer, showUser}: VacationListProps) {
     function getVacationStatus(vacation: Vacation): string {
         if (vacation.isApproved === null) {
             return "waiting for approve";
@@ -30,6 +31,14 @@ export default function VacationList({vacationList, actionsCellRenderer}: Vacati
                                     <TableCell style={{fontWeight: 'bold'}}>Start</TableCell>
                                     <TableCell style={{fontWeight: 'bold'}}>End</TableCell>
                                     <TableCell style={{fontWeight: 'bold'}}>Comment</TableCell>
+                                    <TableCell
+                                        style={{
+                                            fontWeight: 'bold',
+                                            display: showUser ? "table-cell" : "none"
+                                        }}
+                                    >
+                                        User
+                                    </TableCell>
                                     <TableCell style={{fontWeight: 'bold'}}>Approver</TableCell>
                                     <TableCell style={{fontWeight: 'bold'}}>Approver comment</TableCell>
                                     <TableCell style={{fontWeight: 'bold'}}>Status</TableCell>
@@ -57,6 +66,11 @@ export default function VacationList({vacationList, actionsCellRenderer}: Vacati
                                                     {vacationItem.vacation.comment || "missing"}
                                                 </Box>
                                             </Tooltip>
+                                        </TableCell>
+                                        <TableCell sx={{display: showUser ? "table-cell" : "none"}}>
+                                            <Link to={`/user/${vacationItem.user.id}`} target="_blank">
+                                                {vacationItem.user.fullName}
+                                            </Link>
                                         </TableCell>
                                         <TableCell>
                                             {
