@@ -27,6 +27,7 @@ import UserVacations from "./components/vacation/UserVacations";
 import VacationDialog from "./components/vacation/VacationDialog";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
+import SickLeavePage from "./components/sick-leave/SickLeavePage";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -121,6 +122,9 @@ function App() {
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>
+
+					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>
