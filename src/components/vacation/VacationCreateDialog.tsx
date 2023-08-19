@@ -21,7 +21,10 @@ const InitialVacationValue: VacationCreate = {
     end: "",
     comment: ""
 };
-export default function VacationCreateDialog() {
+interface VacationCreateDialogProps {
+    setTitle: (title: string) => void
+}
+export default function VacationCreateDialog({setTitle}: VacationCreateDialogProps) {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
@@ -33,6 +36,10 @@ export default function VacationCreateDialog() {
         vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
     let doesUserHasWorkingStatus = user.status === UserStatusEnum[UserStatusEnum.working];
+
+    useEffect(() => {
+        setTitle("Create vacation request");
+    }, []);
 
     const validationSchema = Yup.object().shape({
         vacation: Yup.object().shape({
