@@ -1,12 +1,18 @@
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {useEffect} from "react";
+import React, {useEffect} from "react";
 import {getSickLeaveDataActionCreator} from "../../redux/epics/SickLeaveEpics";
 import moment from "moment";
+import {
+    Alert,
+} from "@mui/material";
+import Typography from "@mui/material/Typography";
+import {Outlet} from "react-router-dom";
+import SickLeaveList from "./SickLeaveList";
 
 export default function SickLeavePage() {
     const dispatch = useAppDispatch();
 
-    const {sickLeaveList} = useAppSelector(state => state.sickLeave);
+    const {error, isLoading} = useAppSelector(state => state.sickLeave);
     const {user} = useAppSelector(state => state.user);
 
     useEffect(() => {
@@ -17,9 +23,26 @@ export default function SickLeavePage() {
         }))
     }, []);
 
-    useEffect(() => {
-        console.log(sickLeaveList)
-    }, sickLeaveList);
+    return (
+        <>
+            {error
+                ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
+                : <>
+                    {isLoading
+                        ? <div className="lds-dual-ring"></div>
+                        :
+                        <>
+                            <Typography variant="h3" gutterBottom>
+                                Sick leave list
+                            </Typography>
 
-    return (<></>);
+                            <Outlet />
+
+                            <SickLeaveList />
+                        </>
+                    }
+                </>
+            }
+        </>
+    );
 }

@@ -67,3 +67,10 @@ export function separateDateOnMidnight(start: string, end: string): {start: Date
 
   return result;
 }
+
+export function isTodayIsInRange(start: string, end: string) {
+  let startDate = moment(start);
+  let endDate = moment(end);
+
+  return moment().isBetween(startDate, endDate, "days", "[]");
+}
