@@ -24,10 +24,7 @@ import * as React from "react";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 
-interface VacationApproveDialogProps {
-    setTitle: (title: string) => void
-}
-export default function VacationApproveDialog({setTitle}: VacationApproveDialogProps) {
+export default function VacationApproveDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {vacationId} = useParams();
@@ -58,10 +55,6 @@ export default function VacationApproveDialog({setTitle}: VacationApproveDialogP
             navigate(-1);
         }
     });
-
-    useEffect(() => {
-        setTitle("Approve vacation request");
-    }, []);
 
     function handleApproveChange(e: SelectChangeEvent) {
         let value = e.target.value;
