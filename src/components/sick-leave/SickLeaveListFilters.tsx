@@ -30,13 +30,6 @@ export default function SickLeaveListFilters({filterUser, setFilterUser, searchB
         setSearchByYear(value === "year");
     }
 
-    const disableKeyboardEntry = (e: any) => {
-        if (e?.preventDefault) {
-            e?.preventDefault();
-            e?.stopPropagation();
-        }
-    }
-
     return (
         <Box
             sx={{
@@ -96,4 +89,11 @@ export default function SickLeaveListFilters({filterUser, setFilterUser, searchB
             </Box>
         </Box>
     );
+}
+
+const disableKeyboardEntry = (e: any) => {
+    if (e?.preventDefault) {
+        e?.preventDefault();
+        e?.stopPropagation();
+    }
 }

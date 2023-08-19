@@ -1,10 +1,12 @@
-import {Alert, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {Alert, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {formatIsoDateWithoutTime} from "../../helpers/date";
 import {Link} from "react-router-dom";
 import React from "react";
 import {SickLeave} from "../../models/sick-leave/SickLeave";
 import {isTodayIsInRange} from "../../helpers/date";
 import {useAppSelector} from "../../redux/CustomHooks";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function SickLeaveList() {
     const {sickLeaveList} = useAppSelector(state => state.sickLeave);
@@ -53,7 +55,21 @@ export default function SickLeaveList() {
                                             {getIsActiveStatus(sickLeaveItem.sickLeave)}
                                         </TableCell>
                                         <TableCell>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    flexWrap: "wrap",
+                                                    gap: 2
+                                                }}
+                                            >
+                                                <Link to={`/sick-leave/create`}>
+                                                    <EditIcon />
+                                                </Link>
 
+                                                <Link to={`/sick-leave/create`}>
+                                                    <DeleteIcon />
+                                                </Link>
+                                            </Box>
                                         </TableCell>
                                     </TableRow>
                                 ))}

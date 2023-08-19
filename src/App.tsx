@@ -31,6 +31,7 @@ import DialogWindow from "./components/layout/DialogWindow";
 import VacationCreateDialog from "./components/vacation/VacationCreateDialog";
 import VacationDeleteDialog from "./components/vacation/VacationDeleteDialog";
 import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
+import SickLeaveCreateDialog from "./components/sick-leave/SickLeaveCreateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -127,6 +128,7 @@ function App() {
 					<Route path="/holidays" element={<HolidaysDialog />}/>
 
 					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
+						<Route path="/sick-leave/create" element={<SickLeaveCreateDialog />} />
 					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>

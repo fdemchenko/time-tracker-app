@@ -1,11 +1,27 @@
 import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
-import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
-import {GET_SICK_LEAVE_DATA_ACTION, SICK_LEAVE_ERROR_ACTION} from "../actions";
-import {SetIsSickLeaveLoading, SetSickLeaveError, SetSickLeaveList} from "../slices/SickLeaveSlice";
+import {
+    ErrorCodes,
+    handleErrorMessage,
+    HandleErrorMessageType,
+    InvalidUserStatusErrorMessage,
+} from "../../helpers/errors";
+import {
+    CREATE_SICK_LEAVE_DATA_ACTION,
+    GET_SICK_LEAVE_DATA_ACTION,
+    SICK_LEAVE_ERROR_ACTION
+} from "../actions";
+import {
+    SetIsSickLeaveLoading,
+    SetSickLeaveError,
+    SetSickLeaveList,
+    SetSickLeaveRequireUpdate
+} from "../slices/SickLeaveSlice";
 import {Moment} from "moment";
-import {RequestGetSickLeaveDataRequest} from "../../services/SickLeaveService";
+import {RequestCreateSickLeaveDataRequest, RequestGetSickLeaveDataRequest} from "../../services/SickLeaveService";
+import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
+import {SickLeaveInput} from "../../models/sick-leave/SickLeaveInput";
 
 export const sickLeaveErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: SICK_LEAVE_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -40,6 +56,36 @@ export const GetSickLeavesDataEpic: Epic = (action$: Observable<PayloadAction<Ge
                 }
                 console.log(sickLeaveList)
                 return sickLeaveErrorActionCreator(res, errorMsg);
+            }),
+            catchError((err) => of(sickLeaveErrorActionCreator(err))),
+            startWith(SetIsSickLeaveLoading(true)),
+            endWith(SetIsSickLeaveLoading(false))
+        ))
+    );
+
+export const createSickLeaveDataActionCreator = (sickLeaveInput: SickLeaveInput) =>
+    ({type: CREATE_SICK_LEAVE_DATA_ACTION, payload: sickLeaveInput});
+export const CreateSickLeaveDataEpic: Epic = (action$: Observable<PayloadAction<SickLeaveInput>>) =>
+    action$.pipe(
+        ofType(CREATE_SICK_LEAVE_DATA_ACTION),
+        map(action => action.payload),
+        mergeMap((sickLeaveInput) => RequestCreateSickLeaveDataRequest(sickLeaveInput).pipe(
+            mergeMap((res) => {
+                const errorMsg = "Failed to create sick leave record";
+                if (res.errors) {
+                    if (res.errors[0]?.extensions?.code === ErrorCodes[ErrorCodes.INVALID_USER_STATUS]) {
+                        return of(SetGlobalMessage({title: "Error", message: InvalidUserStatusErrorMessage, type: "danger"}));
+                    }
+                    return of(sickLeaveErrorActionCreator(res, errorMsg));
+                }
+                if (res.data?.sickLeave?.create) {
+                    return of(SetSickLeaveRequireUpdate(), SetGlobalMessage({
+                        title: "Success",
+                        message: "Sick leave record was successfully created",
+                        type: "success"
+                    }));
+                }
+                return of(sickLeaveErrorActionCreator(res, errorMsg));
             }),
             catchError((err) => of(sickLeaveErrorActionCreator(err))),
             startWith(SetIsSickLeaveLoading(true)),

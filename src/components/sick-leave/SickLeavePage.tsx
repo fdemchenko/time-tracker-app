@@ -3,18 +3,21 @@ import React, {useEffect, useState} from "react";
 import {getSickLeaveDataActionCreator} from "../../redux/epics/SickLeaveEpics";
 import moment, {Moment} from "moment";
 import {
-    Alert,
+    Alert, Button,
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
-import {Outlet} from "react-router-dom";
+import {Outlet, useNavigate} from "react-router-dom";
 import SickLeaveList from "./SickLeaveList";
 import SickLeaveListFilters from "./SickLeaveListFilters";
 import Profile from "../../models/Profile";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
 
 export default function SickLeavePage() {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-    const {error, isLoading} = useAppSelector(state => state.sickLeave);
+    const {error, isLoading, requireUpdateToggle} = useAppSelector(state => state.sickLeave);
+    const {user} = useAppSelector(state => state.user);
 
     const [filterUser, setFilterUser] = useState<Profile | null>(null);
     const [searchByYear, setSearchByYear] = useState<boolean>(false);
@@ -26,7 +29,7 @@ export default function SickLeavePage() {
             date: filterDate,
             searchByYear: searchByYear
         }))
-    }, [filterUser, searchByYear, filterDate]);
+    }, [filterUser, searchByYear, filterDate, requireUpdateToggle]);
 
     return (
         <>
@@ -40,6 +43,19 @@ export default function SickLeavePage() {
                             <Typography variant="h3" gutterBottom>
                                 Sick leave list
                             </Typography>
+
+                            {
+                                hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.ManageSickLeaves]) &&
+                                <Button
+                                    onClick={() => navigate('/sick-leave/create')}
+                                    variant="outlined"
+                                    color="success"
+                                    size="medium"
+                                    sx={{mb: 2}}
+                                >
+                                    Create new sick leave record
+                                </Button>
+                            }
 
                             <Outlet />
 
