@@ -14,7 +14,6 @@ import DialogContentText from "@mui/material/DialogContentText";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useEffect} from "react";
 import {GetAvailableVacationDays} from "../../services/VacationService";
-import DialogWindow from "../layout/DialogWindow";
 
 const InitialVacationValue: VacationCreate = {
     userId: "",
@@ -22,7 +21,10 @@ const InitialVacationValue: VacationCreate = {
     end: "",
     comment: ""
 };
-export default function VacationCreateDialog() {
+interface VacationCreateDialogProps {
+    setTitle: (title: string) => void
+}
+export default function VacationCreateDialog({setTitle}: VacationCreateDialogProps) {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
@@ -34,6 +36,10 @@ export default function VacationCreateDialog() {
         vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
     let doesUserHasWorkingStatus = user.status === UserStatusEnum[UserStatusEnum.working];
+
+    useEffect(() => {
+        setTitle("Create vacation request");
+    }, []);
 
     const validationSchema = Yup.object().shape({
         vacation: Yup.object().shape({
@@ -64,7 +70,7 @@ export default function VacationCreateDialog() {
         .diff(formik.values.vacation.start, "days") + 1;
 
     return (
-        <DialogWindow title="Create vacation request">
+        <>
             {
                 !doesUserHasWorkingStatus ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -167,6 +173,6 @@ export default function VacationCreateDialog() {
                     </form>
                 )
             }
-        </DialogWindow>
+        </>
     );
 }
