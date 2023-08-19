@@ -14,6 +14,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import {DatePicker} from "@mui/x-date-pickers";
 import {useEffect} from "react";
 import {GetAvailableVacationDays} from "../../services/VacationService";
+import DialogWindow from "../layout/DialogWindow";
 
 const InitialVacationValue: VacationCreate = {
     userId: "",
@@ -63,7 +64,7 @@ export default function VacationCreateDialog() {
         .diff(formik.values.vacation.start, "days") + 1;
 
     return (
-        <>
+        <DialogWindow title="Create vacation request">
             {
                 !doesUserHasWorkingStatus ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -166,6 +167,6 @@ export default function VacationCreateDialog() {
                     </form>
                 )
             }
-        </>
+        </DialogWindow>
     );
 }

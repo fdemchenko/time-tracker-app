@@ -12,9 +12,9 @@ import {ReactNode} from "react";
 
 interface DialogWindowProps {
     title: string,
-    contentRenderer: ReactNode
+    children: ReactNode
 }
-export default function DialogWindow({title, contentRenderer}: DialogWindowProps) {
+export default function DialogWindow({title, children}: DialogWindowProps) {
     const navigate = useNavigate();
 
     return (
@@ -47,7 +47,7 @@ export default function DialogWindow({title, contentRenderer}: DialogWindowProps
             </DialogTitle>
             <Divider sx={{mb: 2}}/>
 
-            {contentRenderer}
+            {children}
         </Dialog>
     );
 }

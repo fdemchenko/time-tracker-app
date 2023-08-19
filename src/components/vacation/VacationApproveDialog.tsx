@@ -23,6 +23,7 @@ import DialogActions from "@mui/material/DialogActions";
 import * as React from "react";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import DialogWindow from "../layout/DialogWindow";
 
 export default function VacationApproveDialog() {
     const dispatch = useAppDispatch();
@@ -70,7 +71,7 @@ export default function VacationApproveDialog() {
     }
 
     return (
-        <>
+        <DialogWindow title="Approve vacation request">
             {
                 !vacationResp ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -205,6 +206,6 @@ export default function VacationApproveDialog() {
                     </form>
                 )
             }
-        </>
+        </DialogWindow>
     );
 }

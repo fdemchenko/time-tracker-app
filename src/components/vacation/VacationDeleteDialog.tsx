@@ -7,6 +7,7 @@ import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import {useEffect} from "react";
+import DialogWindow from "../layout/DialogWindow";
 
 export default function VacationDeleteDialog() {
     const dispatch = useAppDispatch();
@@ -24,7 +25,7 @@ export default function VacationDeleteDialog() {
     }
 
     return (
-        <>
+        <DialogWindow title="Delete vacation request">
             {
                 !vacationResp ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -62,6 +63,6 @@ export default function VacationDeleteDialog() {
                         </Alert>
                     )
             }
-        </>
+        </DialogWindow>
     );
 }

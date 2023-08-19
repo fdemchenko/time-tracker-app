@@ -114,29 +114,14 @@ function App() {
 						</ProtectedRoute>
 					}
 					>
-						<Route path="/vacations/create" element={
-							<DialogWindow
-								title="Create vacation request"
-								contentRenderer={<VacationCreateDialog />}
-							/>
-						} />
-						<Route path="/vacations/delete/:vacationId" element={
-							<DialogWindow
-								title="Create vacation request"
-								contentRenderer={<VacationDeleteDialog />}
-							/>
-						} />
+						<Route path="/vacations/create" element={<VacationCreateDialog />} />
+						<Route path="/vacations/delete/:vacationId" element={<VacationDeleteDialog />} />
 					</Route>
 					<Route
 						path="/vacations/approvement"
 						element={<ProtectedRoute><ApproveVacation /></ProtectedRoute>}
 					>
-						<Route path="/vacations/approvement/:vacationId" element={
-							<DialogWindow
-								title="Create vacation request"
-								contentRenderer={<VacationApproveDialog />}
-							/>
-						} />
+						<Route path="/vacations/approvement/:vacationId" element={<VacationApproveDialog />} />
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>
