@@ -197,6 +197,18 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                             </ListItemButton>
                         </ListItem>
 
+                        {hasPermit(userData.user.permissions, "GetUsers") &&
+                          <ListItem disablePadding>
+                              <ListItemButton sx={{width: 100}}>
+                                  <Link to="/users" style={{width: '100%'}}>
+                                      <ListItemText>
+                                          Manage employees
+                                      </ListItemText>
+                                  </Link>
+                              </ListItemButton>
+                          </ListItem>
+                        }
+
                         <ListItem disablePadding>
                             <ListItemButton sx={{width: 100}}>
                                 <Link to={`/scheduler/${userData.user.id}`} style={{width: '100%'}}>
@@ -217,30 +229,6 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                             </ListItemButton>
                         </ListItem>
 
-                        <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/sick-leave" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Sick leave
-                                    </ListItemText>
-                                </Link>
-                            </ListItemButton>
-                        </ListItem>
-                    </List>
-                    <Divider />
-                    <List>
-                        {hasPermit(userData.user.permissions, "GetUsers") &&
-                            <ListItem disablePadding>
-                                <ListItemButton sx={{width: 100}}>
-                                    <Link to="/users" style={{width: '100%'}}>
-                                        <ListItemText>
-                                            Manage employees
-                                        </ListItemText>
-                                    </Link>
-                                </ListItemButton>
-                            </ListItem>
-                        }
-
                         {hasPermit(userData.user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
                             <ListItem disablePadding>
                                 <ListItemButton sx={{width: 100}}>
@@ -252,7 +240,9 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                                 </ListItemButton>
                             </ListItem>
                         }
-
+                    </List>
+                    <Divider />
+                    <List>
                         {
                             !userData.isLogged ? (
                                 <ListItem disablePadding>

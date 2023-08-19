@@ -8,13 +8,20 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import {useEffect} from "react";
 
-export default function VacationDeleteDialog() {
+interface VacationDeleteDialogProps {
+    setTitle: (title: string) => void
+}
+export default function VacationDeleteDialog({setTitle}: VacationDeleteDialogProps) {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {vacationId} = useParams();
 
     const vacationResp = useAppSelector(state => state.vacation.vacationList
         .find(vl => vl.vacation.id === vacationId));
+
+    useEffect(() => {
+        setTitle("Delete vacation request");
+    }, []);
 
     function handleDelete() {
         if (vacationResp) {
