@@ -26,6 +26,8 @@ import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreat
 import UserVacations from "./components/vacation/UserVacations";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
+import SickLeavePage from "./components/sick-leave/SickLeavePage";
+import DialogWindow from "./components/layout/DialogWindow";
 import VacationCreateDialog from "./components/vacation/VacationCreateDialog";
 import VacationDeleteDialog from "./components/vacation/VacationDeleteDialog";
 import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
@@ -123,6 +125,9 @@ function App() {
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>
+
+					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>
