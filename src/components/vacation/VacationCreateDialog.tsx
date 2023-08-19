@@ -12,7 +12,6 @@ import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import {DatePicker} from "@mui/x-date-pickers";
-import {useEffect} from "react";
 import {GetAvailableVacationDays} from "../../services/VacationService";
 import DialogWindow from "../layout/DialogWindow";
 

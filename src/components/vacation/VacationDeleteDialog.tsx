@@ -6,7 +6,6 @@ import {Alert, Button} from "@mui/material";
 import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
-import {useEffect} from "react";
 import DialogWindow from "../layout/DialogWindow";
 
 export default function VacationDeleteDialog() {

@@ -1,4 +1,3 @@
-import {useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import * as Yup from "yup";
