@@ -7,21 +7,15 @@ import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import {useEffect} from "react";
+import DialogWindow from "../layout/DialogWindow";
 
-interface VacationDeleteDialogProps {
-    setTitle: (title: string) => void
-}
-export default function VacationDeleteDialog({setTitle}: VacationDeleteDialogProps) {
+export default function VacationDeleteDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {vacationId} = useParams();
 
     const vacationResp = useAppSelector(state => state.vacation.vacationList
         .find(vl => vl.vacation.id === vacationId));
-
-    useEffect(() => {
-        setTitle("Delete vacation request");
-    }, []);
 
     function handleDelete() {
         if (vacationResp) {
@@ -31,7 +25,7 @@ export default function VacationDeleteDialog({setTitle}: VacationDeleteDialogPro
     }
 
     return (
-        <>
+        <DialogWindow title="Delete vacation request">
             {
                 !vacationResp ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -69,6 +63,6 @@ export default function VacationDeleteDialog({setTitle}: VacationDeleteDialogPro
                         </Alert>
                     )
             }
-        </>
+        </DialogWindow>
     );
 }

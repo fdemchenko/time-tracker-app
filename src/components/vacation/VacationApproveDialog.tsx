@@ -23,11 +23,9 @@ import DialogActions from "@mui/material/DialogActions";
 import * as React from "react";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import DialogWindow from "../layout/DialogWindow";
 
-interface VacationApproveDialogProps {
-    setTitle: (title: string) => void
-}
-export default function VacationApproveDialog({setTitle}: VacationApproveDialogProps) {
+export default function VacationApproveDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {vacationId} = useParams();
@@ -59,10 +57,6 @@ export default function VacationApproveDialog({setTitle}: VacationApproveDialogP
         }
     });
 
-    useEffect(() => {
-        setTitle("Approve vacation request");
-    }, []);
-
     function handleApproveChange(e: SelectChangeEvent) {
         let value = e.target.value;
         if (value === "none") {
@@ -77,7 +71,7 @@ export default function VacationApproveDialog({setTitle}: VacationApproveDialogP
     }
 
     return (
-        <>
+        <DialogWindow title="Approve vacation request">
             {
                 !vacationResp ? (
                     <Alert severity="error" sx={{m: 2}}>
@@ -212,6 +206,6 @@ export default function VacationApproveDialog({setTitle}: VacationApproveDialogP
                     </form>
                 )
             }
-        </>
+        </DialogWindow>
     );
 }
