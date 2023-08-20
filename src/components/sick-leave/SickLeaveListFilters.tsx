@@ -40,6 +40,7 @@ export default function SickLeaveListFilters({filterUser, setFilterUser, searchB
         >
             <Autocomplete
                 getOptionLabel={(option: Profile) => option.fullName}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 options={profiles}
                 renderInput={(params) => <TextField {...params} label="Select user" />}
                 fullWidth

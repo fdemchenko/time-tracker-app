@@ -27,11 +27,11 @@ import UserVacations from "./components/vacation/UserVacations";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
 import SickLeavePage from "./components/sick-leave/SickLeavePage";
-import DialogWindow from "./components/layout/DialogWindow";
 import VacationCreateDialog from "./components/vacation/VacationCreateDialog";
 import VacationDeleteDialog from "./components/vacation/VacationDeleteDialog";
 import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
-import SickLeaveCreateDialog from "./components/sick-leave/SickLeaveCreateDialog";
+import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
+import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -128,7 +128,9 @@ function App() {
 					<Route path="/holidays" element={<HolidaysDialog />}/>
 
 					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
-						<Route path="/sick-leave/create" element={<SickLeaveCreateDialog />} />
+						<Route path="/sick-leave/create" element={<SickLeaveFormDialog />} />
+						<Route path="/sick-leave/update/:id" element={<SickLeaveFormDialog isUpdate />} />
+						<Route path="/sick-leave/delete/:id" element={<SickLeaveDeleteDialog />} />
 					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>

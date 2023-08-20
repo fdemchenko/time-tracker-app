@@ -29,7 +29,12 @@ import {
     GetVacationsByUserIdEpic,
     VacationErrorEpic
 } from "./epics/VacationEpics";
-import {CreateSickLeaveDataEpic, GetSickLeavesDataEpic, SickLeaveErrorEpic} from "./epics/SickLeaveEpics";
+import {
+    CreateSickLeaveDataEpic, DeleteSickLeaveDataEpic,
+    GetSickLeavesDataEpic,
+    SickLeaveErrorEpic,
+    UpdateSickLeaveDataEpic
+} from "./epics/SickLeaveEpics";
 
 export const RootEpic: Epic = (action$, store$, dependencies) =>
     combineEpics(
@@ -66,7 +71,9 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         DeleteVacationEpic,
         SickLeaveErrorEpic,
         GetSickLeavesDataEpic,
-        CreateSickLeaveDataEpic
+        CreateSickLeaveDataEpic,
+        UpdateSickLeaveDataEpic,
+        DeleteSickLeaveDataEpic
     )(action$, store$, dependencies).pipe(
         catchError((error, source) => {
             console.error(error);

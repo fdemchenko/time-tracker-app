@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
 import AccessDenied from "../AccessDenied";
 import {SickLeaveInput} from "../../models/sick-leave/SickLeaveInput";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import * as Yup from "yup";
 import moment from "moment";
 import {useFormik} from "formik";
@@ -11,33 +11,60 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import * as React from "react";
 import {DatePicker} from "@mui/x-date-pickers";
-import {Autocomplete, Box, Button, TextField} from "@mui/material";
+import {Alert, Autocomplete, Box, Button, TextField} from "@mui/material";
 import DialogActions from "@mui/material/DialogActions";
 import Profile from "../../models/Profile";
 import {useEffect, useState} from "react";
 import {getProfilesActionCreator} from "../../redux/epics/UserEpics";
-import {createSickLeaveDataActionCreator} from "../../redux/epics/SickLeaveEpics";
+import {createSickLeaveDataActionCreator, updateSickLeaveDataActionCreator} from "../../redux/epics/SickLeaveEpics";
 
-const InitialSickLeaveValue: SickLeaveInput = {
-    userId: "",
-    lastModifierId: "",
-    start: "",
-    end: "",
-};
-export default function SickLeaveCreateDialog() {
+interface SickLeaveFormDialogProps {
+    isUpdate?: boolean
+}
+export default function SickLeaveFormDialog({isUpdate = false}: SickLeaveFormDialogProps) {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const {id} = useParams();
 
     const {user} = useAppSelector(state => state.user);
     const profiles = useAppSelector(state => state.profile.profiles.items)
         .filter(profile => profile.id !== user.id);
+    const curSickLeave = useAppSelector(state => state.sickLeave.sickLeaveList)
+        .find(sickLeaveData => sickLeaveData.sickLeave.id === id);
 
-    const [userInput, setUserInput] = useState<Profile | null>(null);
-    const [userTextInput, setUserTextInput] = useState<string>("");
+    const initialProfile = getInitialProfile();
+
+    const [userInput, setUserInput] = useState<Profile | null>(initialProfile);
+    const [userTextInput, setUserTextInput] = useState<string>(initialProfile ? initialProfile.fullName : "");
 
     useEffect(() => {
         dispatch(getProfilesActionCreator({}));
     }, []);
+
+    function getInitialSickLeaveValue(): SickLeaveInput {
+        if (curSickLeave && isUpdate) {
+            return {
+                userId: curSickLeave.sickLeave.userId,
+                lastModifierId: curSickLeave.sickLeave.lastModifierId,
+                start: curSickLeave.sickLeave.start,
+                end: curSickLeave.sickLeave.end
+            }
+        }
+        return {
+            userId: "",
+            lastModifierId: "",
+            start: "",
+            end: ""
+        }
+    }
+
+    function getInitialProfile(): Profile | null {
+        if (curSickLeave && isUpdate) {
+            let searchedProfile = profiles.find(profile => profile.id == curSickLeave.sickLeave.userId);
+            return searchedProfile ? searchedProfile : null;
+        }
+        return null;
+    }
 
     const validationSchema = Yup.object().shape({
         sickLeave: Yup.object().shape({
@@ -51,22 +78,35 @@ export default function SickLeaveCreateDialog() {
     });
     const formik = useFormik({
         initialValues: {
-            sickLeave: InitialSickLeaveValue
+            sickLeave: getInitialSickLeaveValue()
         },
         validationSchema,
         onSubmit: values => {
             let sickLeave = values.sickLeave;
             sickLeave.lastModifierId = user.id;
-            dispatch(createSickLeaveDataActionCreator(sickLeave));
+            if (isUpdate && id) {
+                dispatch(updateSickLeaveDataActionCreator({
+                    id: id,
+                    sickLeaveInput: sickLeave
+                }))
+            }
+            else {
+                dispatch(createSickLeaveDataActionCreator(sickLeave));
+            }
             navigate(-1);
         }
     });
 
     return (
-        <DialogWindow title="Create sick leave record">
+        <DialogWindow title={`${isUpdate? "Update" : "Create"} sick leave record`}>
             {
                 !hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.ManageSickLeaves]) ? (
                     <AccessDenied />
+                ) :
+                isUpdate && !curSickLeave ? (
+                        <Alert severity="error" sx={{m: 2}}>
+                            Unable to find the sick leave record you are looking for
+                        </Alert>
                 ) :
                 <form onSubmit={formik.handleSubmit}>
                     <DialogContent>
@@ -83,11 +123,12 @@ export default function SickLeaveCreateDialog() {
                         >
                             <Autocomplete
                                 getOptionLabel={(option: Profile) => option.fullName}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
                                 options={profiles}
                                 renderInput={(params) => <TextField
                                     {...params}
                                     label="Select user"
-                                    error={!!formik.touched.sickLeave?.userId && !!formik.errors.sickLeave?.userId}
+                                    error={!!formik.errors.sickLeave?.userId}
                                     helperText={formik.touched.sickLeave?.userId && formik.errors.sickLeave?.userId}
                                 />}
                                 fullWidth
@@ -146,8 +187,9 @@ export default function SickLeaveCreateDialog() {
                             size="large"
                             type="submit"
                             color="primary"
+                            disabled={!formik.dirty}
                         >
-                            Create
+                            {isUpdate ? "Update" : "Create"}
                         </Button>
                         <Button
                             size="large"

@@ -1,7 +1,7 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
 import {SickLeaveWithRelations} from "../models/sick-leave/SickLeaveWithRelations";
-import {GetSickLeaveDataInput} from "../redux/epics/SickLeaveEpics";
+import {GetSickLeaveDataInput, UpdateSickLeaveDataInput} from "../redux/epics/SickLeaveEpics";
 import {SickLeaveInput} from "../models/sick-leave/SickLeaveInput";
 import {formatIsoDateForApi} from "../helpers/date";
 
@@ -84,6 +84,60 @@ export function RequestCreateSickLeaveDataRequest(sickLeaveInput: SickLeaveInput
                 "start": formatIsoDateForApi(sickLeaveInput.start),
                 "end": formatIsoDateForApi(sickLeaveInput.end)
             }
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface UpdateSickLeaveDataResponse extends GraphQLResponse {
+    data?: {
+        sickLeave?: {
+            update: boolean
+        }
+    }
+}
+export function RequestUpdateSickLeaveDataRequest(data: UpdateSickLeaveDataInput) {
+    return ajaxAuth<UpdateSickLeaveDataResponse>(JSON.stringify({
+        query: `
+                mutation UpdateSickLeave($id: ID!, $sickLeave: SickLeaveInputType!) {
+                  sickLeave {
+                    update(id: $id, sickLeave: $sickLeave)
+                  }
+                }
+            `,
+        variables: {
+            "id": data.id,
+            "sickLeave": {
+                "userId": data.sickLeaveInput.userId,
+                "lastModifierId": data.sickLeaveInput.lastModifierId,
+                "start": formatIsoDateForApi(data.sickLeaveInput.start),
+                "end": formatIsoDateForApi(data.sickLeaveInput.end)
+            }
+        }
+    })).pipe(
+        map((res) => res.response)
+    );
+}
+
+interface DeleteSickLeaveDataResponse extends GraphQLResponse {
+    data?: {
+        sickLeave?: {
+            delete: boolean
+        }
+    }
+}
+export function RequestDeleteSickLeaveDataRequest(id: string) {
+    return ajaxAuth<DeleteSickLeaveDataResponse>(JSON.stringify({
+        query: `
+                mutation DeleteSickLeave($id: ID!) {
+                  sickLeave {
+                    delete(id: $id)
+                  }
+                }
+            `,
+        variables: {
+            "id": id
         }
     })).pipe(
         map((res) => res.response)

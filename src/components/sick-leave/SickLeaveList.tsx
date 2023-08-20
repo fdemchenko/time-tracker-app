@@ -62,11 +62,11 @@ export default function SickLeaveList() {
                                                     gap: 2
                                                 }}
                                             >
-                                                <Link to={`/sick-leave/create`}>
+                                                <Link to={`/sick-leave/update/${sickLeaveItem.sickLeave.id}`}>
                                                     <EditIcon />
                                                 </Link>
 
-                                                <Link to={`/sick-leave/create`}>
+                                                <Link to={`/sick-leave/delete/${sickLeaveItem.sickLeave.id}`}>
                                                     <DeleteIcon />
                                                 </Link>
                                             </Box>
