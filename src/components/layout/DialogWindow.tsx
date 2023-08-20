@@ -7,7 +7,6 @@ import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import Divider from "@mui/material/Divider";
 import Dialog from "@mui/material/Dialog";
-import {useAppSelector} from "../../redux/CustomHooks";
 import {useNavigate} from "react-router-dom";
 import {ReactNode} from "react";
 
@@ -18,8 +17,6 @@ interface DialogWindowProps {
 
 export default function DialogWindow({title, children}: DialogWindowProps) {
     const navigate = useNavigate();
-
-    const {error} = useAppSelector(state => state.vacation);
 
     return (
         <Dialog
