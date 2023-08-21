@@ -22,10 +22,6 @@ interface Permissions {
   manageHolidays?: boolean,
 }
 
-function Checkmark({ value }: { value: boolean }) {
-  return value ? <span>&#10003;</span> : <span>&#10007;</span>;
-}
-
 export default function MainPage({userData}: MainPageProps) {
   const permissions: Permissions = {};
 
@@ -63,27 +59,6 @@ export default function MainPage({userData}: MainPageProps) {
             <Grid item xs={4}>
               <div style={{ padding: '16px' }}>
                 <Typography>Status: {userData.user.status}</Typography>
-              </div>
-            </Grid>
-
-            <Grid item xs={4}>
-              <div style={{ padding: '16px' }}>
-                {userData.user.permissions &&
-                  <Typography>Permissions: {userData.user.permissions === 'ALL' ? 'ALL'
-                    : <ul>
-                      {Object.keys(permissions).map((permission, index) => (
-                        <li
-                          key={index}
-                          style={{
-                            color: permissions[permission as keyof Permissions] ? 'green' : 'red',
-                          }}
-                        >
-                          <Checkmark value={permissions[permission as keyof Permissions] || false} /> {permission}
-                        </li>
-                      ))}
-                    </ul>
-                  }</Typography>
-                }
               </div>
             </Grid>
           </Grid>
