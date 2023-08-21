@@ -1,40 +1,46 @@
 import {useNavigate, useParams} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
-import {deleteVacationActionCreator} from "../../redux/epics/VacationEpics";
 import DialogActions from "@mui/material/DialogActions";
 import {Alert, Button} from "@mui/material";
 import * as React from "react";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogWindow from "../layout/DialogWindow";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
+import AccessDenied from "../AccessDenied";
+import {deleteSickLeaveDataActionCreator} from "../../redux/epics/SickLeaveEpics";
 
-export default function VacationDeleteDialog() {
+export default function SickLeaveDeleteDialog() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {vacationId} = useParams();
+    const {id} = useParams();
 
-    const vacationResp = useAppSelector(state => state.vacation.vacationList
-        .find(vl => vl.vacation.id === vacationId));
+    const {user} = useAppSelector(state => state.user);
+    const sickLeaveData = useAppSelector(state => state.sickLeave.sickLeaveList
+        ).find(sl => sl.sickLeave.id === id);
 
     function handleDelete() {
-        if (vacationResp) {
-            dispatch(deleteVacationActionCreator(vacationResp.vacation.id));
+        if (sickLeaveData && id) {
+            dispatch(deleteSickLeaveDataActionCreator(id));
             navigate(-1);
         }
     }
 
     return (
-        <DialogWindow title="Delete vacation request">
+        <DialogWindow title="Delete sick leave record">
             {
-                !vacationResp ? (
+                !hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.ManageSickLeaves]) ? (
+                        <AccessDenied />
+                    ) :
+                !sickLeaveData || !id ? (
                     <Alert severity="error" sx={{m: 2}}>
-                        Unable to find the vacation request you are looking for
+                        Unable to find the sick leave record you are looking for
                     </Alert>
-                ) : vacationResp.vacation.isApproved === null ?
+                ) : (
                     <>
                         <DialogContent>
                             <DialogContentText fontSize={18}>
-                                Are you sure that you want to delete this vacation request?
+                                Are you sure that you want to delete this sick leave record?
                                 You can't get it back later.
                             </DialogContentText>
                         </DialogContent>
@@ -56,11 +62,7 @@ export default function VacationDeleteDialog() {
                             </Button>
                         </DialogActions>
                     </>
-                    : (
-                        <Alert severity="error" sx={{m: 2}}>
-                            Can not delete vacation which was updated by Approver
-                        </Alert>
-                    )
+                )
             }
         </DialogWindow>
     );

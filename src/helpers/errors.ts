@@ -6,6 +6,7 @@ const defaultErrorMessage = "Fatal error, something went wrong with server conne
     "or business logic. Please try again later.";
 export const NoPermissionErrorMessage = "You do not have a permission to complete this " +
     "action";
+export const InvalidUserStatusErrorMessage = "User have inappropriate status";
 export const ActiveWorkSessionErrorMessage = "Can not update or delete work session until " +
     "it is finished";
 export const InvalidInputErrorMessage = "Invalid input data";
@@ -43,5 +44,6 @@ export function handleErrorMessage(data: HandleErrorMessageType, actionCreator: 
 export enum ErrorCodes {
     NO_PERMISSION,
     WORK_SESSION_IS_ACTIVE,
-    INVALID_INPUT_DATA
+    INVALID_INPUT_DATA,
+    INVALID_USER_STATUS
 }

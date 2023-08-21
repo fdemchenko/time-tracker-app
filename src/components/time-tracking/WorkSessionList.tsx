@@ -288,7 +288,7 @@ export default function WorkSessionList() {
                                              </Table>
                                          </TableContainer>
 
-                                         <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
+                                         {pagesCount > 1 && <Box sx={{display: 'flex', justifyContent: 'center', mt: 2}}>
                                              <Pagination
                                                count={pagesCount}
                                                page={page}
@@ -298,7 +298,7 @@ export default function WorkSessionList() {
                                                color="secondary"
                                                variant="outlined"
                                              />
-                                         </Box>
+                                         </Box>}
                                      </>
                                    ) : (
                                      <Alert severity="info" sx={{m: 2}}>

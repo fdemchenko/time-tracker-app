@@ -24,9 +24,15 @@ import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
 import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
 import UserVacations from "./components/vacation/UserVacations";
-import VacationDialog from "./components/vacation/VacationDialog";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
+import SickLeavePage from "./components/sick-leave/SickLeavePage";
+import VacationCreateDialog from "./components/vacation/VacationCreateDialog";
+import VacationDeleteDialog from "./components/vacation/VacationDeleteDialog";
+import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
+import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
+import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
+import UserProfile from "./components/user/UserProfile";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -89,6 +95,12 @@ function App() {
 						</ProtectedRoute>
 					} />
 
+					<Route path="/profile/:id" element={
+						<ProtectedRoute>
+							<UserProfile />
+						</ProtectedRoute>
+					} />
+
 					<Route path="/worksession/:id" element={
 						<ProtectedRoute>
 							<WorkSessionList />
@@ -110,17 +122,23 @@ function App() {
 						</ProtectedRoute>
 					}
 					>
-						<Route path="/vacations/create" element={<VacationDialog type="create" />} />
-						<Route path="/vacations/delete/:vacationId" element={<VacationDialog type="delete" />} />
+						<Route path="/vacations/create" element={<VacationCreateDialog />} />
+						<Route path="/vacations/delete/:vacationId" element={<VacationDeleteDialog />} />
 					</Route>
 					<Route
 						path="/vacations/approvement"
 						element={<ProtectedRoute><ApproveVacation /></ProtectedRoute>}
 					>
-						<Route path="/vacations/approvement/:vacationId" element={<VacationDialog type="approve" />} />
+						<Route path="/vacations/approvement/:vacationId" element={<VacationApproveDialog />} />
 					</Route>
 
 					<Route path="/holidays" element={<HolidaysDialog />}/>
+
+					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
+						<Route path="/sick-leave/create" element={<SickLeaveFormDialog />} />
+						<Route path="/sick-leave/update/:id" element={<SickLeaveFormDialog isUpdate />} />
+						<Route path="/sick-leave/delete/:id" element={<SickLeaveDeleteDialog />} />
+					</Route>
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</SideBar>

@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+ul {
+    list-style: none;
+}
+
 .lds-dual-ring {
     margin: 0 auto;
     display: block;
