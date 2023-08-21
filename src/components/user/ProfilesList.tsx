@@ -170,30 +170,14 @@ const ProfilesList = () => {
                               {user.status}
                             </TableCell>
                             <TableCell>
-                              <Link to={`/scheduler/${user.id}`}>
+                              <Link to={`/profile/${user.id}`}>
                                 <Button
                                   variant="outlined"
-                                  color="primary"
-                                  size='small'
-                                  sx={{
-                                    mx: 1
-                                  }}
-                                >
-                                  Scheduler
-                                </Button>
-                              </Link>
-
-                              <Link to={`/worksession/${user.id}`}>
-                                <Button
-                                  variant="outlined"
-                                  color="warning"
+                                  color="error"
                                   type="submit"
                                   size='small'
-                                  sx={{
-                                    mx: 1
-                                  }}
                                 >
-                                  Work sessions
+                                  Profile
                                 </Button>
                               </Link>
                             </TableCell>
@@ -203,7 +187,7 @@ const ProfilesList = () => {
                     </Table>
                   </TableContainer>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  {pagesCount > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <Pagination
                       count={pagesCount}
                       page={page}
@@ -213,7 +197,7 @@ const ProfilesList = () => {
                       color="secondary"
                       variant="outlined"
                     />
-                  </Box>
+                  </Box>}
                 </>
 
                 :  <>

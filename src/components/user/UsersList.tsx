@@ -288,7 +288,7 @@ const UsersList = () => {
                     </Table>
                   </TableContainer>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  {pagesCount > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
                     <Pagination
                       count={pagesCount}
                       page={page}
@@ -298,7 +298,7 @@ const UsersList = () => {
                       color="secondary"
                       variant="outlined"
                     />
-                  </Box>
+                  </Box>}
 
                   {recentlyCreatedUsers && recentlyCreatedUsers.length > 0 &&
                     <>

@@ -32,6 +32,7 @@ import VacationDeleteDialog from "./components/vacation/VacationDeleteDialog";
 import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
 import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
 import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
+import UserProfile from "./components/user/UserProfile";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -91,6 +92,12 @@ function App() {
 					<Route path="/user/deactivate/:id" element={
 						<ProtectedRoute>
 							<DeactivateUserForm />
+						</ProtectedRoute>
+					} />
+
+					<Route path="/profile/:id" element={
+						<ProtectedRoute>
+							<UserProfile />
 						</ProtectedRoute>
 					} />
 
