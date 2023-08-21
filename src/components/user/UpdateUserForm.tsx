@@ -6,7 +6,7 @@ import User from '../../models/User';
 import { Alert, CircularProgress, Box, Button, Checkbox, FormControlLabel, Grid, TextField } from '@mui/material';
 import { getNewIsoDateWithTimeZone } from '../../helpers/date';
 import { useFormik } from 'formik';
-import { hasPermit } from '../../helpers/hasPermit';
+import {hasPermit, PermissionsEnum} from '../../helpers/hasPermit';
 import {updateUserActionCreator} from "../../redux/epics/UserEpics";
 
 interface UpdateUserFormData {
@@ -18,12 +18,14 @@ interface UpdateUserFormData {
   updateUserPermission: boolean;
   deactivateUserPermission: boolean;
   getUsersPermission: boolean;
-  approveVacationsPermission: boolean;
   getWorkSessionsPermission: boolean;
-  createWorkSessionsPermission: boolean,
-  updateWorkSessionsPermission: boolean,
-  deleteWorkSessionsPermission: boolean,
-  manageHolidaysPermission: boolean,
+  createWorkSessionsPermission: boolean;
+  updateWorkSessionsPermission: boolean;
+  deleteWorkSessionsPermission: boolean;
+  manageHolidaysPermission: boolean;
+  approveVacationsPermission: boolean;
+  getVacationsPermission: boolean;
+  manageSickLeavesPermission: boolean;
   status: string;
 }
 
@@ -51,12 +53,14 @@ const UpdateUserForm = () => {
     updateUserPermission: Yup.boolean(),
     deactivateUserPermission: Yup.boolean(),
     getUsersPermission: Yup.boolean(),
-    approveVacationsPermission: Yup.boolean(),
     getWorkSessionsPermission: Yup.boolean(),
     createWorkSessionsPermission: Yup.boolean(),
     updateWorkSessionsPermission: Yup.boolean(),
     deleteWorkSessionsPermission: Yup.boolean(),
     manageHolidaysPermission: Yup.boolean(),
+    approveVacationsPermission: Yup.boolean(),
+    getVacationsPermission: Yup.boolean(),
+    manageSickLeavesPermission: Yup.boolean(),
     status: Yup.string().required('Status is required'),
   });
 
@@ -69,12 +73,14 @@ const UpdateUserForm = () => {
     updateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateUser') : false,
     deactivateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'DeactivateUser') : false,
     getUsersPermission: inputUser ? hasPermit(inputUser.permissions, 'GetUsers') : false,
-    approveVacationsPermission: inputUser ? hasPermit(inputUser.permissions, 'ApproveVacations') : false,
     getWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'GetWorkSessions') : false,
     createWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateWorkSessions') : false,
     updateWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateWorkSessions') : false,
     deleteWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'DeleteWorkSessions') : false,
     manageHolidaysPermission: inputUser ? hasPermit(inputUser.permissions, "ManageHolidays") : false,
+    approveVacationsPermission: inputUser ? hasPermit(inputUser.permissions, 'ApproveVacations') : false,
+    getVacationsPermission: inputUser ? hasPermit(inputUser.permissions, PermissionsEnum[PermissionsEnum.GetVacations]) : false,
+    manageSickLeavesPermission: inputUser ? hasPermit(inputUser.permissions, PermissionsEnum[PermissionsEnum.ManageSickLeaves]) : false,
     status: inputUser ? inputUser.status : '',
   };
 
@@ -89,7 +95,10 @@ const UpdateUserForm = () => {
       UpdateWorkSessions: values.updateWorkSessionsPermission,
       CreateWorkSessions: values.createWorkSessionsPermission,
       DeleteWorkSessions: values.deleteWorkSessionsPermission,
-      ManageHolidays: values.manageHolidaysPermission
+      ManageHolidays: values.manageHolidaysPermission,
+      [`${PermissionsEnum[PermissionsEnum.ApproveVacations]}`]: values.approveVacationsPermission,
+      [`${PermissionsEnum[PermissionsEnum.GetVacations]}`]: values.getVacationsPermission,
+      [`${PermissionsEnum[PermissionsEnum.ManageSickLeaves]}`]: values.manageSickLeavesPermission
     });
 
     if (id) {
@@ -283,16 +292,29 @@ const UpdateUserForm = () => {
 
                       <Grid item xs={4}>
                         <FormControlLabel
-                          control={
-                            <Checkbox
-                              color="secondary"
-                              checked={formik.values.approveVacationsPermission}
-                              onChange={formik.handleChange}
-                              onBlur={formik.handleBlur}
-                              name="approveVacationsPermission"
-                            />
-                          }
-                          label="Approve vacations"
+                            control={
+                              <Checkbox
+                                  color="secondary"
+                                  checked={formik.values.getVacationsPermission}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  name="getVacationsPermission"
+                              />
+                            }
+                            label="Get vacations"
+                        />
+                        <FormControlLabel
+                            control={
+                              <Checkbox
+                                  color="secondary"
+                                  checked={formik.values.approveVacationsPermission}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  name="approveVacationsPermission"
+                                  disabled={!formik.values.getVacationsPermission}
+                              />
+                            }
+                            label="Approve vacations"
                         />
                         <FormControlLabel
                             control={
@@ -305,6 +327,18 @@ const UpdateUserForm = () => {
                               />
                             }
                             label="Manage holidays"
+                        />
+                        <FormControlLabel
+                            control={
+                              <Checkbox
+                                  color="secondary"
+                                  checked={formik.values.manageSickLeavesPermission}
+                                  onChange={formik.handleChange}
+                                  onBlur={formik.handleBlur}
+                                  name="manageSickLeavesPermission"
+                              />
+                            }
+                            label="Manage sick leave    "
                         />
                       </Grid>
 
