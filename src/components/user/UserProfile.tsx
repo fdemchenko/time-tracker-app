@@ -53,7 +53,7 @@ const UserProfile = () => {
                 </Link>
               }
 
-              <Link to={`/scheduler/${user.id}`}>
+              <Link to={`/scheduler/${profile.id}`}>
                 <Button
                   variant="outlined"
                   color="primary"
