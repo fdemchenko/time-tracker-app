@@ -88,7 +88,7 @@ export default function MainPage({userData}: MainPageProps) {
             </Grid>
           </Grid>
 
-          {userData.user.permissions === 'ALL' || permissions.getUsers &&
+          {(userData.user.permissions === 'ALL' || permissions.getUsers) &&
             <div style={{ padding: '16px' }}>
               <Link to="/users">
                 <Button

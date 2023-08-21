@@ -6,6 +6,7 @@ import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {createUserActionCreator} from "../../redux/epics/UserEpics";
 import {getNewIsoDateWithTimeZone} from "../../helpers/date";
 import {useNavigate} from "react-router-dom";
+import {PermissionsEnum, UserStatusEnum} from "../../helpers/hasPermit";
 
 interface CreateUserFormData {
     email: string;
@@ -16,12 +17,14 @@ interface CreateUserFormData {
     updateUserPermission: boolean;
     deactivateUserPermission: boolean;
     getUsersPermission: boolean;
-    approveVacationsPermission: boolean;
     getWorkSessionsPermission: boolean;
-    createWorkSessionsPermission: boolean,
-    updateWorkSessionsPermission: boolean,
-    deleteWorkSessionsPermission: boolean,
-    manageHolidaysPermission: boolean,
+    createWorkSessionsPermission: boolean;
+    updateWorkSessionsPermission: boolean;
+    deleteWorkSessionsPermission: boolean;
+    manageHolidaysPermission: boolean;
+    approveVacationsPermission: boolean;
+    getVacationsPermission: boolean;
+    manageSickLeavesPermission: boolean;
     status: string;
 }
 
@@ -47,6 +50,9 @@ export default function CreateUserForm() {
         updateWorkSessionsPermission: Yup.boolean(),
         deleteWorkSessionsPermission: Yup.boolean(),
         manageHolidaysPermission: Yup.boolean(),
+        approveVacationsPermission: Yup.boolean(),
+        getVacationsPermission: Yup.boolean(),
+        manageSickLeavesPermission: Yup.boolean(),
         status: Yup.string().required('Status is required'),
     });
 
@@ -59,12 +65,14 @@ export default function CreateUserForm() {
         updateUserPermission: false,
         deactivateUserPermission: false,
         getUsersPermission: false,
-        approveVacationsPermission: false,
         getWorkSessionsPermission: false,
         createWorkSessionsPermission: false,
         updateWorkSessionsPermission: false,
         deleteWorkSessionsPermission: false,
         manageHolidaysPermission: false,
+        approveVacationsPermission: false,
+        getVacationsPermission: false,
+        manageSickLeavesPermission: false,
         status: '',
     };
 
@@ -73,13 +81,15 @@ export default function CreateUserForm() {
             GetUsers: values.getUsersPermission,
             CreateUser: values.createUserPermission,
             DeactivateUser: values.deactivateUserPermission,
-            ApproveVacations: values.approveVacationsPermission,
             UpdateUser: values.updateUserPermission,
             GetWorkSessions: values.getWorkSessionsPermission,
             UpdateWorkSessions: values.updateWorkSessionsPermission,
             CreateWorkSessions: values.createWorkSessionsPermission,
             DeleteWorkSessions: values.deleteWorkSessionsPermission,
-            ManageHolidays: values.manageHolidaysPermission
+            ManageHolidays: values.manageHolidaysPermission,
+            [`${PermissionsEnum[PermissionsEnum.ApproveVacations]}`]: values.approveVacationsPermission,
+            [`${PermissionsEnum[PermissionsEnum.GetVacations]}`]: values.getVacationsPermission,
+            [`${PermissionsEnum[PermissionsEnum.ManageSickLeaves]}`]: values.manageSickLeavesPermission
         });
 
         dispatch(createUserActionCreator({
@@ -263,10 +273,23 @@ export default function CreateUserForm() {
                                         control={
                                             <Checkbox
                                                 color="secondary"
+                                                checked={formik.values.getVacationsPermission}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                name="getVacationsPermission"
+                                            />
+                                        }
+                                        label="Get vacations"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                color="secondary"
                                                 checked={formik.values.approveVacationsPermission}
                                                 onChange={formik.handleChange}
                                                 onBlur={formik.handleBlur}
                                                 name="approveVacationsPermission"
+                                                disabled={!formik.values.getVacationsPermission}
                                             />
                                         }
                                         label="Approve vacations"
@@ -282,6 +305,18 @@ export default function CreateUserForm() {
                                             />
                                         }
                                         label="Manage holidays"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                color="secondary"
+                                                checked={formik.values.manageSickLeavesPermission}
+                                                onChange={formik.handleChange}
+                                                onBlur={formik.handleBlur}
+                                                name="manageSickLeavesPermission"
+                                            />
+                                        }
+                                        label="Manage sick leave    "
                                     />
                                 </Grid>
 
