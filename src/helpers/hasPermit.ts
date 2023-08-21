@@ -17,7 +17,8 @@ export enum PermissionsEnum {
   DeleteWorkSessions,
   GetWorkSession,
   GetVacations,
-  ApproveVacations
+  ApproveVacations,
+  ManageSickLeaves
 }
 
 export const hasPermit = (permissionJson: string, permission: string): boolean => {
