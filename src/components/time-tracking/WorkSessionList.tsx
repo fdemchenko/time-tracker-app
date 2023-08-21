@@ -56,8 +56,8 @@ export default function WorkSessionList() {
     };
     const handleClearFilters = () => {
         setPage(1);
-        setStartDate(moment().subtract(7, 'days'));
-        setEndDate(() => moment());
+        setStartDate(null);
+        setEndDate(null);
         setOrderByDesc(true);
     };
 
