@@ -37,7 +37,7 @@ const UserProfile = () => {
 
           <Grid container spacing={3}>
             <Grid item xs={4} style={{marginTop: '16px'}}>
-              {hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.GetWorkSession]) || user.id === profile.id &&
+              {(hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.GetWorkSession]) || user.id === profile.id) &&
                 <Link to={`/worksession/${profile.id}`}>
                   <Button
                   variant="outlined"
