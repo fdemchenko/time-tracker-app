@@ -89,7 +89,7 @@ export default function MainPage({userData}: MainPageProps) {
           </Grid>
 
           {(userData.user.permissions === 'ALL' || permissions.getUsers) &&
-            <div style={{ paddingTop: '16px' }}>
+            <div style={{ padding: '16px' }}>
               <Link to="/users">
                 <Button
                   variant="outlined"

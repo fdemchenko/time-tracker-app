@@ -75,6 +75,21 @@ const ProfilesList = () => {
             <>
               <h3 style={{marginBottom: '10px'}}>
                 List of profiles of employees
+
+                {hasPermit(userData.permissions, "CreateUser")
+                    &&   <Button
+                        onClick={() => navigate('/user/create')}
+                        variant="outlined"
+                        color="success"
+                        type="submit"
+                        size="small"
+                        sx={{
+                          mx: 1,
+                        }}
+                    >
+                      Create new
+                    </Button>
+                }
               </h3>
 
               {profiles.items && profiles.items.length > 0
