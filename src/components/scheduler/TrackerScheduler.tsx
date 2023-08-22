@@ -13,11 +13,10 @@ import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet, useNavigate, useParams} from "react-router-dom";
+import {Link, Outlet, useParams} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
 import {TimePicker} from "@mui/x-date-pickers";
-import {Moment} from "moment";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
@@ -37,7 +36,7 @@ export default function TrackerScheduler() {
         if (id) {
             dispatch(getUserWorkSessionsActionCreator({
                 userId: id,
-                orderByDesc: true,
+                orderByDesc: true
             }));
 
             dispatch(getHolidaysActionCreator());

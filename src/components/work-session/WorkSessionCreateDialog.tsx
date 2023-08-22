@@ -1,22 +1,15 @@
 import React, {useState} from 'react';
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import {useNavigate, useParams} from "react-router-dom";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import {Alert, Box, Button, MenuItem, Select, TextField} from "@mui/material";
-import Typography from "@mui/material/Typography";
-import CloseIcon from "@mui/icons-material/Close";
-import Divider from "@mui/material/Divider";
+import {Alert, Box, Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import {DateTimePicker} from "@mui/x-date-pickers";
 import DialogActions from "@mui/material/DialogActions";
-import {TransitionProps} from "@mui/material/transitions";
-import Slide from "@mui/material/Slide";
 import moment, {Moment} from "moment/moment";
 import {createWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {hasPermit} from "../../helpers/hasPermit";
+import DialogWindow from "../layout/DialogWindow";
 
 const WorkSessionCreateDialog = () => {
   const dispatch = useAppDispatch();
@@ -61,57 +54,29 @@ const WorkSessionCreateDialog = () => {
   }
 
   return (
-    <Dialog
-      open={true}
-      TransitionComponent={Transition}
-      keepMounted
-      onClose={() => navigate(-1)}
-      aria-describedby="work-session-create-dialog"
-    >
-      <DialogTitle>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "80px"
-          }}
-        >
-          <Typography variant="h5">Work session record create</Typography>
-          <CloseIcon
-            sx={{cursor: "pointer"}}
-            onClick={() => navigate(-1)}
-          />
-        </Box>
-      </DialogTitle>
-      <Divider sx={{mb: 2}}/>
+    <DialogWindow title="Create work session">
       {
           id === user.id || hasPermit(user.permissions, "CreateWorkSessions") ?
           (
             <>
               <DialogContent>
-                <DialogContentText>
-                  You can create work session here
-                </DialogContentText>
                 <Box
                   sx={{
-                    m: 4,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
-                    gap: "45px"
+                    gap: 3
                   }}
                 >
                   <TextField
-                    label="Title"
+                    label="Optional title"
                     value={title}
                     onChange={(e) => {
                       setTitle(e.target.value);
                       setIsRequireChange(false);
                     }}
                     variant="outlined"
-                    style={{ width: 260 }}
-                    size="small"
+                    fullWidth
                   />
 
                   <DateTimePicker
@@ -123,6 +88,11 @@ const WorkSessionCreateDialog = () => {
                       setStart(newValue);
                     }}
                     dayOfWeekFormatter={(day) => `${day}`}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true
+                      }
+                    }}
                   />
                     <DateTimePicker
                       label="Session end date"
@@ -133,25 +103,33 @@ const WorkSessionCreateDialog = () => {
                         setEnd(newValue);
                       }}
                       dayOfWeekFormatter={(day) => `${day}`}
+                      slotProps={{
+                        textField: {
+                          fullWidth: true
+                        }
+                      }}
                     />
 
-                  <Select
-                    label="Status"
-                    value={type}
-                    onChange={(e) => {
-                      setType(e.target.value);
-                      setIsRequireChange(false);
-                    }}
-                    variant="outlined"
-                    size="small"
-                    style={{ width: 260 }}
-                  >
-                    <MenuItem value="completed">Completed</MenuItem>
-                    <MenuItem value="planned">Planned</MenuItem>
-                  </Select>
+                  <FormControl fullWidth>
+                    <InputLabel id="type_select_label">Type</InputLabel>
+                    <Select
+                        labelId="type_select_label"
+                        label="Type"
+                        value={type}
+                        onChange={(e) => {
+                          setType(e.target.value);
+                          setIsRequireChange(false);
+                        }}
+                        variant="outlined"
+                        fullWidth
+                    >
+                      <MenuItem value="completed">Completed</MenuItem>
+                      <MenuItem value="planned">Planned</MenuItem>
+                    </Select>
+                  </FormControl>
 
                   <TextField
-                    label="Description"
+                    label="Optional description"
                     value={description}
                     onChange={(e) => {
                       setDescription(e.target.value);
@@ -159,9 +137,8 @@ const WorkSessionCreateDialog = () => {
                     }}
                     variant="outlined"
                     multiline
-                    rows={4}
-                    size="small"
-                    style={{ width: 260 }}
+                    minRows={3}
+                    fullWidth
                   />
                 </Box>
                 {
@@ -191,17 +168,8 @@ const WorkSessionCreateDialog = () => {
         <Alert severity="error" sx={{m: 2}}>You have no access for create this work session</Alert>
         )
       }
-    </Dialog>
+    </DialogWindow>
   );
 };
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
-  ref: React.Ref<unknown>,
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 export default WorkSessionCreateDialog;

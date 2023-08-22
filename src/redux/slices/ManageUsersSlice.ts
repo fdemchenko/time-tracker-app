@@ -4,7 +4,8 @@ import User from "../../models/User";
 
 export interface ManageUsersSliceState {
   manageUsers: ManageUsers,
-  recentlyCreatedUsers: User[];
+  recentlyCreatedUsers: User[],
+  usersWithoutPagination: User[],
   error: string | null,
   isLoading: boolean
 }
@@ -15,6 +16,7 @@ const initialState: ManageUsersSliceState = {
     count: 0
   },
   recentlyCreatedUsers: [],
+  usersWithoutPagination: [],
   error: null,
   isLoading: false
 }
@@ -29,7 +31,11 @@ export const ManageUsersSlice = createSlice({
     SetError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
-    SetLoading: (state, action: PayloadAction<boolean>) => {
+    SetUsersWithoutPagination: (state, action: PayloadAction<User[]>) => {
+      state.usersWithoutPagination = action.payload;
+      state.error = null;
+    },
+    SetUserLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
     SetSendPasswordLink: (state, action: PayloadAction<string>) => {
@@ -86,8 +92,9 @@ export const ManageUsersSlice = createSlice({
 export const {
   SetUsers,
   SetError,
-  SetLoading,
+  SetUserLoading,
   SetSendPasswordLink,
+  SetUsersWithoutPagination,
   CreateUser,
   UpdateUser,
   FireUser

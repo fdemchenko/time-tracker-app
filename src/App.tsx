@@ -17,12 +17,12 @@ import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
 import DeactivateUserForm from "./components/user/DeactivateUserForm";
 import {Notify} from "./helpers/notifications";
-import WorkSessionList from "./components/time-tracking/WorkSessionList";
-import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
-import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
+import WorkSessionPage from "./components/work-session/WorkSessionPage";
+import WorkSessionUpdateDialog from "./components/work-session/WorkSessionUpdateDialog";
+import WorkSessionDeleteDialog from "./components/work-session/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
-import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
+import WorkSessionCreateDialog from "./components/work-session/WorkSessionCreateDialog";
 import UserVacations from "./components/vacation/UserVacations";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
@@ -101,12 +101,12 @@ function App() {
 						</ProtectedRoute>
 					} />
 
-					<Route path="/worksession/:id" element={
+					<Route path="/worksession/:id?" element={
 						<ProtectedRoute>
-							<WorkSessionList />
+							<WorkSessionPage />
 						</ProtectedRoute>
 					}/>
-						<Route path="/worksession/create/:id" element={<WorkSessionCreateDialog />}/>
+						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
 						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
 						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
 					<Route path="/scheduler/:id" element={

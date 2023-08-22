@@ -1,27 +1,27 @@
 import {
   CREATE_USER_ACTION,
   DEACTIVATE_USER_ACTION, GET_PROFILES_ACTION,
-  GET_USERS_ACTION,
+  GET_USERS_ACTION, GET_USERS_WITHOUT_PAGINATION_ACTION,
   LOGIN_ACTION,
   LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, PROFILE_ERROR_ACTION, SET_PASSWORD_ACTION,
   SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
-  catchError, EMPTY,
+  catchError,
   endWith,
   ignoreElements,
   map,
   mergeMap,
   Observable,
   of,
-  startWith, switchMap, tap,
+  startWith,
 } from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 
 import {
   RequestCreateUser, RequestDeactivateUser, RequestGetProfiles,
-  RequestGetUsers,
+  RequestGetUsers, RequestGetUsersWithoutPagination,
   RequestLogin,
   RequestLogout,
   RequestSetPassword,
@@ -31,10 +31,10 @@ import {
 import {
   SetUsers,
   SetError as SetManageUsersError,
-  SetLoading as SetManageUsersLoading,
+  SetUserLoading as SetManageUsersLoading,
   SetSendPasswordLink,
   CreateUser,
-  UpdateUser, FireUser
+  UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading
 } from "../slices/ManageUsersSlice";
 import {
   SetProfiles,
@@ -149,8 +149,8 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
 
             mergeMap(payload => of(SetUsers(payload))),
             catchError((err) => of(manageUsersErrorActionCreator(err))),
-            startWith(SetManageUsersLoading(true)),
-            endWith(SetManageUsersLoading(false)),
+            startWith(SetUserLoading(true)),
+            endWith(SetUserLoading(false)),
         ))
     );
 
@@ -180,6 +180,30 @@ export const GetProfilesEpic: Epic = (action$:  Observable<PayloadAction<GetProf
     ))
   );
 
+export const getUsersWithoutPaginationActionCreator = (showFired: boolean) =>
+  ({type: GET_USERS_WITHOUT_PAGINATION_ACTION, payload: showFired});
+export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<PayloadAction<boolean>>) =>
+  action$.pipe(
+    ofType(GET_USERS_WITHOUT_PAGINATION_ACTION),
+    mergeMap((action) => RequestGetUsersWithoutPagination(action.payload).pipe(
+      map(res => {
+        const errorMsg = "Failed to load users";
+        if (res.errors) {
+          return userErrorActionCreator(res, errorMsg);
+        }
+
+        let users = res.data?.user.getAllWithoutPagination;
+        if (users) {
+          return SetUsersWithoutPagination(users);
+        }
+        return userErrorActionCreator(res, errorMsg);
+      }),
+      catchError((err) => of(profileErrorActionCreator(err))),
+      startWith(SetUserLoading(true)),
+      endWith(SetUserLoading(false)),
+    ))
+  );
+
 export const createUserActionCreator = (payload: CreateUserActionPayload) => (
   {type: CREATE_USER_ACTION, payload: payload});
 export interface CreateUserActionPayload {
@@ -202,8 +226,8 @@ export const CreateUserEpic: Epic = (action$: Observable<PayloadAction<CreateUse
       }),
       mergeMap(payload => of(CreateUser(payload))),
       catchError((err) => of(manageUsersErrorActionCreator(err))),
-      startWith(SetManageUsersLoading(true)),
-      endWith(SetManageUsersLoading(false)),
+      startWith(SetUserLoading(true)),
+      endWith(SetUserLoading(false)),
     ))
   );
 
@@ -218,8 +242,8 @@ export const SetSendPasswordLinkEpic: Epic = (action$: Observable<PayloadAction<
       return RequestSetSendPasswordLink(payload).pipe(
         mergeMap(() => of(SetSendPasswordLink(payload))),
         catchError((err) => of(manageUsersErrorActionCreator(err))),
-        startWith(SetManageUsersLoading(true)),
-        endWith(SetManageUsersLoading(false))
+        startWith(SetUserLoading(true)),
+        endWith(SetUserLoading(false))
       );
     })
   );
@@ -240,8 +264,8 @@ export const SetPasswordEpic: Epic = (action$: Observable<PayloadAction<SetPassw
       return RequestSetPassword(payload).pipe(
         catchError((err) => of(manageUsersErrorActionCreator(err))),
         ignoreElements(),
-        startWith(SetManageUsersLoading(true)),
-        endWith(SetManageUsersLoading(false))
+        startWith(SetUserLoading(true)),
+        endWith(SetUserLoading(false))
       );
     })
   );
@@ -269,8 +293,8 @@ export const UpdateUserEpic: Epic = (action$: Observable<PayloadAction<UpdateUse
       }),
       mergeMap(payload => of(UpdateUser(payload))),
       catchError((err) => of(manageUsersErrorActionCreator(err))),
-      startWith(SetManageUsersLoading(true)),
-      endWith(SetManageUsersLoading(false)),
+      startWith(SetUserLoading(true)),
+      endWith(SetUserLoading(false)),
     ))
   );
 
@@ -284,8 +308,8 @@ export const DeactivateUserEpic: Epic = (action$: Observable<PayloadAction<strin
       return RequestDeactivateUser(payload).pipe(
         mergeMap(() => of(FireUser(payload))),
         catchError((err) => of(manageUsersErrorActionCreator(err))),
-        startWith(SetManageUsersLoading(true)),
-        endWith(SetManageUsersLoading(false))
+        startWith(SetUserLoading(true)),
+        endWith(SetUserLoading(false))
       );
     })
   );

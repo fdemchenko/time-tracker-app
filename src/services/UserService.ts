@@ -141,6 +141,40 @@ export function RequestGetProfiles(payload: GetProfilesActionPayload): Observabl
     );
 }
 
+interface GetUsersWithoutPaginationResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getAllWithoutPagination: User[] | null
+        }
+    }
+}
+export function RequestGetUsersWithoutPagination(showFired: boolean) {
+    return ajaxAuth<GetUsersWithoutPaginationResponse>(JSON.stringify({
+        query: `
+                query GetAllUsersWithoutPagination($showFired: Boolean!) {
+                  user {
+                    getAllWithoutPagination(showFired: $showFired) {
+                      id
+                      email
+                      fullName
+                      employmentRate
+                      employmentDate
+                      permissions
+                      status
+                      hasPassword
+                      hasValidSetPasswordLink
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "showFired": showFired
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
 interface SetSendPasswordLink extends GraphQLResponse {
     data?: {
         user: {
