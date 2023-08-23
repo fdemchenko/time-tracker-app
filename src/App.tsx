@@ -100,14 +100,16 @@ function App() {
 						</ProtectedRoute>
 					} />
 
-					<Route path="/worksession/:id?" element={
+					<Route path="/worksession" element={
 						<ProtectedRoute>
 							<WorkSessionPage />
 						</ProtectedRoute>
-					}/>
-						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
+					}>
+						<Route path="/worksession/create/:selectedUserId?" element={<WorkSessionCreateDialog />}/>
 						{/*<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>*/}
 						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
+					</Route>
+
 					<Route path="/scheduler/:id" element={
 						<ProtectedRoute>
 							<TrackerScheduler />

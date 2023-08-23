@@ -15,6 +15,7 @@ import WorkSessionList from "./WorkSessionList";
 import Pagination from "../layout/Pagination";
 import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpics";
 import User from "../../models/User";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
 
 export default function WorkSessionPage() {
     const dispatch = useAppDispatch();
@@ -52,6 +53,15 @@ export default function WorkSessionPage() {
         dispatch(getUsersWithoutPaginationActionCreator(false));
     }, []);
 
+    function generateCreateWorkSessionLink() {
+        let link = "/worksession/create";
+        if (hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.CreateWorkSessions])
+          && userInput.id !== user.id) {
+            link += `/${userInput.id}`;
+        }
+        return link;
+    }
+
     return (
         <>
             {error
@@ -67,7 +77,7 @@ export default function WorkSessionPage() {
                             List of work session
                         </Typography>
 
-                        <Link to="/worksession/create">
+                        <Link to={generateCreateWorkSessionLink()}>
                             <Button
                               variant="outlined"
                               color="success"
