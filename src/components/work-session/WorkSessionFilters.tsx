@@ -1,7 +1,7 @@
 import {DesktopDatePicker} from "@mui/x-date-pickers";
 import {
     Box,
-    FormControl,
+    FormControl, Link as MuiLink,
     MenuItem,
     Select,
     ToggleButton, ToggleButtonGroup
@@ -22,12 +22,22 @@ interface WorkSessionFiltersProps {
 }
 export default function WorkSessionFilters({startDate, setStartDate, endDate, setEndDate,
         orderByDesc, setOrderByDesc, limit, setLimit, setPage}: WorkSessionFiltersProps) {
+
+    function handleClearFilters() {
+        if (setPage) {
+            setPage(1);
+        }
+        setStartDate(null);
+        setEndDate(null);
+        setOrderByDesc(true);
+    }
+
     return (
         <Box
             sx={{
-                mb: 1,
+                width: 1,
                 display: "flex",
-                flexWrap: "wrap",
+                flexDirection: "column",
                 gap: 2
             }}
         >
@@ -47,6 +57,7 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
                 value={orderByDesc ? "true" : "false"}
                 onChange={(event, value) => setOrderByDesc(value === "true")}
                 exclusive={true}
+                fullWidth
             >
                 <ToggleButton value="true" key="true">
                     Newest first
@@ -56,25 +67,38 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
                 </ToggleButton>
             </ToggleButtonGroup>
 
-            <FormControl>
-                <Select
-                    value={limit}
-                    onChange={(e) => {
-                        setLimit(Number(e.target.value));
-                        if (setPage) {
-                            setPage(1);
-                        }
-                    }}
-                    variant="outlined"
-                    fullWidth
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}
+            >
+                <FormControl>
+                    <Select
+                      value={limit}
+                      onChange={(e) => {
+                          setLimit(Number(e.target.value));
+                          if (setPage) {
+                              setPage(1);
+                          }
+                      }}
+                      variant="outlined"
+                    >
+                        <MenuItem value="5">5</MenuItem>
+                        <MenuItem value="8">8</MenuItem>
+                        <MenuItem value="10">10</MenuItem>
+                        <MenuItem value="15">15</MenuItem>
+                        <MenuItem value="30">30</MenuItem>
+                    </Select>
+                </FormControl>
+                <MuiLink
+                  sx={{cursor: "pointer"}}
+                  onClick={() => handleClearFilters()}
                 >
-                    <MenuItem value="5">5</MenuItem>
-                    <MenuItem value="8">8</MenuItem>
-                    <MenuItem value="10">10</MenuItem>
-                    <MenuItem value="15">15</MenuItem>
-                    <MenuItem value="30">30</MenuItem>
-                </Select>
-            </FormControl>
+                    Clear filters
+                </MuiLink>
+            </Box>
         </Box>
     );
 }

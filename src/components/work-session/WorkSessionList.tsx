@@ -1,5 +1,4 @@
-import WorkSession from "../../models/WorkSession";
-import {Alert, Box, Pagination, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
+import {Alert, Box, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
 import React from "react";
 import Typography from "@mui/material/Typography";
 import {countIsoDateDiff, formatIsoDateTime, parseIsoDateToLocal} from "../../helpers/date";
@@ -7,11 +6,12 @@ import Tooltip from "@mui/material/Tooltip";
 import {Link} from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {WorkSessionWithRelations} from "../../models/work-session/WorkSessionWithRelations";
 
 interface WorkSessionListProps {
     workSessionList: {
         count: number,
-        items: WorkSession[]
+        items: WorkSessionWithRelations[]
     }
 }
 export default function WorkSessionList({workSessionList}: WorkSessionListProps) {
@@ -29,19 +29,19 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
         return percentage;
     }
 
-    function generateToolTipString(workSession: WorkSession): string[] {
-        const { type, title, description, lastModifierName } = workSession;
+    function generateToolTipString(workSessionData: WorkSessionWithRelations): string[] {
+        const { workSession, lastModifier } = workSessionData;
 
         const tooltipStrings: string[] = [];
-        if (title) {
-            tooltipStrings.push(`Title: ${title}`);
+        if (workSession.title) {
+            tooltipStrings.push(`Title: ${workSession.title}`);
         }
-        if (description) {
-            tooltipStrings.push(`Description: ${description}`);
+        if (workSession.description) {
+            tooltipStrings.push(`Description: ${workSession.description}`);
         }
 
-        tooltipStrings.push(`Type: ${type}`);
-        tooltipStrings.push(`Last modifier: ${lastModifierName}`);
+        tooltipStrings.push(`Type: ${workSession.type}`);
+        tooltipStrings.push(`Last modifier: ${lastModifier.fullName}`);
         return tooltipStrings;
     }
 
@@ -50,29 +50,30 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
             {
                 workSessionList.items.length > 0 ? (
                   <>
-                      <TableContainer  sx={{ mt: 2 , "& td": { border: 0 }}}
+                      <TableContainer  sx={{"& td": { border: 0 }}}
                                        className="custom-table-container"
                       >
                           <Table>
                               <TableBody>
-                                  {workSessionList.items.map((workSession, index) => {
-                                      return <React.Fragment key={workSession.id}>
-                                          <TableRow key={workSession.id}>
+                                  {workSessionList.items.map((workSessionData, index) => {
+                                      return <React.Fragment key={workSessionData.workSession.id}>
+                                          <TableRow key={workSessionData.workSession.id}>
                                               <TableCell padding="none">
                                                   {index === 0 &&
                                                     <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                        {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                        {formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start)).split(' ')[0]}
                                                     </Typography>
                                                   }
-                                                  {index > 0 && new Date(workSessionList.items[index - 1].start).getDate() !== new Date(workSession.start).getDate()  &&
+                                                  {index > 0 && new Date(workSessionList.items[index - 1].workSession.start).getDate() !==
+                                                    new Date(workSessionData.workSession.start).getDate()  &&
                                                     <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                        {formatIsoDateTime(parseIsoDateToLocal(workSession.start)).split(' ')[0]}
+                                                        {formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start)).split(' ')[0]}
                                                     </Typography>
                                                   }
                                                   <Tooltip
                                                     title={
                                                         <React.Fragment>
-                                                            {generateToolTipString(workSession).map((line, index) => (
+                                                            {generateToolTipString(workSessionData).map((line, index) => (
                                                               <React.Fragment key={index}>
                                                                   {line}
                                                                   <br />
@@ -83,25 +84,28 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                     arrow
                                                     placement="right"
                                                   >
-                                                      <div style={{backgroundColor: '#faec8e', width: `${calculateWorkSessionWidth(workSession.start, workSession.end)}%`, display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
+                                                      <div style={{backgroundColor: '#faec8e',
+                                                          width: `${calculateWorkSessionWidth(workSessionData.workSession.start, workSessionData.workSession.end)}%`,
+                                                          display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
                                                           <Typography style={{fontSize: '12px'}}>
                                                               {
-                                                                  `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSession.start))}`
+                                                                  `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start))}`
                                                               }
                                                           </Typography>
 
-                                                          {workSession.end &&
+                                                          {workSessionData.workSession.end &&
                                                             <Typography style={{fontSize: '12px'}}>
                                                                 {
-                                                                    `${workSession.end ? `End: ${formatIsoDateTime(parseIsoDateToLocal(workSession.end))}` : ''}`
+                                                                    `${workSessionData.workSession.end ? `End: 
+                                                                    ${formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.end))}` : ''}`
                                                                 }
                                                             </Typography>
                                                           }
 
                                                           <Typography style={{fontSize: '12px'}}>
                                                               {
-                                                                workSession.end &&
-                                                                `Duration: ${countIsoDateDiff(workSession.start, workSession.end)}`
+                                                                workSessionData.workSession.end &&
+                                                                `Duration: ${countIsoDateDiff(workSessionData.workSession.start, workSessionData.workSession.end)}`
                                                               }
                                                           </Typography>
                                                       </div>
@@ -109,7 +113,7 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                               </TableCell>
 
                                               <TableCell sx={{width: "10%"}}>
-                                                  {workSession.end &&
+                                                  {workSessionData.workSession.end &&
                                                     <Box
                                                       sx={{
                                                           display: "flex",
@@ -117,12 +121,12 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                           gap: 2
                                                       }}
                                                     >
-                                                        <Link to={`/worksession/update/${workSession.id}`}>
+                                                        <Link to={`/worksession/update/${workSessionData.workSession.id}`}>
                                                             <EditIcon />
                                                         </Link>
 
 
-                                                        <Link to={`/worksession/delete/${workSession.id}`}>
+                                                        <Link to={`/worksession/delete/${workSessionData.workSession.id}`}>
                                                             <DeleteIcon />
                                                         </Link>
                                                     </Box>
@@ -136,7 +140,7 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                       </TableContainer>
                   </>
                 ) : (
-                  <Alert severity="info" sx={{my: 2}}>
+                  <Alert severity="info" sx={{my: 2, w: 1}}>
                       There are no records for now
                   </Alert>
                 )

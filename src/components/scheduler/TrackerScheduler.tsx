@@ -17,6 +17,7 @@ import {Link, Outlet, useParams} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
 import {TimePicker} from "@mui/x-date-pickers";
+import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
@@ -47,22 +48,22 @@ export default function TrackerScheduler() {
         if (schedulerRef.current) {
             let events: ProcessedEvent[] = [];
 
-            workSessionsList.items.map(ws => {
-                if (ws.end) {
-                    let startLocal = parseIsoDateToLocal(ws.start);
-                    let endLocal = parseIsoDateToLocal(ws.end);
+            workSessionsList.items.map(wsData => {
+                if (wsData.workSession.end) {
+                    let startLocal = parseIsoDateToLocal(wsData.workSession.start);
+                    let endLocal = parseIsoDateToLocal(wsData.workSession.end);
 
                     let timePassed = separateDateOnMidnight(startLocal, endLocal);
                     timePassed.map(timePassesDay => {
                         events.push({
-                            event_id: ws.id,
-                            user_id: ws.userId,
-                            title: ws.title || "Work",
-                            type: ws.type,
-                            lastModifierName: ws.lastModifierName,
+                            event_id: wsData.workSession.id,
+                            user_id: wsData.workSession.userId,
+                            title: wsData.workSession.title || "Work",
+                            type: wsData.workSession.type,
+                            lastModifierName: wsData.lastModifier.fullName,
                             start: new Date(timePassesDay.start),
                             end: new Date(timePassesDay.end),
-                            description: ws.description || "",
+                            description: wsData.workSession.description || "",
                             allDay: false
                         });
                     });
@@ -98,26 +99,23 @@ export default function TrackerScheduler() {
         return new Promise(() => {
             if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && id) {
                 if (action === "edit" && (id === user.id || hasPermit(user.permissions, "UpdateWorkSessions"))) {
-                    dispatch(updateWorkSessionActionCreator({
-                        id: typeof event.event_id == "string" ? event.event_id : "",
-                        userId: event.user_id,
-                        type: event.type,
+                    dispatch(updateWorkSessionActionCreator(event.event_id.toString(), {
                         start: event.start.toISOString(),
                         end: event.end.toISOString(),
                         title: event.title,
                         description: event.description,
-                        lastModifierId: user.id,
-                        lastModifierName: user.fullName,
+                        lastModifierId: user.id
                     }));
 
                 } else if (action === "create" && (id === user.id || hasPermit(user.permissions, "CreateWorkSessions"))) {
                     dispatch(createWorkSessionActionCreator({
-                        Type: "planned",
-                        UserId: id,
-                        Description: event.description,
-                        Title: event.title,
-                        Start: event.start.toISOString(),
-                        End: event.end.toISOString(),
+                        userId: id,
+                        start: event.start.toISOString(),
+                        end: event.end.toISOString(),
+                        type: WorkSessionTypesEnum[WorkSessionTypesEnum.Planned],
+                        title: event.title,
+                        description: event.description,
+                        lastModifierId: user.id,
                     }));
                 }
 

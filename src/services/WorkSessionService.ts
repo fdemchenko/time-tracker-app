@@ -1,7 +1,10 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
-import WorkSession from "../models/WorkSession";
-import {CreateWorkSessionPayload, GetWorkSessionsInput} from "../redux/epics/WorkSessionEpics";
+import WorkSession from "../models/work-session/WorkSession";
+import {Moment} from "moment";
+import {WorkSessionInput} from "../models/work-session/WorkSessionInput";
+import {WorkSessionWithRelations} from "../models/work-session/WorkSessionWithRelations";
+import {WorkSessionUpdateInput} from "../models/work-session/WorkSessionUpdateInput";
 
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
     data?: {
@@ -16,13 +19,15 @@ export function RequestGetActiveWorkSession(userId: string) {
                 query GetWorkSessionById($userId: ID!) {
                   workSession {
                     getActiveWorkSessionByUserId(userId: $userId) {
-                      id
-                      userId
-                      start
-                      end,
-                      lastModifierId,
-                      lastModifierName
-                    } 
+                        id,
+                        userId,
+                        lastModifierId,
+                        start,
+                        end,
+                        type,
+                        title,
+                        description
+                    }
                   }
                 }
             `,
@@ -41,7 +46,7 @@ interface SetEndWorkSessionResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestSetEndWorkSession(id: string) {
+export function RequestSetEndWorkSession(id: string, date: Moment) {
     return ajaxAuth<SetEndWorkSessionResponse>(JSON.stringify({
         query: `
                 mutation SetWorkSessionEnd($id: ID!, $endDateTime: DateTime!) {
@@ -52,7 +57,7 @@ export function RequestSetEndWorkSession(id: string) {
             `,
         variables: {
             "id": id,
-            "endDateTime": new Date().toISOString()
+            "endDateTime": date.toISOString()
         }
     })).pipe(
         map((res) => res.response)
@@ -66,33 +71,33 @@ interface CreateWorkSessionResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestCreateWorkSession(workSession: CreateWorkSessionPayload) {
+export function RequestCreateWorkSession(workSession: WorkSessionInput) {
     return ajaxAuth<CreateWorkSessionResponse>(JSON.stringify({
         query: `
                 mutation CreateWorkSession($workSession: WorkSessionInputType!) {
                   workSession {
                     create(workSession: $workSession) {
-                      id,
-                      userId,
-                      start,
-                      end,
-                      type,
-                      title,
-                      description,
-                      lastModifierId,
-                      lastModifierName
-                    }
+                      id
+                      userId
+                      start
+                      end
+                      type
+                      title
+                      description
+                      lastModifierId
+                    } 
                   }
                 }
             `,
         variables: {
             "workSession": {
-                "userId": workSession.UserId,
-                "start": workSession.Start ?? new Date().toISOString(),
-                "end": workSession.End ?? null,
-                "type": workSession.Type ?? "active",
-                "title": workSession.Title,
-                "description": workSession.Description,
+                "userId": workSession.userId,
+                "start": workSession.start,
+                "end": workSession.end,
+                "type": workSession.type,
+                "title": workSession.title,
+                "description": workSession.description,
+                "lastModifierId": workSession.lastModifierId
             }
         }
     })).pipe(
@@ -105,29 +110,61 @@ interface GetUsersWorkSessionsResponse extends GraphQLResponse {
         workSession?: {
             getWorkSessionsByUserId: {
                 count: number,
-                items: WorkSession[]
+                items: WorkSessionWithRelations[]
             } | null
         }
     }
 }
-export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
+export interface GetUsersWorkSessionsFetchParams {
+    userId: string,
+    orderByDesc?: boolean | null,
+    offset?: number | null,
+    limit?: number | null,
+    startDate?: string | null,
+    endDate?: string | null
+}
+export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchParams) {
     return ajaxAuth<GetUsersWorkSessionsResponse>(JSON.stringify({
         query: `
-                query GetWorkSessionsByUserId($userId: ID!, $orderByDesc: Boolean,
-                             $offset: Int, $limit: Int, $startDate: DateTime, $endDate: DateTime) {
+                query GetWorkSessionsWithPagination($userId: ID!, $orderByDesc: Boolean, $offset: Int, $limit: Int
+                                   $startDate: DateTime, $endDate: DateTime) {
                   workSession {
-                    getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset, limit: $limit, startDate: $startDate, endDate: $endDate) {
-                      count,
+                    getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset,
+                    limit: $limit, startDate: $startDate, endDate: $endDate)  {
+                      count
                       items {
-                        id,
-                        userId,
-                        start,
-                        end,
-                        title,
-                        description,
-                        type,
-                        lastModifierId,
-                        lastModifierName
+                        workSession {
+                          id
+                          userId
+                          start
+                          end
+                          type
+                          title
+                          description
+                          lastModifierId
+                        }
+                        user {
+                          id
+                          email
+                          fullName
+                          employmentRate
+                          employmentDate
+                          permissions
+                          status
+                          hasPassword
+                          hasValidSetPasswordLink
+                        }
+                        lastModifier {
+                          id
+                          email
+                          fullName
+                          employmentRate
+                          employmentDate
+                          permissions
+                          status
+                          hasPassword
+                          hasValidSetPasswordLink
+                        }
                       }
                     } 
                   }
@@ -135,11 +172,11 @@ export function RequestGetUserWorkSessions(fetchData: GetWorkSessionsInput) {
             `,
         variables: {
             "userId": fetchData.userId,
-            "orderByDesc": fetchData.orderByDesc ?? null,
-            "offset": fetchData.offset ?? null,
-            "limit": fetchData.limit ?? null,
-            "startDate": fetchData.startDate ?? null,
-            "endDate": fetchData.endDate ?? null
+            "orderByDesc": fetchData.orderByDesc,
+            "offset": fetchData.offset,
+            "limit": fetchData.limit,
+            "startDate": fetchData.startDate,
+            "endDate": fetchData.endDate
         }
     })).pipe(
         map((res) => res.response)
@@ -153,7 +190,7 @@ interface UpdateWorkSessionResponse extends GraphQLResponse {
         }
     }
 }
-export function RequestUpdateWorkSession(workSession: WorkSession) {
+export function RequestUpdateWorkSession(id: string, workSession: WorkSessionUpdateInput) {
     return ajaxAuth<UpdateWorkSessionResponse>(JSON.stringify({
         query: `
                 mutation UpdateWorkSession($id: ID!, $workSession: WorkSessionInputUpdateType!) {
@@ -163,13 +200,13 @@ export function RequestUpdateWorkSession(workSession: WorkSession) {
                 }
             `,
         variables: {
-            "id": workSession.id,
+            "id": id,
             "workSession": {
-                "userId": workSession.userId,
                 "start": workSession.start,
                 "end": workSession.end,
                 "title": workSession.title,
-                "description": workSession.description
+                "description": workSession.description,
+                "lastModifierId": workSession.lastModifierId
             }
         }
     })).pipe(

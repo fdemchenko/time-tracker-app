@@ -9,6 +9,8 @@ import {
     setEndWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {isoDateToNumber, parseIsoDateToLocal} from "../../helpers/date";
+import moment from "moment/moment";
+import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 
 interface TrackerProps {
     handleSetTrackerDisplay: (value: string) => void
@@ -40,13 +42,20 @@ export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
     }, [trackerDisplay]);
 
     const start = () => {
+        console.log("start")
         if (workSessionData.activeWorkSession == null) {
+            console.log("in if start")
             setNow(Date.now());
             setStartTime(now);
 
             dispatch(createWorkSessionActionCreator({
-                UserId: user.id,
-                Type: "active"
+                userId: user.id,
+                start: moment().toISOString(),
+                end: null,
+                type: WorkSessionTypesEnum[WorkSessionTypesEnum.Active],
+                description: null,
+                title: null,
+                lastModifierId: user.id
             }));
         }
     };
@@ -58,7 +67,7 @@ export default function Tracker({handleSetTrackerDisplay}: TrackerProps) {
             setNow(Date.now());
             setStartTime(now);
 
-            dispatch(setEndWorkSessionActionCreator(workSessionData.activeWorkSession.id));
+            dispatch(setEndWorkSessionActionCreator(workSessionData.activeWorkSession.id, moment()));
         }
     };
 

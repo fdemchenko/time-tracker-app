@@ -18,7 +18,6 @@ import UpdateUserForm from "./components/user/UpdateUserForm";
 import DeactivateUserForm from "./components/user/DeactivateUserForm";
 import {Notify} from "./helpers/notifications";
 import WorkSessionPage from "./components/work-session/WorkSessionPage";
-import WorkSessionUpdateDialog from "./components/work-session/WorkSessionUpdateDialog";
 import WorkSessionDeleteDialog from "./components/work-session/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
@@ -107,7 +106,7 @@ function App() {
 						</ProtectedRoute>
 					}/>
 						<Route path="/worksession/create" element={<WorkSessionCreateDialog />}/>
-						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
+						{/*<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>*/}
 						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
 					<Route path="/scheduler/:id" element={
 						<ProtectedRoute>
