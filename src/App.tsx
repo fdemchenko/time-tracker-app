@@ -32,6 +32,7 @@ import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
 import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
 import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
 import UserProfile from "./components/user/UserProfile";
+import WorkSessionUpdateDialog from "./components/work-session/WorkSessionUpdateDialog";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -106,7 +107,7 @@ function App() {
 						</ProtectedRoute>
 					}>
 						<Route path="/worksession/create/:selectedUserId?" element={<WorkSessionCreateDialog />}/>
-						{/*<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>*/}
+						<Route path="/worksession/update/:workSessionId" element={<WorkSessionUpdateDialog />}/>
 						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
 					</Route>
 

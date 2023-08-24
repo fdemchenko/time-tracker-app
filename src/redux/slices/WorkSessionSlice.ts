@@ -40,12 +40,10 @@ export const WorkSessionSlice = createSlice({
         },
         SetActiveWorkSession: (state, action: PayloadAction<WorkSession | null>) => {
             state.activeWorkSession = action.payload;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
             state.error = null;
         },
         SetWorkSessionList: (state, action: PayloadAction<{count: number, items: WorkSessionWithRelations[]}>) => {
             state.workSessionsList = action.payload;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
             state.error = null;
         }
     }

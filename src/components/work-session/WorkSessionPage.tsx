@@ -22,7 +22,7 @@ export default function WorkSessionPage() {
 
     const {
         workSessionsList, error, isLoading,
-        activeWorkSession
+        activeWorkSession, requireUpdateToggle
     } = useAppSelector(state => state.workSession);
     const {user} = useAppSelector(state => state.user);
     const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
@@ -47,7 +47,7 @@ export default function WorkSessionPage() {
             startDate: startDate ? startDate.toISOString() : null,
             endDate: endDate ? endDate.toISOString() : null,
         }));
-    }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession, userInput]);
+    }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession, userInput, requireUpdateToggle]);
 
     useEffect(() => {
         dispatch(getUsersWithoutPaginationActionCreator(false));
