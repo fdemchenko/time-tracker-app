@@ -108,7 +108,7 @@ function App() {
 					}>
 						<Route path="/worksession/create/:selectedUserId?" element={<WorkSessionCreateDialog />}/>
 						<Route path="/worksession/update/:workSessionId" element={<WorkSessionUpdateDialog />}/>
-						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
+						<Route path="/worksession/delete/:workSessionId" element={<WorkSessionDeleteDialog />}/>
 					</Route>
 
 					<Route path="/scheduler/:id" element={
