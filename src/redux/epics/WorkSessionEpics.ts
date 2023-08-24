@@ -1,16 +1,16 @@
 import {
-    CREATE_WORK_SESSION_ACTION, DELETE_WORK_SESSION_ACTION,
-    GET_ACTIVE_WORK_SESSION_ACTION, GET_USER_WORK_SESSIONS_ACTION,
-    SET_END_WORK_SESSION_ACTION, UPDATE_WORK_SESSION_ACTION,
-    WORK_SESSION_ERROR_ACTION
+  CREATE_WORK_SESSION_ACTION, DELETE_WORK_SESSION_ACTION,
+  GET_ACTIVE_WORK_SESSION_ACTION, GET_USER_WORK_SESSIONS_ACTION, GET_WORK_SESSIONS_BY_USER_IDS_BY_MONTH_ACTION,
+  SET_END_WORK_SESSION_ACTION, UPDATE_WORK_SESSION_ACTION,
+  WORK_SESSION_ERROR_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
-  GetUsersWorkSessionsFetchParams,
+  GetUsersWorkSessionsFetchParams, GetWorkSessionsByUserIdsByMonthFetchParams,
   RequestCreateWorkSession, RequestDeleteWorkSession,
-  RequestGetActiveWorkSession, RequestGetUserWorkSessions,
+  RequestGetActiveWorkSession, RequestGetUserWorkSessions, RequestGetWorkSessionsByUserIdsByMonth,
   RequestSetEndWorkSession, RequestUpdateWorkSession
 } from "../../services/WorkSessionService";
 import {
@@ -139,6 +139,30 @@ export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction
             endWith(SetIsWorkSessionLoading(false))
         ))
     );
+
+export const getWorkSessionsByUserIdsByMonthActionCreator = (fetchData: GetWorkSessionsByUserIdsByMonthFetchParams) =>
+  ({type: GET_WORK_SESSIONS_BY_USER_IDS_BY_MONTH_ACTION, payload: fetchData});
+export const GetWorkSessionsByUserIdsByMonthEpic: Epic = (action$: Observable<PayloadAction<GetWorkSessionsByUserIdsByMonthFetchParams>>) =>
+  action$.pipe(
+    ofType(GET_WORK_SESSIONS_BY_USER_IDS_BY_MONTH_ACTION),
+    map(action => action.payload),
+    mergeMap((fetchData) => RequestGetWorkSessionsByUserIdsByMonth(fetchData).pipe(
+      map((res) => {
+        const errorMsg = "Failed to load user sessions";
+        if (res.errors) {
+          return workSessionErrorActionCreator(res, errorMsg);
+        }
+        let workSessions = res.data?.workSession?.getWorkSessionsByUserIdsByMonth;
+        if (workSessions) {
+          return SetWorkSessionList({count: workSessions.length, items: workSessions});
+        }
+        return workSessionErrorActionCreator(res, errorMsg);
+      }),
+      catchError((err) => of(workSessionErrorActionCreator(err))),
+      startWith(SetIsWorkSessionLoading(true)),
+      endWith(SetIsWorkSessionLoading(false))
+    ))
+  );
 
 export const updateWorkSessionActionCreator = (id: string, workSession: WorkSessionUpdateInput) =>
     ({type: UPDATE_WORK_SESSION_ACTION, payload: {id, workSession}});

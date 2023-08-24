@@ -6,14 +6,14 @@ import React, {useEffect, useRef, useState} from "react";
 import {
     createWorkSessionActionCreator,
     deleteWorkSessionActionCreator,
-    getUserWorkSessionsActionCreator,
+    getWorkSessionsByUserIdsByMonthActionCreator,
     updateWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet, useParams} from "react-router-dom";
+import {Link, Outlet} from "react-router-dom";
 import moment from "moment/moment";
 import {hasPermit} from "../../helpers/hasPermit";
 import {TimePicker} from "@mui/x-date-pickers";
@@ -22,8 +22,6 @@ import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 export default function TrackerScheduler() {
     const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
     const {holidays} = useAppSelector(state => state.scheduler);
-
-    const {id} = useParams()
 
     const {user} = useAppSelector(state => state.user);
     const dispatch = useAppDispatch();
@@ -34,10 +32,10 @@ export default function TrackerScheduler() {
     const schedulerRef = useRef<SchedulerRef>(null);
 
     useEffect(() => {
-        if (id) {
-            dispatch(getUserWorkSessionsActionCreator({
-                userId: id,
-                orderByDesc: true
+        if (schedulerRef.current) {
+            dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
+                userIds: [user.id],
+                monthDate: schedulerRef.current.scheduler.selectedDate.toISOString()
             }));
 
             dispatch(getHolidaysActionCreator());
@@ -64,7 +62,9 @@ export default function TrackerScheduler() {
                             start: new Date(timePassesDay.start),
                             end: new Date(timePassesDay.end),
                             description: wsData.workSession.description || "",
-                            allDay: false
+                            allDay: false,
+                            draggable: false,
+                            disabled: true
                         });
                     });
                 }
@@ -80,7 +80,8 @@ export default function TrackerScheduler() {
                     allDay: true,
                     editable: false,
                     deletable: false,
-                    draggable: false
+                    draggable: false,
+                    disabled: false
                 });
             });
 
@@ -97,8 +98,8 @@ export default function TrackerScheduler() {
         action: EventActions
     ): Promise<ProcessedEvent> {
         return new Promise(() => {
-            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && id) {
-                if (action === "edit" && (id === user.id || hasPermit(user.permissions, "UpdateWorkSessions"))) {
+            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && user.id) {
+                if (action === "edit" && (/*id === user.id ||*/ hasPermit(user.permissions, "UpdateWorkSessions"))) {
                     dispatch(updateWorkSessionActionCreator(event.event_id.toString(), {
                         start: event.start.toISOString(),
                         end: event.end.toISOString(),
@@ -107,9 +108,9 @@ export default function TrackerScheduler() {
                         lastModifierId: user.id
                     }));
 
-                } else if (action === "create" && (id === user.id || hasPermit(user.permissions, "CreateWorkSessions"))) {
+                } else if (action === "create" && (/*id === user.id ||*/ hasPermit(user.permissions, "CreateWorkSessions"))) {
                     dispatch(createWorkSessionActionCreator({
-                        userId: id,
+                        userId: user.id,
                         start: event.start.toISOString(),
                         end: event.end.toISOString(),
                         type: WorkSessionTypesEnum[WorkSessionTypesEnum.Planned],
@@ -131,7 +132,7 @@ export default function TrackerScheduler() {
 
     return (
         <Box>
-            {!id
+            {!user.id
               ?
               <Alert severity="error" sx={{ mt: 2 }}>
                   User not found
@@ -223,6 +224,7 @@ export default function TrackerScheduler() {
                 onDelete={handleDelete}
                 onConfirm={handleConfirm}
                 hourFormat="24"
+                draggable={false}
 
                 week={{
                     weekDays: [0, 1, 2, 3, 4, 5, 6],

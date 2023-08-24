@@ -186,6 +186,68 @@ export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchP
     );
 }
 
+interface GetWorkSessionsByUserIdsByMonthResponse extends GraphQLResponse {
+    data?: {
+        workSession?: {
+            getWorkSessionsByUserIdsByMonth: WorkSessionWithRelations[] | null
+        }
+    }
+}
+export interface GetWorkSessionsByUserIdsByMonthFetchParams {
+    userIds: string[],
+    monthDate: string
+}
+export function RequestGetWorkSessionsByUserIdsByMonth(fetchData: GetWorkSessionsByUserIdsByMonthFetchParams) {
+    return ajaxAuth<GetWorkSessionsByUserIdsByMonthResponse>(JSON.stringify({
+        query: `
+                query GetWorkSessionsByUserIdsByMonth($userIds: [ID]!, $monthDate: Date!) {
+                  workSession {
+                    getWorkSessionsByUserIdsByMonth(userIds: $userIds, monthDate: $monthDate) {
+                      workSession {
+                        id
+                        userId
+                        start
+                        end
+                        type
+                        title
+                        description
+                        lastModifierId
+                      }
+                      user {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                      lastModifier {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "userIds": fetchData.userIds,
+            "monthDate": formatIsoDateForApi(fetchData.monthDate)
+        }
+    })).pipe(
+      map((res) => res.response)
+    );
+}
+
 interface UpdateWorkSessionResponse extends GraphQLResponse {
     data?: {
         workSession?: {

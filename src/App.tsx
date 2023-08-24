@@ -111,11 +111,12 @@ function App() {
 						<Route path="/worksession/delete/:workSessionId" element={<WorkSessionDeleteDialog />}/>
 					</Route>
 
-					<Route path="/scheduler/:id" element={
+					<Route path="/scheduler" element={
 						<ProtectedRoute>
 							<TrackerScheduler />
 						</ProtectedRoute>
 					}>
+						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
 					</Route>
 
 					<Route path="/vacations" element={
@@ -133,8 +134,6 @@ function App() {
 					>
 						<Route path="/vacations/approvement/:vacationId" element={<VacationApproveDialog />} />
 					</Route>
-
-					<Route path="/holidays" element={<HolidaysDialog />}/>
 
 					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
 						<Route path="/sick-leave/create" element={<SickLeaveFormDialog />} />
