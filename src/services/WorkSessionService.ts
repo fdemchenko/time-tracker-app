@@ -5,6 +5,7 @@ import {Moment} from "moment";
 import {WorkSessionInput} from "../models/work-session/WorkSessionInput";
 import {WorkSessionWithRelations} from "../models/work-session/WorkSessionWithRelations";
 import {WorkSessionUpdateInput} from "../models/work-session/WorkSessionUpdateInput";
+import {formatIsoDateForApi} from "../helpers/date";
 
 interface GetActiveWorkSessionResponse extends GraphQLResponse {
     data?: {
@@ -121,16 +122,17 @@ export interface GetUsersWorkSessionsFetchParams {
     offset?: number | null,
     limit?: number | null,
     startDate?: string | null,
-    endDate?: string | null
+    endDate?: string | null,
+    showPlanned?: boolean | null
 }
 export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchParams) {
     return ajaxAuth<GetUsersWorkSessionsResponse>(JSON.stringify({
         query: `
                 query GetWorkSessionsWithPagination($userId: ID!, $orderByDesc: Boolean, $offset: Int, $limit: Int
-                                   $startDate: DateTime, $endDate: DateTime) {
+                                   $startDate: Date, $endDate: Date, $showPlanned: Boolean) {
                   workSession {
                     getWorkSessionsByUserId(userId: $userId, orderByDesc: $orderByDesc, offset: $offset,
-                    limit: $limit, startDate: $startDate, endDate: $endDate)  {
+                    limit: $limit, startDate: $startDate, endDate: $endDate, showPlanned: $showPlanned)  {
                       count
                       items {
                         workSession {
@@ -175,8 +177,9 @@ export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchP
             "orderByDesc": fetchData.orderByDesc,
             "offset": fetchData.offset,
             "limit": fetchData.limit,
-            "startDate": fetchData.startDate,
-            "endDate": fetchData.endDate
+            "startDate": fetchData.startDate ? formatIsoDateForApi(fetchData.startDate) : null,
+            "endDate": fetchData.endDate ? formatIsoDateForApi(fetchData.endDate) : null,
+            "showPlanned": fetchData.showPlanned
         }
     })).pipe(
         map((res) => res.response)

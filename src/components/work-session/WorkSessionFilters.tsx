@@ -1,7 +1,7 @@
 import {DesktopDatePicker} from "@mui/x-date-pickers";
 import {
-    Box,
-    FormControl, Link as MuiLink,
+    Box, Checkbox,
+    FormControl, FormControlLabel, Link as MuiLink,
     MenuItem,
     Select,
     ToggleButton, ToggleButtonGroup
@@ -18,10 +18,12 @@ interface WorkSessionFiltersProps {
     setOrderByDesc: Dispatch<SetStateAction<boolean>>;
     limit: number;
     setLimit: Dispatch<SetStateAction<number>>;
+    showPlanned: boolean;
+    setShowPlanned: Dispatch<SetStateAction<boolean>>;
     setPage?: Dispatch<SetStateAction<number>>;
 }
 export default function WorkSessionFilters({startDate, setStartDate, endDate, setEndDate,
-        orderByDesc, setOrderByDesc, limit, setLimit, setPage}: WorkSessionFiltersProps) {
+        orderByDesc, setOrderByDesc, limit, setLimit, showPlanned, setShowPlanned,setPage}: WorkSessionFiltersProps) {
 
     function handleClearFilters() {
         if (setPage) {
@@ -30,6 +32,7 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
         setStartDate(null);
         setEndDate(null);
         setOrderByDesc(true);
+        setShowPlanned(false);
     }
 
     return (
@@ -71,7 +74,9 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
                 sx={{
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center"
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 2
                 }}
             >
                 <FormControl>
@@ -92,6 +97,17 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
                         <MenuItem value="30">30</MenuItem>
                     </Select>
                 </FormControl>
+
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={showPlanned}
+                      onChange={(e) => setShowPlanned(e.target.checked)}
+                    />
+                  }
+                  label="Show planned"
+                />
+
                 <MuiLink
                   sx={{cursor: "pointer"}}
                   onClick={() => handleClearFilters()}

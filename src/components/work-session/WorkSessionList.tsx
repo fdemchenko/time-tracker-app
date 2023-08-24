@@ -7,6 +7,7 @@ import {Link} from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {WorkSessionWithRelations} from "../../models/work-session/WorkSessionWithRelations";
+import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 
 interface WorkSessionListProps {
     workSessionList: {
@@ -84,9 +85,13 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                     arrow
                                                     placement="right"
                                                   >
-                                                      <div style={{backgroundColor: '#faec8e',
+                                                      <div style={
+                                                          {backgroundColor: workSessionData.workSession.type !==
+                                                                WorkSessionTypesEnum[WorkSessionTypesEnum.Planned] ?
+                                                             '#68B38D' : "#FAF1CB",
                                                           width: `${calculateWorkSessionWidth(workSessionData.workSession.start, workSessionData.workSession.end)}%`,
-                                                          display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px'}}>
+                                                          display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px',
+                                                          borderRadius: "5px"}}>
                                                           <Typography style={{fontSize: '12px'}}>
                                                               {
                                                                   `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start))}`

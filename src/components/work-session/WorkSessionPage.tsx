@@ -28,9 +28,10 @@ export default function WorkSessionPage() {
     const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
 
     const [startDate, setStartDate] = useState<Moment | null>(null);
-    const [endDate, setEndDate] = useState<Moment | null>(() => moment());
+    const [endDate, setEndDate] = useState<Moment | null>(() => moment.utc());
     const [orderByDesc, setOrderByDesc] = useState<boolean>(true);
     const [limit, setLimit] = useState<number>(8);
+    const [showPlanned, setShowPlanned] = useState<boolean>(false);
 
     const [page, setPage] = useState<number>(1);
     const pagesCount: number = Math.ceil(workSessionsList.count / limit);
@@ -46,8 +47,10 @@ export default function WorkSessionPage() {
             limit: limit,
             startDate: startDate ? startDate.toISOString() : null,
             endDate: endDate ? endDate.toISOString() : null,
+            showPlanned: showPlanned
         }));
-    }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession, userInput, requireUpdateToggle]);
+    }, [page, limit, startDate, endDate, orderByDesc, activeWorkSession, userInput, showPlanned,
+        requireUpdateToggle]);
 
     useEffect(() => {
         dispatch(getUsersWithoutPaginationActionCreator(false));
@@ -135,6 +138,8 @@ export default function WorkSessionPage() {
                                   setOrderByDesc={setOrderByDesc}
                                   limit={limit}
                                   setLimit={setLimit}
+                                  showPlanned={showPlanned}
+                                  setShowPlanned={setShowPlanned}
                                   setPage={setPage}
                                 />
                             </Box>
