@@ -4,17 +4,13 @@ import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import React, {useEffect, useRef, useState} from "react";
 import {
-  createWorkSessionActionCreator,
   deleteWorkSessionActionCreator,
-  getWorkSessionsByUserIdsByMonthActionCreator,
-  updateWorkSessionActionCreator
+  getWorkSessionsByUserIdsByMonthActionCreator
 } from "../../redux/epics/WorkSessionEpics";
-import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
-import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
+import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useNavigate} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
-import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 import SchedulerRangePicker from "./SchedulerRangePicker";
 import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
 import SchedulerEvent from "./SchedulerEvent";
@@ -48,9 +44,9 @@ export default function TrackerScheduler() {
 
   useEffect(() => {
     if (schedulerRef.current) {
-      let events = GetEventsFromWorkSessionList(workSessionsList);
+      let events = GetEventsFromHolidayList(holidays);
 
-      events.push(...GetEventsFromHolidayList(holidays));
+      events.push(...GetEventsFromWorkSessionList(workSessionsList));
 
       schedulerRef.current.scheduler.handleState(events, "events")
     }
@@ -116,6 +112,14 @@ export default function TrackerScheduler() {
         hourFormat="24"
         draggable={false}
 
+        month={{
+          weekDays: [0, 1, 2, 3, 4, 5, 6],
+          weekStartOn: 1,
+          startHour: startRange as DayHours,
+          endHour: endRange as DayHours,
+          navigation: true,
+          disableGoToDay: false
+        }}
         week={{
           weekDays: [0, 1, 2, 3, 4, 5, 6],
           weekStartOn: 1,
@@ -123,24 +127,20 @@ export default function TrackerScheduler() {
           endHour: endRange as DayHours,
           step: 60,
           navigation: true,
-          disableGoToDay: false,
-        }}
-        month={{
-          weekDays: [0, 1, 2, 3, 4, 5, 6],
-          weekStartOn: 1,
-          startHour: 0,
-          endHour: 24,
-          navigation: true,
           disableGoToDay: false
         }}
         day={{
-          startHour: 0,
-          endHour: 24,
+          startHour: startRange as DayHours,
+          endHour: endRange as DayHours,
           step: 60,
           navigation: true
         }}
 
-        eventRenderer={({event, ...props}) => <SchedulerEvent event={event} eventRendererProps={props} />}
+        eventRenderer={({event, ...props}) => <SchedulerEvent
+          event={event}
+          eventRendererProps={props}
+          view={schedulerRef?.current?.scheduler.view}
+        />}
         viewerExtraComponent={(_, event) => <SchedulerViewerExtraComponent event={event} />}
 
         customEditor={(scheduler) => <SchedulerForm scheduler={scheduler} /> }

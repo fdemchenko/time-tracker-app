@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import {Link} from "react-router-dom";
 import React from "react";
 import {Box} from "@mui/material";
+import {isWorkSessionEvent} from "../../services/SchedulerService";
 
 interface SchedulerViewerExtraComponentProps {
   event: ProcessedEvent
@@ -13,9 +14,7 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
   return (
     <Box sx={{color: "#00000099"}}>
       {
-        event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Completed]
-        || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]
-        || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Auto] ?
+        isWorkSessionEvent(event) ?
           (
             <>
               <Typography variant="body2">

@@ -3,14 +3,20 @@ import Typography from "@mui/material/Typography";
 import {formatIsoTime} from "../../helpers/date";
 import {Box} from "@mui/material";
 import React from "react";
-import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 import {Link} from "react-router-dom";
+import {View} from "@aldabil/react-scheduler/components/nav/Navigation";
+import {isWorkSessionEvent} from "../../services/SchedulerService";
 
 interface SchedulerEventProps {
   event: ProcessedEvent;
   eventRendererProps: any;
+  view?: View | null;
 }
-export default function SchedulerEvent({event, eventRendererProps}: SchedulerEventProps) {
+export default function SchedulerEvent({event, eventRendererProps, view}: SchedulerEventProps) {
+  if (view === "month" && !isWorkSessionEvent(event)) {
+    return <></>;
+  }
+
   return (
     <Box
       sx={{

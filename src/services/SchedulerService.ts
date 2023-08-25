@@ -59,3 +59,9 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
 
   return events;
 }
+
+export function isWorkSessionEvent(event: ProcessedEvent): boolean {
+  return event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Completed]
+    || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]
+    || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Auto];
+}
