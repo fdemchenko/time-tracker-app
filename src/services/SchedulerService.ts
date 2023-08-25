@@ -28,7 +28,6 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
 
           allDay: false,
           draggable: false,
-          disabled: true,
           color: wsData.workSession.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned] ? '#68B38D' : '#47817F'
         });
       });
@@ -54,7 +53,6 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
       editable: false,
       deletable: false,
       draggable: false,
-      disabled: false,
       color: "#00C6CF"
     });
   });

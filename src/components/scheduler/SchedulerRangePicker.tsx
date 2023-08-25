@@ -32,7 +32,7 @@ export default function SchedulerRangePicker({startRange, setStartRange, endRang
         newHour = 23;
       }
     }
-    setStartRange(newHour);
+    setEndRange(newHour);
   }
 
   function setDefaultRange() {
@@ -65,6 +65,7 @@ export default function SchedulerRangePicker({startRange, setStartRange, endRang
         value={moment().set("hours", startRange)}
         onChange={(newValue) => handleSetStartTime(newValue)}
       />
+
       <TimePicker
         label="Scheduler end"
         ampm={false}
@@ -81,12 +82,16 @@ export default function SchedulerRangePicker({startRange, setStartRange, endRang
         value={moment().set("hours", endRange)}
         onChange={(newValue) => handleSetEndTime(newValue)}
       />
-      <MuiLink
-        sx={{cursor: "pointer"}}
-        onClick={setDefaultRange}
-      >
-        Set default range
-      </MuiLink>
+
+      {
+        (startRange !== startDefault || endRange !== endDefault) &&
+        <MuiLink
+          sx={{cursor: "pointer"}}
+          onClick={setDefaultRange}
+        >
+          Set default range
+        </MuiLink>
+      }
     </Box>
   );
 }

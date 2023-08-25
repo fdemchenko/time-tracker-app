@@ -8,7 +8,7 @@ import {Link} from "react-router-dom";
 
 interface SchedulerEventProps {
   event: ProcessedEvent;
-  eventRendererProps: any
+  eventRendererProps: any;
 }
 export default function SchedulerEvent({event, eventRendererProps}: SchedulerEventProps) {
   return (
