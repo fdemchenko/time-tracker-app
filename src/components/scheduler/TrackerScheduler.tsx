@@ -1,311 +1,186 @@
-import {Alert, Box, Button} from "@mui/material";
+import {Box, Button} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import React, {useEffect, useRef, useState} from "react";
 import {
-    createWorkSessionActionCreator,
-    deleteWorkSessionActionCreator,
-    getWorkSessionsByUserIdsByMonthActionCreator,
-    updateWorkSessionActionCreator
+  createWorkSessionActionCreator,
+  deleteWorkSessionActionCreator,
+  getWorkSessionsByUserIdsByMonthActionCreator,
+  updateWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
-import {formatIsoTime, parseIsoDateToLocal, separateDateOnMidnight} from "../../helpers/date";
+import {formatIsoTime} from "../../helpers/date";
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Link, Outlet} from "react-router-dom";
-import moment from "moment/moment";
+import {Link, Outlet, useNavigate} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
-import {TimePicker} from "@mui/x-date-pickers";
 import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
+import SchedulerRangePicker from "./SchedulerRangePicker";
+import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
+import SchedulerEvent from "./SchedulerEvent";
+import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
 
 export default function TrackerScheduler() {
-    const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
-    const {holidays} = useAppSelector(state => state.scheduler);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
-    const {user} = useAppSelector(state => state.user);
-    const dispatch = useAppDispatch();
+  const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
+  const {holidays} = useAppSelector(state => state.scheduler);
 
-    const [startRange, setStartRange] = useState<number>(8);
-    const [endRange, setEndRange] = useState<number>(20);
+  const {user} = useAppSelector(state => state.user);
 
-    const schedulerRef = useRef<SchedulerRef>(null);
+  const [startRange, setStartRange] = useState<number>(8);
+  const [endRange, setEndRange] = useState<number>(20);
 
-    useEffect(() => {
-        if (schedulerRef.current) {
-            dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
-                userIds: [user.id],
-                monthDate: schedulerRef.current.scheduler.selectedDate.toISOString()
-            }));
+  const schedulerRef = useRef<SchedulerRef>(null);
 
-            dispatch(getHolidaysActionCreator());
-        }
-    }, []);
+  useEffect(() => {
+    if (schedulerRef.current) {
+      dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
+        userIds: [user.id],
+        monthDate: schedulerRef.current.scheduler.selectedDate.toISOString()
+      }));
 
-    useEffect(() => {
-        if (schedulerRef.current) {
-            let events: ProcessedEvent[] = [];
-
-            workSessionsList.items.map(wsData => {
-                if (wsData.workSession.end) {
-                    let startLocal = parseIsoDateToLocal(wsData.workSession.start);
-                    let endLocal = parseIsoDateToLocal(wsData.workSession.end);
-
-                    let timePassed = separateDateOnMidnight(startLocal, endLocal);
-                    timePassed.map(timePassesDay => {
-                        events.push({
-                            event_id: wsData.workSession.id,
-                            user_id: wsData.workSession.userId,
-                            title: wsData.workSession.title || "Work",
-                            type: wsData.workSession.type,
-                            lastModifierName: wsData.lastModifier.fullName,
-                            start: new Date(timePassesDay.start),
-                            end: new Date(timePassesDay.end),
-                            description: wsData.workSession.description || "",
-                            allDay: false,
-                            draggable: false,
-                            disabled: true
-                        });
-                    });
-                }
-            });
-
-            holidays.map(holiday => {
-                events.push({
-                    event_id: holiday.id,
-                    title: holiday.title,
-                    description: holiday.type,
-                    start: moment(holiday.date).toDate(),
-                    end: holiday.endDate ? moment(holiday.endDate).add(1,"minute").toDate() : moment(holiday.date).toDate(),
-                    allDay: true,
-                    editable: false,
-                    deletable: false,
-                    draggable: false,
-                    disabled: false
-                });
-            });
-
-            schedulerRef.current.scheduler.handleState(events, "events")
-        }
-    }, [requireUpdateToggle, holidays]);
-
-    async function handleDelete(deletedId: string) {
-        dispatch(deleteWorkSessionActionCreator(deletedId));
+      dispatch(getHolidaysActionCreator());
     }
+  }, []);
 
-    async function handleConfirm(
-        event: ProcessedEvent,
-        action: EventActions
-    ): Promise<ProcessedEvent> {
-        return new Promise(() => {
-            if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && user.id) {
-                if (action === "edit" && (/*id === user.id ||*/ hasPermit(user.permissions, "UpdateWorkSessions"))) {
-                    dispatch(updateWorkSessionActionCreator(event.event_id.toString(), {
-                        start: event.start.toISOString(),
-                        end: event.end.toISOString(),
-                        title: event.title,
-                        description: event.description,
-                        lastModifierId: user.id
-                    }));
+  useEffect(() => {
+    if (schedulerRef.current) {
+      let events = GetEventsFromWorkSessionList(workSessionsList);
 
-                } else if (action === "create" && (/*id === user.id ||*/ hasPermit(user.permissions, "CreateWorkSessions"))) {
-                    dispatch(createWorkSessionActionCreator({
-                        userId: user.id,
-                        start: event.start.toISOString(),
-                        end: event.end.toISOString(),
-                        type: WorkSessionTypesEnum[WorkSessionTypesEnum.Planned],
-                        title: event.title,
-                        description: event.description,
-                        lastModifierId: user.id,
-                    }));
-                }
+      events.push(...GetEventsFromHolidayList(holidays));
 
-            } else {
-                dispatch(SetGlobalMessage({
-                    title: "Validation Error",
-                    message: "Date or user is invalid",
-                    type: "warning"
-                }));
-            }
-        });
+      schedulerRef.current.scheduler.handleState(events, "events")
     }
+  }, [requireUpdateToggle, holidays]);
 
-    return (
-        <Box>
-            {!user.id
-              ?
-              <Alert severity="error" sx={{ mt: 2 }}>
-                  User not found
-              </Alert>
-            :
-            <>
-            <Typography variant="h2" gutterBottom>
-                Work sessions
-            </Typography>
+  async function handleDelete(deletedId: string) {
+    dispatch(deleteWorkSessionActionCreator(deletedId));
+  }
 
-            {hasPermit(user.permissions, "ManageHolidays") &&
-                <Link to="/holidays">
-                    <Button
-                        sx={{mb: 2}}
-                        size="large"
-                        variant="contained"
-                    >
-                        Manage holidays
-                    </Button>
-                </Link>
+  async function handleConfirm(
+    event: ProcessedEvent,
+    action: EventActions
+  ): Promise<ProcessedEvent> {
+    return new Promise(() => {
+      if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && user.id) {
+        if (action === "edit" && (/*id === user.id ||*/ hasPermit(user.permissions, "UpdateWorkSessions"))) {
+          dispatch(updateWorkSessionActionCreator(event.event_id.toString(), {
+            start: event.start.toISOString(),
+            end: event.end.toISOString(),
+            title: event.title,
+            description: event.description,
+            lastModifierId: user.id
+          }));
+
+        } else if (action === "create" && (/*id === user.id ||*/ hasPermit(user.permissions, "CreateWorkSessions"))) {
+          dispatch(createWorkSessionActionCreator({
+            userId: user.id,
+            start: event.start.toISOString(),
+            end: event.end.toISOString(),
+            type: WorkSessionTypesEnum[WorkSessionTypesEnum.Planned],
+            title: event.title,
+            description: event.description,
+            lastModifierId: user.id,
+          }));
+        }
+
+      } else {
+        dispatch(SetGlobalMessage({
+          title: "Validation Error",
+          message: "Date or user is invalid",
+          type: "warning"
+        }));
+      }
+    });
+  }
+
+  return (
+    <>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 4
+        }}
+      >
+        <Typography variant="h3" gutterBottom>
+          Scheduler
+        </Typography>
+        {hasPermit(user.permissions, "ManageHolidays") &&
+          <Button
+            sx={{mb: 2}}
+            size="large"
+            variant="contained"
+            onClick={() => navigate("/holidays")}
+          >
+            Manage holidays
+          </Button>
+        }
+      </Box>
+
+      <SchedulerRangePicker
+        startRange={startRange}
+        setStartRange={setStartRange}
+        endRange={endRange}
+        setEndRange={setEndRange}
+      />
+
+      <Outlet/>
+
+      <Scheduler
+        fields={[
+          {
+            name: "description",
+            type: "input",
+            config: {
+              label: "Description",
+              required: false,
+              multiline: true,
+              rows: 4
             }
+          }
+        ]}
+        ref={schedulerRef}
+        loading={isLoading}
+        onDelete={handleDelete}
+        onConfirm={handleConfirm}
+        //disable drag and drop
+        onEventDrop={() => new Promise(() => {
+        })}
+        hourFormat="24"
+        draggable={false}
 
-            <Box
-                sx={{
-                    my: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "15px"
-                }}
-            >
-                <TimePicker
-                    label="Scheduler start"
-                    ampm={false}
-                    views={["hours"]}
-                    slotProps={{
-                        textField: {
-                            size: "small",
-                            sx: {
-                                width: "130px"
-                            }
-                        }
-                    }}
-                    value={moment().set("hours", startRange)}
-                    onChange={(newValue) => newValue && setStartRange(newValue.hours())}
-                />
-                <TimePicker
-                    label="Scheduler end"
-                    ampm={false}
-                    views={["hours"]}
-                    slotProps={{
-                        textField: {
-                            size: "small",
-                            sx: {
-                                width: "130px"
-                            }
-                        }
-                    }}
-                    minTime={moment().set("hours", startRange + 1)}
-                    value={moment().set("hours", endRange)}
-                    onChange={(newValue) => newValue && setEndRange(newValue.hours())}
-                />
-            </Box>
+        week={{
+          weekDays: [0, 1, 2, 3, 4, 5, 6],
+          weekStartOn: 1,
+          startHour: startRange as DayHours,
+          endHour: endRange as DayHours,
+          step: 60,
+          navigation: true,
+          disableGoToDay: false,
+        }}
+        month={{
+          weekDays: [0, 1, 2, 3, 4, 5, 6],
+          weekStartOn: 1,
+          startHour: 0,
+          endHour: 24,
+          navigation: true,
+          disableGoToDay: false
+        }}
+        day={{
+          startHour: 0,
+          endHour: 24,
+          step: 60,
+          navigation: true
+        }}
 
-            <Outlet/>
-
-            <Scheduler
-                fields={[
-                    {
-                        name: "description",
-                        type: "input",
-                        config: {
-                            label: "Description",
-                            required: false,
-                            multiline: true,
-                            rows: 4
-                        }
-                    },
-                    {
-                        name: "user_id",
-                        type: "hidden"
-                    },
-                    {
-                        name: "type",
-                        type: "hidden"
-                    }
-                ]}
-                ref={schedulerRef}
-                loading={isLoading}
-                onDelete={handleDelete}
-                onConfirm={handleConfirm}
-                hourFormat="24"
-                draggable={false}
-
-                week={{
-                    weekDays: [0, 1, 2, 3, 4, 5, 6],
-                    weekStartOn: 1,
-                    startHour: startRange as DayHours,
-                    endHour: endRange as DayHours,
-                    step: 60,
-                    navigation: true,
-                    disableGoToDay: false
-                }}
-                month={{
-                    weekDays: [0, 1, 2, 3, 4, 5, 6],
-                    weekStartOn: 1,
-                    startHour: 0,
-                    endHour: 24,
-                    navigation: true,
-                    disableGoToDay: false
-                }}
-                day={{
-                    startHour: 0,
-                    endHour: 24,
-                    step: 60,
-                    navigation: true
-                }}
-
-                eventRenderer={({event, ...props}) => (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "flex-start",
-                            gap: "5px",
-                            height: "100%",
-                            background: `${event.type === 'planned' ? '#33126e' : '#1e8c1c'}`,
-                            padding: "10px",
-                            textOverflow: "ellipsis",
-                        }}
-                        {...props}
-                    >
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                textTransform: "uppercase",
-                                color: "#FCCB06"
-                            }}
-                        >
-                            {event.title}
-                        </Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                color: "#edf7f6",
-                                fontWeight: "bold"
-                            }}
-                        >
-                            {
-                                formatIsoTime(event.start.toISOString()) + "-" +
-                                formatIsoTime(event.end.toISOString())
-                            }
-                        </Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                color: "#edf7f6"
-                            }}
-                        >
-                            {event.description}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                              color: "#edf7f6"
-                          }}
-                        >
-                            {event.lastModifierName}
-                        </Typography>
-                    </Box>
-                )
-                }
-            />
-            </>}
-        </Box>
-    );
+        eventRenderer={({event, ...props}) => <SchedulerEvent event={event} eventRendererProps={props} />}
+        viewerExtraComponent={(_, event) => <SchedulerViewerExtraComponent event={event} />}
+      />
+    </>
+  );
 }
