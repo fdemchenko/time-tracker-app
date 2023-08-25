@@ -14,15 +14,21 @@ import {WorkSessionUpdateInput} from "../../models/work-session/WorkSessionUpdat
 import {parseIsoDateToLocal} from "../../helpers/date";
 import AccessDenied from "../AccessDenied";
 import {updateWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {SchedulerHelpers} from "@aldabil/react-scheduler/types";
 
-export default function WorkSessionCreateDialog() {
+interface WorkSessionCreateDialogProps {
+  scheduler?: SchedulerHelpers;
+}
+export default function WorkSessionUpdateDialog({scheduler}: WorkSessionCreateDialogProps) {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {workSessionId} = useParams();
 
   const {user} = useAppSelector(state => state.user);
   const {workSessionsList, error} = useAppSelector(state => state.workSession);
-  const curWorkSession = workSessionsList.items.find(wsd => wsd.workSession.id === workSessionId);
+
+  const curWorkSessionId = scheduler?.edited ? scheduler.edited.event_id.toString() : workSessionId;
+  const curWorkSession = workSessionsList.items.find(wsd => wsd.workSession.id === curWorkSessionId);
 
   const InitialWorkSessionInput: WorkSessionUpdateInput = getInitialFormValue();
 
@@ -57,15 +63,17 @@ export default function WorkSessionCreateDialog() {
     onSubmit: values => {
       let ws = values.workSession;
       ws.lastModifierId = user.id;
-      if (workSessionId && curWorkSession) {
-        dispatch(updateWorkSessionActionCreator(workSessionId, ws));
+
+      if (curWorkSessionId && curWorkSession) {
+        dispatch(updateWorkSessionActionCreator(curWorkSessionId, ws));
       }
-      navigate(-1);
+
+      scheduler ? scheduler.close() : navigate(-1);
     }
   });
 
   return (
-    <DialogWindow title="Create work session">
+    <DialogWindow title="Update work session" handleClose={scheduler ? scheduler.close : () => navigate(-1)}>
       {
         !hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.UpdateWorkSessions])
         && curWorkSession?.workSession.userId !== user.id ?
@@ -147,7 +155,7 @@ export default function WorkSessionCreateDialog() {
                   <Button
                     size="large"
                     color="secondary"
-                    onClick={() => navigate(-1)}
+                    onClick={scheduler ? scheduler.close : () => navigate(-1)}
                   >
                     Back
                   </Button>

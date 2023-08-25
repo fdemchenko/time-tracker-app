@@ -12,10 +12,11 @@ import {ReactNode} from "react";
 
 interface DialogWindowProps {
     title: string,
-    children: ReactNode
+    children: ReactNode,
+    handleClose?: () => void
 }
 
-export default function DialogWindow({title, children}: DialogWindowProps) {
+export default function DialogWindow({title, children, handleClose}: DialogWindowProps) {
     const navigate = useNavigate();
 
     return (
@@ -23,7 +24,7 @@ export default function DialogWindow({title, children}: DialogWindowProps) {
             open={true}
             TransitionComponent={Transition}
             keepMounted
-            onClose={() => navigate(-1)}
+            onClose={handleClose ? handleClose : () => navigate(-1)}
             aria-describedby="vacation-dialog"
             fullWidth
             maxWidth="xs"
@@ -42,7 +43,7 @@ export default function DialogWindow({title, children}: DialogWindowProps) {
                     </Typography>
                     <CloseIcon
                         sx={{cursor: "pointer"}}
-                        onClick={() => navigate(-1)}
+                        onClick={handleClose ? handleClose : () => navigate(-1)}
                     />
                 </Box>
             </DialogTitle>

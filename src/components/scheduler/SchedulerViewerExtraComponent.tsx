@@ -55,7 +55,7 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
               <Typography
                 variant="body2"
               >
-                <b>Type:</b> {event.type}
+                <b>Type:</b> {event.type.split(/(?=[A-Z])/).map((s: string) => s.toLowerCase()).join(' ')}
               </Typography>
             </>
           )

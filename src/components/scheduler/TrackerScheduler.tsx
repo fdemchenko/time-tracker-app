@@ -9,7 +9,6 @@ import {
   getWorkSessionsByUserIdsByMonthActionCreator,
   updateWorkSessionActionCreator
 } from "../../redux/epics/WorkSessionEpics";
-import {formatIsoTime} from "../../helpers/date";
 import {DayHours, EventActions, ProcessedEvent, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {SetGlobalMessage} from "../../redux/slices/GlobalMessageSlice";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
@@ -20,6 +19,7 @@ import SchedulerRangePicker from "./SchedulerRangePicker";
 import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
 import SchedulerEvent from "./SchedulerEvent";
 import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
+import SchedulerForm from "./SchedulerForm";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
@@ -44,7 +44,7 @@ export default function TrackerScheduler() {
 
       dispatch(getHolidaysActionCreator());
     }
-  }, []);
+  }, [requireUpdateToggle]);
 
   useEffect(() => {
     if (schedulerRef.current) {
@@ -54,47 +54,10 @@ export default function TrackerScheduler() {
 
       schedulerRef.current.scheduler.handleState(events, "events")
     }
-  }, [requireUpdateToggle, holidays]);
+  }, [workSessionsList, holidays]);
 
   async function handleDelete(deletedId: string) {
     dispatch(deleteWorkSessionActionCreator(deletedId));
-  }
-
-  async function handleConfirm(
-    event: ProcessedEvent,
-    action: EventActions
-  ): Promise<ProcessedEvent> {
-    return new Promise(() => {
-      if (!isNaN(event.start.getTime()) && !isNaN(event.end.getTime()) && user.id) {
-        if (action === "edit" && (/*id === user.id ||*/ hasPermit(user.permissions, "UpdateWorkSessions"))) {
-          dispatch(updateWorkSessionActionCreator(event.event_id.toString(), {
-            start: event.start.toISOString(),
-            end: event.end.toISOString(),
-            title: event.title,
-            description: event.description,
-            lastModifierId: user.id
-          }));
-
-        } else if (action === "create" && (/*id === user.id ||*/ hasPermit(user.permissions, "CreateWorkSessions"))) {
-          dispatch(createWorkSessionActionCreator({
-            userId: user.id,
-            start: event.start.toISOString(),
-            end: event.end.toISOString(),
-            type: WorkSessionTypesEnum[WorkSessionTypesEnum.Planned],
-            title: event.title,
-            description: event.description,
-            lastModifierId: user.id,
-          }));
-        }
-
-      } else {
-        dispatch(SetGlobalMessage({
-          title: "Validation Error",
-          message: "Date or user is invalid",
-          type: "warning"
-        }));
-      }
-    });
   }
 
   return (
@@ -147,7 +110,6 @@ export default function TrackerScheduler() {
         ref={schedulerRef}
         loading={isLoading}
         onDelete={handleDelete}
-        onConfirm={handleConfirm}
         //disable drag and drop
         onEventDrop={() => new Promise(() => {
         })}
@@ -180,6 +142,8 @@ export default function TrackerScheduler() {
 
         eventRenderer={({event, ...props}) => <SchedulerEvent event={event} eventRendererProps={props} />}
         viewerExtraComponent={(_, event) => <SchedulerViewerExtraComponent event={event} />}
+
+        customEditor={(scheduler) => <SchedulerForm scheduler={scheduler} /> }
       />
     </>
   );
