@@ -4,19 +4,15 @@ import {formatIsoTime} from "../../helpers/date";
 import {Box} from "@mui/material";
 import React from "react";
 import {Link} from "react-router-dom";
-import {View} from "@aldabil/react-scheduler/components/nav/Navigation";
-import {isWorkSessionEvent} from "../../services/SchedulerService";
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import {isPlannedEvent} from "../../services/SchedulerService";
 
 interface SchedulerEventProps {
   event: ProcessedEvent;
   eventRendererProps: any;
-  view?: View | null;
 }
-export default function SchedulerEvent({event, eventRendererProps, view}: SchedulerEventProps) {
-  if (view === "month" && !isWorkSessionEvent(event)) {
-    return <></>;
-  }
-
+export default function SchedulerEvent({event, eventRendererProps}: SchedulerEventProps) {
   return (
     <Box
       sx={{
@@ -41,6 +37,7 @@ export default function SchedulerEvent({event, eventRendererProps, view}: Schedu
             color: "white"
           }}
         >
+          {isPlannedEvent(event) ? <CalendarMonthIcon fontSize="small" /> : <EventAvailableIcon fontSize="small" />}&nbsp;
           {event.title}
         </Typography>
         <Typography

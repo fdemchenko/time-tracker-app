@@ -5,11 +5,28 @@ import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
 
+function getColor(index: number): string {
+  const colors = ["#47817F", "#3B8093", "#4D7BA2", "#7272A4", "#966795", "#AD5E78"];
+  return colors[index % colors.length];
+}
+interface UserColorInfo {
+  userId: string;
+  color: string;
+}
 export function GetEventsFromWorkSessionList(wsList: {count: number, items: WorkSessionWithRelations[]}) {
   let events: ProcessedEvent[] = [];
 
+  let userColorInfoList: UserColorInfo[] = [];
+  let colorIndex = 0;
   wsList.items.map(wsData => {
     if (wsData.workSession.end) {
+      let curUserColorInfo = userColorInfoList.find(uci => uci.userId === wsData.user.id);
+      if (!curUserColorInfo) {
+        curUserColorInfo = {userId: wsData.user.id, color: getColor(colorIndex)};
+        userColorInfoList.push(curUserColorInfo);
+        colorIndex++;
+      }
+
       let startLocal = parseIsoDateToLocal(wsData.workSession.start);
       let endLocal = parseIsoDateToLocal(wsData.workSession.end);
 
@@ -28,7 +45,7 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
 
           allDay: false,
           draggable: false,
-          color: wsData.workSession.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned] ? '#68B38D' : '#47817F'
+          color: curUserColorInfo?.color
         });
       });
     }
@@ -64,4 +81,8 @@ export function isWorkSessionEvent(event: ProcessedEvent): boolean {
   return event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Completed]
     || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]
     || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Auto];
+}
+
+export function isPlannedEvent(event: ProcessedEvent): boolean {
+  return event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned];
 }

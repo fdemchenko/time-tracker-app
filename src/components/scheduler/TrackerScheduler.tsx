@@ -1,4 +1,4 @@
-import {Box, Button} from "@mui/material";
+import {Autocomplete, Box, Button, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
@@ -16,6 +16,8 @@ import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../serv
 import SchedulerEvent from "./SchedulerEvent";
 import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
 import SchedulerForm from "./SchedulerForm";
+import User from "../../models/User";
+import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpics";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
@@ -25,6 +27,11 @@ export default function TrackerScheduler() {
   const {holidays} = useAppSelector(state => state.scheduler);
 
   const {user} = useAppSelector(state => state.user);
+  const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
+
+  let initialUser: User = user;
+  const [userInput, setUserInput] = useState<User[]>([initialUser]);
+  const [userTextInput, setUserTextInput] = useState<string>(initialUser.fullName);
 
   const [startRange, setStartRange] = useState<number>(8);
   const [endRange, setEndRange] = useState<number>(20);
@@ -34,13 +41,14 @@ export default function TrackerScheduler() {
   useEffect(() => {
     if (schedulerRef.current) {
       dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
-        userIds: [user.id],
+        userIds: userInput.map(u => u.id),
         monthDate: schedulerRef.current.scheduler.selectedDate.toISOString()
       }));
 
       dispatch(getHolidaysActionCreator());
+      dispatch(getUsersWithoutPaginationActionCreator(false));
     }
-  }, [requireUpdateToggle]);
+  }, [requireUpdateToggle, userInput]);
 
   useEffect(() => {
     if (schedulerRef.current) {
@@ -81,12 +89,46 @@ export default function TrackerScheduler() {
         }
       </Box>
 
-      <SchedulerRangePicker
-        startRange={startRange}
-        setStartRange={setStartRange}
-        endRange={endRange}
-        setEndRange={setEndRange}
-      />
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "stretch",
+          gap: 3
+        }}
+      >
+        <SchedulerRangePicker
+          startRange={startRange}
+          setStartRange={setStartRange}
+          endRange={endRange}
+          setEndRange={setEndRange}
+        />
+
+        <Autocomplete
+          multiple
+          getOptionLabel={(option: User) => option.fullName}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          options={usersList}
+          renderInput={(params) => <TextField
+            {...params}
+            label="Select users"
+          />}
+          sx={{
+            width: "auto",
+            minWidth: "200px"
+          }}
+          selectOnFocus
+          clearOnBlur
+          handleHomeEndKeys
+          value={userInput}
+          inputValue={userTextInput}
+          onChange={(event: any, value: User[]) => {
+            setUserInput(value);
+          }}
+          onInputChange={(event, newInputValue) => {
+            setUserTextInput(newInputValue);
+          }}
+        />
+      </Box>
 
       <Outlet/>
 
@@ -139,7 +181,6 @@ export default function TrackerScheduler() {
         eventRenderer={({event, ...props}) => <SchedulerEvent
           event={event}
           eventRendererProps={props}
-          view={schedulerRef?.current?.scheduler.view}
         />}
         viewerExtraComponent={(_, event) => <SchedulerViewerExtraComponent event={event} />}
 

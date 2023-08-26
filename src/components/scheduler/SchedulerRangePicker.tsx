@@ -41,56 +41,58 @@ export default function SchedulerRangePicker({startRange, setStartRange, endRang
   }
 
   return (
-    <Box
-      sx={{
-        my: 3,
-        display: "flex",
-        flexWrap: "wrap",
-        alignItems: "end",
-        gap: 3
-      }}
-    >
-      <TimePicker
-        label="Scheduler start"
-        ampm={false}
-        views={["hours"]}
-        slotProps={{
-          textField: {
-            size: "small",
-            sx: {
-              width: "130px"
-            }
-          }
+    <Box>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "end",
+          gap: 3
         }}
-        value={moment().set("hours", startRange)}
-        onChange={(newValue) => handleSetStartTime(newValue)}
-      />
+      >
+        <TimePicker
+          label="Scheduler start"
+          ampm={false}
+          views={["hours"]}
+          slotProps={{
+            textField: {
+              size: "small",
+              sx: {
+                width: "130px"
+              }
+            }
+          }}
+          value={moment().set("hours", startRange)}
+          onChange={(newValue) => handleSetStartTime(newValue)}
+        />
 
-      <TimePicker
-        label="Scheduler end"
-        ampm={false}
-        views={["hours"]}
-        slotProps={{
-          textField: {
-            size: "small",
-            sx: {
-              width: "130px"
+        <TimePicker
+          label="Scheduler end"
+          ampm={false}
+          views={["hours"]}
+          slotProps={{
+            textField: {
+              size: "small",
+              sx: {
+                width: "130px"
+              }
             }
-          }
-        }}
-        minTime={moment().set("hours", startRange + 1)}
-        value={moment().set("hours", endRange)}
-        onChange={(newValue) => handleSetEndTime(newValue)}
-      />
+          }}
+          minTime={moment().set("hours", startRange + 1)}
+          value={moment().set("hours", endRange)}
+          onChange={(newValue) => handleSetEndTime(newValue)}
+        />
+      </Box>
 
       {
         (startRange !== startDefault || endRange !== endDefault) &&
-        <MuiLink
-          sx={{cursor: "pointer"}}
-          onClick={setDefaultRange}
-        >
-          Set default range
-        </MuiLink>
+        <Box>
+          <MuiLink
+            sx={{cursor: "pointer"}}
+            onClick={setDefaultRange}
+          >
+            Set default range
+          </MuiLink>
+        </Box>
       }
     </Box>
   );
