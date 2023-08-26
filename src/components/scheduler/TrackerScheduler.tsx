@@ -11,7 +11,7 @@ import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
 import {Outlet, useNavigate} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
-import SchedulerRangePicker from "./SchedulerRangePicker";
+import SchedulerFilterPopup from "./SchedulerFilterPopup";
 import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
 import SchedulerEvent from "./SchedulerEvent";
 import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
@@ -33,6 +33,8 @@ export default function TrackerScheduler() {
   const [userInput, setUserInput] = useState<User[]>([initialUser]);
   const [userTextInput, setUserTextInput] = useState<string>(initialUser.fullName);
 
+  const [hidePlanned, setHidePlanned] = useState<boolean>(false);
+
   const [startRange, setStartRange] = useState<number>(8);
   const [endRange, setEndRange] = useState<number>(20);
 
@@ -42,13 +44,14 @@ export default function TrackerScheduler() {
     if (schedulerRef.current) {
       dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
         userIds: userInput.map(u => u.id),
-        monthDate: schedulerRef.current.scheduler.selectedDate.toISOString()
+        monthDate: schedulerRef.current.scheduler.selectedDate.toISOString(),
+        hidePlanned: hidePlanned
       }));
 
       dispatch(getHolidaysActionCreator());
       dispatch(getUsersWithoutPaginationActionCreator(false));
     }
-  }, [requireUpdateToggle, userInput]);
+  }, [requireUpdateToggle, userInput, hidePlanned]);
 
   useEffect(() => {
     if (schedulerRef.current) {
@@ -96,11 +99,13 @@ export default function TrackerScheduler() {
           gap: 3
         }}
       >
-        <SchedulerRangePicker
+        <SchedulerFilterPopup
           startRange={startRange}
           setStartRange={setStartRange}
           endRange={endRange}
           setEndRange={setEndRange}
+          hidePlanned={hidePlanned}
+          setHidePlanned={setHidePlanned}
         />
 
         <Autocomplete
