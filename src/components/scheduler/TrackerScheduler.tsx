@@ -9,7 +9,7 @@ import {
 } from "../../redux/epics/WorkSessionEpics";
 import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Outlet, useNavigate} from "react-router-dom";
+import {Outlet, useNavigate, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
 import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
@@ -18,10 +18,12 @@ import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
 import SchedulerForm from "./SchedulerForm";
 import User from "../../models/User";
 import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpics";
+import HolidaysDialog from "./HolidaysDialog";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const {selectedUserId} = useParams();
 
   const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
   const {holidays} = useAppSelector(state => state.scheduler);
@@ -29,11 +31,13 @@ export default function TrackerScheduler() {
   const {user} = useAppSelector(state => state.user);
   const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
 
-  let initialUser: User = user;
+  let initialUser: User = getInitialSelectedUser();
   const [userInput, setUserInput] = useState<User[]>([initialUser]);
   const [userTextInput, setUserTextInput] = useState<string>(initialUser.fullName);
 
   const [hidePlanned, setHidePlanned] = useState<boolean>(false);
+
+  const [holidayDialogOpen, setHolidayDialogOpen] = useState<boolean>(false);
 
   const [startRange, setStartRange] = useState<number>(8);
   const [endRange, setEndRange] = useState<number>(20);
@@ -63,12 +67,21 @@ export default function TrackerScheduler() {
     }
   }, [workSessionsList, holidays]);
 
+  function getInitialSelectedUser(): User {
+    if (selectedUserId) {
+      return usersList.find(u => u.id === selectedUserId) || user;
+    }
+    return user;
+  }
+
   async function handleDelete(deletedId: string) {
     dispatch(deleteWorkSessionActionCreator(deletedId));
   }
 
   return (
     <>
+      <HolidaysDialog open={holidayDialogOpen} setOpen={setHolidayDialogOpen} />
+
       <Box
         sx={{
           display: "flex",
@@ -85,7 +98,7 @@ export default function TrackerScheduler() {
             sx={{mb: 2}}
             size="large"
             variant="contained"
-            onClick={() => navigate("/holidays")}
+            onClick={() => setHolidayDialogOpen(true)}
           >
             Manage holidays
           </Button>
