@@ -111,13 +111,11 @@ function App() {
 						<Route path="/worksession/delete/:workSessionId" element={<WorkSessionDeleteDialog />}/>
 					</Route>
 
-					<Route path="/scheduler" element={
+					<Route path="/scheduler/:selectedUserId?" element={
 						<ProtectedRoute>
 							<TrackerScheduler />
 						</ProtectedRoute>
-					}>
-						<Route path="/scheduler/holidays" element={<HolidaysDialog />}/>
-					</Route>
+					} />
 
 					<Route path="/vacations" element={
 						<ProtectedRoute>
