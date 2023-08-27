@@ -33,6 +33,7 @@ import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
 import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
 import UserProfile from "./components/user/UserProfile";
 import WorkSessionUpdateDialog from "./components/work-session/WorkSessionUpdateDialog";
+import UserWorkInfoList from "./components/user/UserWorkInfoList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -77,6 +78,11 @@ function App() {
 					<Route path="/profiles" element={
 						<ProtectedRoute>
 							<ProfilesList />
+						</ProtectedRoute>
+					} />
+					<Route path="/users_work_info" element={
+						<ProtectedRoute>
+							<UserWorkInfoList />
 						</ProtectedRoute>
 					} />
 					<Route path="/user/create" element={

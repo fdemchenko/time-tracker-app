@@ -1,6 +1,7 @@
 import {createEpicMiddleware} from "redux-observable";
 import {configureStore} from "@reduxjs/toolkit";
 import UserReducer from "./slices/UserSlice";
+import UserWorkInfoReducer from "./slices/UserWorkInfoSlice";
 import ManageUsersReducer from "./slices/ManageUsersSlice";
 import WorkSessionReducer from "./slices/WorkSessionSlice";
 import SchedulerReducer from "./slices/SchedulerSlice";
@@ -15,6 +16,7 @@ const epicMiddleware = createEpicMiddleware();
 const store = configureStore({
     reducer: {
         user: UserReducer,
+        userWorkInfo: UserWorkInfoReducer,
         profile: ProfileReducer,
         manageUsers: ManageUsersReducer,
         workSession: WorkSessionReducer,
