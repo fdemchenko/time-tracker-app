@@ -19,13 +19,12 @@ import Dialog from "@mui/material/Dialog";
 import * as React from "react";
 import {TransitionProps} from "@mui/material/transitions";
 import Slide from "@mui/material/Slide";
-import {useNavigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import {useEffect, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
 import {DatePicker} from "@mui/x-date-pickers";
 import moment, {Moment} from "moment";
 import {Holiday} from "../../models/Holiday";
@@ -38,7 +37,12 @@ import {useFormik} from "formik";
 import * as Yup from "yup";
 import {hasPermit} from "../../helpers/hasPermit";
 import AccessDenied from "../AccessDenied";
+import {useNavigate} from "react-router-dom";
 
+interface HolidaysDialogProps {
+    open: boolean;
+    setOpen: Dispatch<SetStateAction<boolean>>;
+}
 const InitialHolidayValue: Holiday = {
     id: "",
     title: "",
@@ -46,8 +50,7 @@ const InitialHolidayValue: Holiday = {
     date: "",
     endDate: ""
 }
-export default function HolidaysDialog() {
-    const navigate = useNavigate();
+export default function HolidaysDialog({open, setOpen}: HolidaysDialogProps) {
     const dispatch = useAppDispatch();
 
     const {user} = useAppSelector(state => state.user);
@@ -117,6 +120,7 @@ export default function HolidaysDialog() {
             else {
                 dispatch(createHolidayActionCreator(holiday));
             }
+            setOpen(false);
         }
     });
 
@@ -125,14 +129,15 @@ export default function HolidaysDialog() {
         formik.setValues({holiday: InitialHolidayValue});
         formik.setTouched({}, false);
         handleCloseConfirmWindow();
+        setOpen(false);
     }
 
     return (
         <Dialog
-            open={true}
+            open={open}
             TransitionComponent={Transition}
             keepMounted
-            onClose={() => navigate(-1)}
+            onClose={() => setOpen(false)}
             aria-describedby="work-session-update-dialog"
             maxWidth="lg"
         >
@@ -148,7 +153,7 @@ export default function HolidaysDialog() {
                     <Typography variant="h5">Holidays menu</Typography>
                     <CloseIcon
                         sx={{cursor: "pointer"}}
-                        onClick={() => navigate(-1)}
+                        onClick={() => setOpen(false)}
                     />
                 </Box>
             </DialogTitle>

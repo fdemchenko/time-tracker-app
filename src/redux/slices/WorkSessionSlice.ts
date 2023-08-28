@@ -1,11 +1,12 @@
-import WorkSession from "../../models/WorkSession";
+import WorkSession from "../../models/work-session/WorkSession";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {WorkSessionWithRelations} from "../../models/work-session/WorkSessionWithRelations";
 
 export interface WorkSessionSliceState {
     activeWorkSession: WorkSession | null,
     workSessionsList: {
         count: number,
-        items: WorkSession[]
+        items: WorkSessionWithRelations[]
     },
     isLoading: boolean,
     requireUpdateToggle: boolean
@@ -30,88 +31,30 @@ export const WorkSessionSlice = createSlice({
                   action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
-        CreateWorkSession: (state, action:  PayloadAction<WorkSession | null>) => {
-            if (action.payload) {
-                const newSessionDate = action.payload.start;
-                const lastIndexWithSameDate = state.workSessionsList.items.map((item) => item.start).lastIndexOf(newSessionDate);
-                const insertionIndex = lastIndexWithSameDate === -1 ? 0 : lastIndexWithSameDate + 1;
-
-                insertionIndex === 0
-                  ? state.workSessionsList.items.push(action.payload)
-                  : state.workSessionsList.items.splice(insertionIndex, 0, action.payload);
-                state.workSessionsList.count += 1;
-
-                state.requireUpdateToggle = !state.requireUpdateToggle;
-            }
-        },
-        SetActiveWorkSession: (state
-                               , action: PayloadAction<WorkSession | null>) => {
-            state.activeWorkSession = action.payload;
-            state.error = null;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
-        },
-        RemoveActiveWorkSession: (state) => {
-            state.activeWorkSession = null;
-            state.error = null;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
-        },
-        SetWorkSessionList: (state,
-                             action: PayloadAction<{count: number, items: WorkSession[]}>) => {
-            state.workSessionsList = action.payload;
-            state.error = null;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
-        },
-        RemoveWorkSessionList: (state) => {
-            state.workSessionsList = {
-                count: 0,
-                items: []
-            };
-            state.error = null;
-            state.requireUpdateToggle = !state.requireUpdateToggle;
-        },
         SetIsWorkSessionLoading: (state,
-                       action: PayloadAction<boolean>) => {
+                                  action: PayloadAction<boolean>) => {
             state.isLoading = action.payload;
         },
-        RemoveWorkSessionById: (state, action: PayloadAction<string>) => {
-            const idToRemove = action.payload;
-
-            state.workSessionsList.items = state.workSessionsList.items.filter(
-              (workSession) => workSession.id !== idToRemove
-            );
-
-            state.workSessionsList.count -= 1;
-            state.error = null;
+        SetWorkSessionRequireUpdate: (state) => {
             state.requireUpdateToggle = !state.requireUpdateToggle;
         },
-        UpdateSession: (state, action: PayloadAction<WorkSession>) => {
-            const updatedSession = action.payload;
-            updatedSession.start = updatedSession.start.slice(0, -1);
-            updatedSession.end = updatedSession.end?.slice(0, -1);
-
-            const sessionIndex = state.workSessionsList.items.findIndex(
-              (session) => session.id === updatedSession.id
-            );
-
-            if (sessionIndex !== -1) {
-                state.workSessionsList.items[sessionIndex] = updatedSession;
-                state.error = null;
-                state.requireUpdateToggle = !state.requireUpdateToggle;
-            }
+        SetActiveWorkSession: (state, action: PayloadAction<WorkSession | null>) => {
+            state.activeWorkSession = action.payload;
+            state.error = null;
+        },
+        SetWorkSessionList: (state, action: PayloadAction<{count: number, items: WorkSessionWithRelations[]}>) => {
+            state.workSessionsList = action.payload;
+            state.error = null;
         }
     }
 });
 
 export const {
-    SetWorkSessionError,
-    SetActiveWorkSession,
-    RemoveActiveWorkSession,
-    SetWorkSessionList,
-    RemoveWorkSessionList,
-    CreateWorkSession,
-    RemoveWorkSessionById,
-    UpdateSession,
-    SetIsWorkSessionLoading
+  SetIsWorkSessionLoading,
+  SetWorkSessionError,
+  SetWorkSessionRequireUpdate,
+  SetActiveWorkSession,
+  SetWorkSessionList
 } = WorkSessionSlice.actions;
 
 export default WorkSessionSlice.reducer;

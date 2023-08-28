@@ -1,7 +1,7 @@
 import {map, Observable} from "rxjs";
 import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {
-    CreateUserActionPayload, GetProfilesActionPayload, GetUsersActionPayload,
+    CreateUserActionPayload, GetProfilesActionPayload, GetUsersActionPayload, GetUsersWorkInfoActionPayload,
     LoginActionPayload,
     SetPasswordPayload,
     UpdateUserActionPayload
@@ -9,6 +9,7 @@ import {
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
 import Profile from "../models/Profile";
+import UserWorkInfo from "../models/UserWorkInfo";
 
 interface LoginResponse extends GraphQLResponse {
     data?: {
@@ -135,6 +136,114 @@ export function RequestGetProfiles(payload: GetProfilesActionPayload): Observabl
             "limit": payload.Limit,
             "search": payload.Search,
             "filteringStatus": payload.FilteringStatus
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface GetUsersWorkInfoResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getAllWorkInfo: {
+                items: UserWorkInfo[],
+                count: number
+            }
+        }
+    }
+}
+
+export function RequestGetUsersWorkInfo(payload: GetUsersWorkInfoActionPayload): Observable<GetUsersWorkInfoResponse> {
+    return ajaxAuth<GetUsersWorkInfoResponse>(JSON.stringify({
+        query: `
+               query getAllWorkInfo($offset: Int, $limit: Int, $sortingColumn: String, $search: String, $filteringEmploymentRate: Int, $filteringStatus: String, 
+                                     $start: DateTime, $end: DateTime, $withoutPagination: Boolean) {
+                  user {
+                    getAllWorkInfo(offset: $offset, limit: $limit, sortingColumn: $sortingColumn, search: $search, filteringEmploymentRate: $filteringEmploymentRate, filteringStatus: $filteringStatus, start: $start, end: $end, withoutPagination: $withoutPagination) {
+                      items {
+                        userId, email, employmentRate, fullName, 
+                        workedHours, plannedWorkingHours, vacationHours, sickLeaveHours
+                        }, count
+                    }
+                  }
+                }
+            `,
+        variables: {
+            "offset": payload.Offset,
+            "limit": payload.Limit,
+            "sortingColumn": payload.SortingColumn,
+            "search": payload.Search,
+            "filteringEmploymentRate": payload.FilteringEmploymentRate,
+            "filteringStatus": payload.FilteringStatus,
+            "start": payload.Start,
+            "end": payload.End,
+            "withoutPagination": payload.WithoutPagination
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface GetExcelUsersWorkInfoResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            exportWorkInfoToExcel: number[]
+        }
+    }
+}
+
+export function RequestGetExcelUsersWorkInfo(payload: GetUsersWorkInfoActionPayload): Observable<GetExcelUsersWorkInfoResponse> {
+    return ajaxAuth<GetExcelUsersWorkInfoResponse>(JSON.stringify({
+        query: `
+            query exportWorkInfoToExcel($sortingColumn: String, $search: String, $filteringEmploymentRate: Int, $filteringStatus: String, 
+            $start: DateTime, $end: DateTime){
+              user {
+                exportWorkInfoToExcel(sortingColumn: $sortingColumn, search: $search, filteringEmploymentRate: $filteringEmploymentRate,
+                 filteringStatus: $filteringStatus, start: $start, end: $end)
+              }
+            }
+            `,
+        variables: {
+            "sortingColumn": payload.SortingColumn,
+            "search": payload.Search,
+            "filteringEmploymentRate": payload.FilteringEmploymentRate,
+            "filteringStatus": payload.FilteringStatus,
+            "start": payload.Start,
+            "end": payload.End,
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface GetUsersWithoutPaginationResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getAllWithoutPagination: User[] | null
+        }
+    }
+}
+export function RequestGetUsersWithoutPagination(showFired: boolean) {
+    return ajaxAuth<GetUsersWithoutPaginationResponse>(JSON.stringify({
+        query: `
+                query GetAllUsersWithoutPagination($showFired: Boolean!) {
+                  user {
+                    getAllWithoutPagination(showFired: $showFired) {
+                      id
+                      email
+                      fullName
+                      employmentRate
+                      employmentDate
+                      permissions
+                      status
+                      hasPassword
+                      hasValidSetPasswordLink
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "showFired": showFired
         }
     })).pipe(
       map(res => res.response)

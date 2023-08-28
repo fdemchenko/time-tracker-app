@@ -17,12 +17,11 @@ import CreateUserForm from "./components/user/CreateUserForm";
 import UpdateUserForm from "./components/user/UpdateUserForm";
 import DeactivateUserForm from "./components/user/DeactivateUserForm";
 import {Notify} from "./helpers/notifications";
-import WorkSessionList from "./components/time-tracking/WorkSessionList";
-import WorkSessionUpdateDialog from "./components/time-tracking/WorkSessionUpdateDialog";
-import WorkSessionDeleteDialog from "./components/time-tracking/WorkSessionDeleteDialog";
+import WorkSessionPage from "./components/work-session/WorkSessionPage";
+import WorkSessionDeleteDialog from "./components/work-session/WorkSessionDeleteDialog";
 import TrackerScheduler from "./components/scheduler/TrackerScheduler";
 import HolidaysDialog from "./components/scheduler/HolidaysDialog";
-import WorkSessionCreateDialog from "./components/time-tracking/WorkSessionCreateDialog";
+import WorkSessionCreateDialog from "./components/work-session/WorkSessionCreateDialog";
 import UserVacations from "./components/vacation/UserVacations";
 import ProfilesList from "./components/user/ProfilesList";
 import ApproveVacation from "./components/vacation/ApproveVacation";
@@ -33,6 +32,8 @@ import VacationApproveDialog from "./components/vacation/VacationApproveDialog";
 import SickLeaveFormDialog from "./components/sick-leave/SickLeaveFormDialog";
 import SickLeaveDeleteDialog from "./components/sick-leave/SickLeaveDeleteDialog";
 import UserProfile from "./components/user/UserProfile";
+import WorkSessionUpdateDialog from "./components/work-session/WorkSessionUpdateDialog";
+import UserWorkInfoList from "./components/user/UserWorkInfoList";
 
 function App() {
 	const dispatch = useAppDispatch();
@@ -79,6 +80,11 @@ function App() {
 							<ProfilesList />
 						</ProtectedRoute>
 					} />
+					<Route path="/users_work_info" element={
+						<ProtectedRoute>
+							<UserWorkInfoList />
+						</ProtectedRoute>
+					} />
 					<Route path="/user/create" element={
 						<ProtectedRoute>
 							<CreateUserForm />
@@ -101,20 +107,21 @@ function App() {
 						</ProtectedRoute>
 					} />
 
-					<Route path="/worksession/:id" element={
+					<Route path="/worksession" element={
 						<ProtectedRoute>
-							<WorkSessionList />
+							<WorkSessionPage />
 						</ProtectedRoute>
-					}/>
-						<Route path="/worksession/create/:id" element={<WorkSessionCreateDialog />}/>
-						<Route path="/worksession/update/:id/:userId" element={<WorkSessionUpdateDialog />}/>
-						<Route path="/worksession/delete/:id/:userId" element={<WorkSessionDeleteDialog />}/>
-					<Route path="/scheduler/:id" element={
+					}>
+						<Route path="/worksession/create/:selectedUserId?" element={<WorkSessionCreateDialog />}/>
+						<Route path="/worksession/update/:workSessionId" element={<WorkSessionUpdateDialog />}/>
+						<Route path="/worksession/delete/:workSessionId" element={<WorkSessionDeleteDialog />}/>
+					</Route>
+
+					<Route path="/scheduler/:selectedUserId?" element={
 						<ProtectedRoute>
 							<TrackerScheduler />
 						</ProtectedRoute>
-					}>
-					</Route>
+					} />
 
 					<Route path="/vacations" element={
 						<ProtectedRoute>
@@ -131,8 +138,6 @@ function App() {
 					>
 						<Route path="/vacations/approvement/:vacationId" element={<VacationApproveDialog />} />
 					</Route>
-
-					<Route path="/holidays" element={<HolidaysDialog />}/>
 
 					<Route path="/sick-leave" element={<ProtectedRoute><SickLeavePage /></ProtectedRoute>}>
 						<Route path="/sick-leave/create" element={<SickLeaveFormDialog />} />
