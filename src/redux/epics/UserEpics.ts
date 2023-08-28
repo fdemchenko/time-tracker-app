@@ -1,10 +1,10 @@
 import {
   CREATE_USER_ACTION,
   DEACTIVATE_USER_ACTION, GET_PROFILES_ACTION,
-  GET_USERS_ACTION, GET_USERS_WITHOUT_PAGINATION_ACTION,
+  GET_USERS_ACTION, GET_USERS_WITHOUT_PAGINATION_ACTION, GET_USERS_WORK_INFO_ACTION, GET_USERS_WORK_INFO_EXCEL_ACTION,
   LOGIN_ACTION,
   LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, PROFILE_ERROR_ACTION, SET_PASSWORD_ACTION,
-  SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION,
+  SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION, USER_WORK_INFO_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
@@ -20,8 +20,8 @@ import {
 import {PayloadAction} from "@reduxjs/toolkit";
 
 import {
-  RequestCreateUser, RequestDeactivateUser, RequestGetProfiles,
-  RequestGetUsers, RequestGetUsersWithoutPagination,
+  RequestCreateUser, RequestDeactivateUser, RequestGetProfiles, RequestGetExcelUsersWorkInfo,
+  RequestGetUsers, RequestGetUsersWithoutPagination, RequestGetUsersWorkInfo,
   RequestLogin,
   RequestLogout,
   RequestSetPassword,
@@ -41,6 +41,12 @@ import {
   SetError as SetProfilesError,
   SetLoading as SetProfilesLoading,
 } from "../slices/ProfileSlice";
+import {
+  SetUserWorkInfoList,
+  SetExcelBytesNumbers,
+  SetError as SetUserWorkInfoError,
+  SetLoading as SetUserWorkInfoLoading
+} from "../slices/UserWorkInfoSlice";
 import User from "../../models/User";
 import {
     SetUserError,
@@ -77,6 +83,15 @@ export const ProfileErrorEpic: Epic = (action$: Observable<PayloadAction<HandleE
     ofType(PROFILE_ERROR_ACTION),
     map(action => action.payload),
     mergeMap((payload) => handleErrorMessage(payload, SetProfilesError))
+  );
+
+export const userWorkInfoErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
+  {type: USER_WORK_INFO_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
+export const UserWorkInfoErrorEpic: Epic = (action$: Observable<PayloadAction<HandleErrorMessageType>>) =>
+  action$.pipe(
+    ofType(USER_WORK_INFO_ERROR_ACTION),
+    map(action => action.payload),
+    mergeMap((payload) => handleErrorMessage(payload, SetUserWorkInfoError))
   );
 
 export const loginActionCreator = (payload: LoginActionPayload) => (
@@ -177,6 +192,58 @@ export const GetProfilesEpic: Epic = (action$:  Observable<PayloadAction<GetProf
       catchError((err) => of(profileErrorActionCreator(err))),
       startWith(SetProfilesLoading(true)),
       endWith(SetProfilesLoading(false)),
+    ))
+  );
+
+export const getUsersWorkInfoActionCreator = (payload: GetUsersWorkInfoActionPayload ) =>
+  ({type: GET_USERS_WORK_INFO_ACTION, payload: payload});
+export interface GetUsersWorkInfoActionPayload {
+  Offset?: number,
+  Limit?: number,
+  Search?: string,
+  SortingColumn?: string,
+  FilteringEmploymentRate?: number | null,
+  FilteringStatus?: string,
+  Start?: string | null,
+  End?: string | null,
+  WithoutPagination?: boolean
+}
+export const GetUsersWorkInfoEpic: Epic = (action$:  Observable<PayloadAction<GetUsersWorkInfoActionPayload>>) =>
+  action$.pipe(
+    ofType(GET_USERS_WORK_INFO_ACTION),
+    mergeMap((action) => RequestGetUsersWorkInfo(action.payload).pipe(
+      map(res => {
+        if (res.data)
+          return res.data.user.getAllWorkInfo;
+        else
+          return {items: [], count: 0};
+      }),
+
+      mergeMap(payload => of(SetUserWorkInfoList(payload))),
+      catchError((err) => of(userWorkInfoErrorActionCreator(err))),
+      startWith(SetUserWorkInfoLoading(true)),
+      endWith(SetUserWorkInfoLoading(false)),
+    ))
+  );
+
+export const getUsersWorkInfoExcelActionCreator = (payload: GetUsersWorkInfoActionPayload ) =>
+  ({type: GET_USERS_WORK_INFO_EXCEL_ACTION, payload: payload});
+
+export const GetUsersWorkInfoExcelEpic: Epic = (action$:  Observable<PayloadAction<GetUsersWorkInfoActionPayload>>) =>
+  action$.pipe(
+    ofType(GET_USERS_WORK_INFO_EXCEL_ACTION),
+    mergeMap((action) => RequestGetExcelUsersWorkInfo(action.payload).pipe(
+      map(res => {
+        if (res.data)
+          return res.data.user.exportWorkInfoToExcel;
+        else
+          return [];
+      }),
+
+      mergeMap(payload => of(SetExcelBytesNumbers(payload))),
+      catchError((err) => of(userWorkInfoErrorActionCreator(err))),
+      startWith(SetUserWorkInfoLoading(true)),
+      endWith(SetUserWorkInfoLoading(false)),
     ))
   );
 

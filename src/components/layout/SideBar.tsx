@@ -199,6 +199,16 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
 
                         <ListItem disablePadding>
                             <ListItemButton sx={{width: 100}}>
+                                <Link to="/users_work_info" style={{width: '100%'}}>
+                                    <ListItemText>
+                                        Employees work information
+                                    </ListItemText>
+                                </Link>
+                            </ListItemButton>
+                        </ListItem>
+
+                        <ListItem disablePadding>
+                            <ListItemButton sx={{width: 100}}>
                                 <Link to="/scheduler" style={{width: '100%'}}>
                                     <ListItemText>
                                         Scheduler
