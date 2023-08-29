@@ -5,6 +5,7 @@ import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
 import {VacationResponse} from "../models/vacation/VacationResponse";
+import {SickLeaveWithRelations} from "../models/sick-leave/SickLeaveWithRelations";
 
 function getColor(index: number): string {
   const colors = ["#47817F", "#3B8093", "#4D7BA2", "#7272A4", "#966795", "#AD5E78"];
@@ -64,7 +65,7 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
       title: holiday.title,
       type: holiday.type,
       start: moment(holiday.date).toDate(),
-      end: holiday.endDate ? moment(holiday.endDate).add(23, "hours").add(59,"minutes").toDate()
+      end: holiday.endDate ? scaleEndDateToSchedulerEndDayEvent(holiday.endDate)
         : moment(holiday.date).toDate(),
 
       allDay: true,
@@ -89,7 +90,7 @@ export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) 
       approver: vd.approver,
       type: "Vacation",
       start: moment(vd.vacation.start).toDate(),
-      end: moment(vd.vacation.end).add(23, "hours").add(59,"minutes").toDate(),
+      end: scaleEndDateToSchedulerEndDayEvent(vd.vacation.end),
 
       allDay: true,
       editable: false,
@@ -100,6 +101,34 @@ export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) 
   });
 
   return events;
+}
+
+export function GetEventsFromSickLeaveList(sickLeaveDataList: SickLeaveWithRelations[]) {
+  let events: ProcessedEvent[] = [];
+
+  sickLeaveDataList.map(sld => {
+    events.push({
+      event_id: sld.sickLeave.id,
+      title: "Sick Leave",
+      user: sld.user,
+      lastModifier: sld.lastModifier,
+      type: "SickLeave",
+      start: moment(sld.sickLeave.start).toDate(),
+      end: scaleEndDateToSchedulerEndDayEvent(sld.sickLeave.end),
+
+      allDay: true,
+      editable: false,
+      deletable: false,
+      draggable: false,
+      color: "#f66867"
+    });
+  });
+
+  return events;
+}
+
+export function scaleEndDateToSchedulerEndDayEvent(endDateStr: string): Date {
+  return moment(endDateStr).add(23, "hours").add(59,"minutes").toDate();
 }
 
 export function isWorkSessionEvent(event: ProcessedEvent): boolean {
@@ -114,4 +143,8 @@ export function isPlannedEvent(event: ProcessedEvent): boolean {
 
 export function isVacationEvent(event: ProcessedEvent): boolean {
   return event.type === "Vacation";
+}
+
+export function isSickLeaveEvent(event: ProcessedEvent): boolean {
+  return event.type === "SickLeave";
 }

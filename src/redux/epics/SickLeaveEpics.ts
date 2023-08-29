@@ -8,9 +8,9 @@ import {
     InvalidUserStatusErrorMessage,
 } from "../../helpers/errors";
 import {
-    CREATE_SICK_LEAVE_DATA_ACTION, DELETE_SICK_LEAVE_DATA_ACTION,
-    GET_SICK_LEAVE_DATA_ACTION,
-    SICK_LEAVE_ERROR_ACTION, UPDATE_SICK_LEAVE_DATA_ACTION
+  CREATE_SICK_LEAVE_DATA_ACTION, DELETE_SICK_LEAVE_DATA_ACTION,
+  GET_SICK_LEAVE_DATA_ACTION, GET_USERS_SICK_LEAVE_FOR_MONTH_ACTION,
+  SICK_LEAVE_ERROR_ACTION, UPDATE_SICK_LEAVE_DATA_ACTION
 } from "../actions";
 import {
     SetIsSickLeaveLoading,
@@ -20,9 +20,10 @@ import {
 } from "../slices/SickLeaveSlice";
 import {Moment} from "moment";
 import {
-    RequestCreateSickLeaveDataRequest, RequestDeleteSickLeaveDataRequest,
-    RequestGetSickLeaveDataRequest,
-    RequestUpdateSickLeaveDataRequest
+  GetUsersSickLeavesForMonthInput,
+  RequestCreateSickLeaveDataRequest, RequestDeleteSickLeaveDataRequest,
+  RequestGetSickLeaveDataRequest, RequestGetUsersSickLeavesForMonthRequest,
+  RequestUpdateSickLeaveDataRequest
 } from "../../services/SickLeaveService";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
 import {SickLeaveInput} from "../../models/sick-leave/SickLeaveInput";
@@ -66,6 +67,32 @@ export const GetSickLeavesDataEpic: Epic = (action$: Observable<PayloadAction<Ge
             endWith(SetIsSickLeaveLoading(false))
         ))
     );
+
+export const getUsersSickLeavesForMonthActionCreator = (payload: GetUsersSickLeavesForMonthInput) =>
+  ({type: GET_USERS_SICK_LEAVE_FOR_MONTH_ACTION, payload: payload});
+export const GetUsersSickLeavesForMonthEpic: Epic = (action$: Observable<PayloadAction<GetUsersSickLeavesForMonthInput>>) =>
+  action$.pipe(
+    ofType(GET_USERS_SICK_LEAVE_FOR_MONTH_ACTION),
+    map(action => action.payload),
+    mergeMap((fetchInput) => RequestGetUsersSickLeavesForMonthRequest(fetchInput).pipe(
+      map((res) => {
+        const errorMsg = "Failed to load sick leave data";
+        if (res.errors) {
+          return sickLeaveErrorActionCreator(res, errorMsg);
+        }
+        let sickLeaveList = res.data?.sickLeave?.getUsersSickLeavesForMonth;
+
+        if (sickLeaveList) {
+          return SetSickLeaveList(sickLeaveList);
+        }
+        console.log(sickLeaveList)
+        return sickLeaveErrorActionCreator(res, errorMsg);
+      }),
+      catchError((err) => of(sickLeaveErrorActionCreator(err))),
+      startWith(SetIsSickLeaveLoading(true)),
+      endWith(SetIsSickLeaveLoading(false))
+    ))
+  );
 
 export const createSickLeaveDataActionCreator = (sickLeaveInput: SickLeaveInput) =>
     ({type: CREATE_SICK_LEAVE_DATA_ACTION, payload: sickLeaveInput});

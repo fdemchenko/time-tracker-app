@@ -13,7 +13,7 @@ import {Outlet, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
 import {
-  GetEventsFromHolidayList,
+  GetEventsFromHolidayList, GetEventsFromSickLeaveList,
   GetEventsFromVacationList,
   GetEventsFromWorkSessionList
 } from "../../services/SchedulerService";
@@ -24,6 +24,7 @@ import User from "../../models/User";
 import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpics";
 import HolidaysDialog from "./HolidaysDialog";
 import {getUsersVacationsForMonthActionCreator} from "../../redux/epics/VacationEpics";
+import {getUsersSickLeavesForMonthActionCreator} from "../../redux/epics/SickLeaveEpics";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
@@ -32,6 +33,7 @@ export default function TrackerScheduler() {
   const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
   const {holidays} = useAppSelector(state => state.scheduler);
   const {vacationList} = useAppSelector(state => state.vacation);
+  const {sickLeaveList} = useAppSelector(state => state.sickLeave);
 
   const {user} = useAppSelector(state => state.user);
   const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
@@ -67,7 +69,12 @@ export default function TrackerScheduler() {
       dispatch(getUsersVacationsForMonthActionCreator({
         userIds: userIds,
         monthDate: monthDate
-      }))
+      }));
+
+      dispatch(getUsersSickLeavesForMonthActionCreator({
+        userIds: userIds,
+        monthDate: monthDate
+      }));
     }
   }, [requireUpdateToggle, userInput, hidePlanned]);
 
@@ -79,9 +86,11 @@ export default function TrackerScheduler() {
 
       events.push(...GetEventsFromVacationList(vacationList));
 
+      events.push(...GetEventsFromSickLeaveList(sickLeaveList));
+
       schedulerRef.current.scheduler.handleState(events, "events");
     }
-  }, [workSessionsList, holidays, vacationList]);
+  }, [workSessionsList, holidays, vacationList, sickLeaveList]);
 
   function getInitialSelectedUser(): User {
     if (selectedUserId) {

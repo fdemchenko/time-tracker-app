@@ -31,7 +31,7 @@ import {
 } from "./epics/VacationEpics";
 import {
     CreateSickLeaveDataEpic, DeleteSickLeaveDataEpic,
-    GetSickLeavesDataEpic,
+    GetSickLeavesDataEpic, GetUsersSickLeavesForMonthEpic,
     SickLeaveErrorEpic,
     UpdateSickLeaveDataEpic
 } from "./epics/SickLeaveEpics";
@@ -77,6 +77,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         DeleteVacationEpic,
         SickLeaveErrorEpic,
         GetSickLeavesDataEpic,
+        GetUsersSickLeavesForMonthEpic,
         CreateSickLeaveDataEpic,
         UpdateSickLeaveDataEpic,
         DeleteSickLeaveDataEpic
