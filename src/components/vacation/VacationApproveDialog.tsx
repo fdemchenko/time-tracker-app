@@ -127,7 +127,7 @@ export default function VacationApproveDialog() {
                                 }
 
                                 <Box>
-                                    Requested by <Link to={`/user/${vacationResp.user.id}`} target="_blank">
+                                    Requested by <Link to={`/profile/${vacationResp.user.id}`} target="_blank">
                                         {vacationResp.user.fullName}
                                     </Link>
                                 </Box>
@@ -162,7 +162,7 @@ export default function VacationApproveDialog() {
                                         id="vacation_status_select"
                                         value={formik.values.isApproved === null ? "none" :
                                             formik.values.isApproved ? "approved" : "declined"}
-                                        label="Vacation status"
+                                        label="Vacation Approve"
                                         onChange={handleApproveChange}
                                         error={formik.touched.isApproved && !!formik.errors.isApproved}
                                     >
@@ -192,7 +192,7 @@ export default function VacationApproveDialog() {
                                 type="submit"
                                 color="primary"
                             >
-                                Edit
+                                Update
                             </Button>
                             <Button
                                 size="large"

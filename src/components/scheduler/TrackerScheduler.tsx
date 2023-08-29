@@ -9,24 +9,29 @@ import {
 } from "../../redux/epics/WorkSessionEpics";
 import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
 import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
-import {Outlet, useNavigate, useParams} from "react-router-dom";
+import {Outlet, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
-import {GetEventsFromHolidayList, GetEventsFromWorkSessionList} from "../../services/SchedulerService";
+import {
+  GetEventsFromHolidayList,
+  GetEventsFromVacationList,
+  GetEventsFromWorkSessionList
+} from "../../services/SchedulerService";
 import SchedulerEvent from "./SchedulerEvent";
 import SchedulerViewerExtraComponent from "./SchedulerViewerExtraComponent";
 import SchedulerForm from "./SchedulerForm";
 import User from "../../models/User";
 import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpics";
 import HolidaysDialog from "./HolidaysDialog";
+import {getUsersVacationsForMonthActionCreator} from "../../redux/epics/VacationEpics";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const {selectedUserId} = useParams();
 
   const {workSessionsList, requireUpdateToggle, isLoading} = useAppSelector(state => state.workSession);
   const {holidays} = useAppSelector(state => state.scheduler);
+  const {vacationList} = useAppSelector(state => state.vacation);
 
   const {user} = useAppSelector(state => state.user);
   const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
@@ -46,14 +51,23 @@ export default function TrackerScheduler() {
 
   useEffect(() => {
     if (schedulerRef.current) {
+      const userIds = userInput.map(u => u.id);
+      const monthDate = schedulerRef.current.scheduler.selectedDate.toISOString();
+
       dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
-        userIds: userInput.map(u => u.id),
-        monthDate: schedulerRef.current.scheduler.selectedDate.toISOString(),
+        userIds: userIds,
+        monthDate: monthDate,
         hidePlanned: hidePlanned
       }));
 
       dispatch(getHolidaysActionCreator());
+
       dispatch(getUsersWithoutPaginationActionCreator(false));
+
+      dispatch(getUsersVacationsForMonthActionCreator({
+        userIds: userIds,
+        monthDate: monthDate
+      }))
     }
   }, [requireUpdateToggle, userInput, hidePlanned]);
 
@@ -63,9 +77,11 @@ export default function TrackerScheduler() {
 
       events.push(...GetEventsFromWorkSessionList(workSessionsList));
 
-      schedulerRef.current.scheduler.handleState(events, "events")
+      events.push(...GetEventsFromVacationList(vacationList));
+
+      schedulerRef.current.scheduler.handleState(events, "events");
     }
-  }, [workSessionsList, holidays]);
+  }, [workSessionsList, holidays, vacationList]);
 
   function getInitialSelectedUser(): User {
     if (selectedUserId) {

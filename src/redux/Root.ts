@@ -24,7 +24,7 @@ import {
 } from "./epics/SchedulerEpics";
 import {
     ApproverUpdateVacationEpic,
-    CreateVacationEpic, DeleteVacationEpic,
+    CreateVacationEpic, DeleteVacationEpic, GetUsersVacationsForMonthEpic,
     GetVacationInfoByUserIdEpic, GetVacationRequestsEpic,
     GetVacationsByUserIdEpic,
     VacationErrorEpic
@@ -70,6 +70,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         VacationErrorEpic,
         GetVacationsByUserIdEpic,
         GetVacationInfoByUserIdEpic,
+        GetUsersVacationsForMonthEpic,
         GetVacationRequestsEpic,
         CreateVacationEpic,
         ApproverUpdateVacationEpic,

@@ -4,6 +4,7 @@ import {parseIsoDateToLocal, separateDateOnMidnight} from "../helpers/date";
 import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
+import {VacationResponse} from "../models/vacation/VacationResponse";
 
 function getColor(index: number): string {
   const colors = ["#47817F", "#3B8093", "#4D7BA2", "#7272A4", "#966795", "#AD5E78"];
@@ -77,6 +78,30 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
   return events;
 }
 
+export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) {
+  let events: ProcessedEvent[] = [];
+
+  vacationDataList.map(vd => {
+    events.push({
+      event_id: vd.vacation.id,
+      title: "Vacation",
+      user: vd.user,
+      approver: vd.approver,
+      type: "Vacation",
+      start: moment(vd.vacation.start).toDate(),
+      end: moment(vd.vacation.end).add(23, "hours").add(59,"minutes").toDate(),
+
+      allDay: true,
+      editable: false,
+      deletable: false,
+      draggable: false,
+      color: "#C3AC4F"
+    });
+  });
+
+  return events;
+}
+
 export function isWorkSessionEvent(event: ProcessedEvent): boolean {
   return event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Completed]
     || event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]
@@ -85,4 +110,8 @@ export function isWorkSessionEvent(event: ProcessedEvent): boolean {
 
 export function isPlannedEvent(event: ProcessedEvent): boolean {
   return event.type === WorkSessionTypesEnum[WorkSessionTypesEnum.Planned];
+}
+
+export function isVacationEvent(event: ProcessedEvent): boolean {
+  return event.type === "Vacation";
 }

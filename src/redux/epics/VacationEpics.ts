@@ -1,18 +1,19 @@
 import {
-    APPROVER_UPDATE_VACATION_ACTION,
-    CREATE_VACATION_ACTION, DELETE_VACATION_ACTION,
-    GET_VACATION_INFO_BY_USER_ID_ACTION, GET_VACATION_REQUESTS_ACTION,
-    GET_VACATIONS_BY_USER_ID_ACTION,
-    VACATION_ERROR_ACTION,
+  APPROVER_UPDATE_VACATION_ACTION,
+  CREATE_VACATION_ACTION, DELETE_VACATION_ACTION, GET_USERS_VACATIONS_FOR_MONTH_ACTION,
+  GET_VACATION_INFO_BY_USER_ID_ACTION, GET_VACATION_REQUESTS_ACTION,
+  GET_VACATIONS_BY_USER_ID_ACTION,
+  VACATION_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
-    RequestApproverUpdateVacation,
-    RequestCreateVacation, RequestDeleteVacation,
-    RequestGetVacationInfoByUserId, RequestGetVacationRequest,
-    RequestGetVacationsByUserId
+  GetUsersVacationsForMonthInput,
+  RequestApproverUpdateVacation,
+  RequestCreateVacation, RequestDeleteVacation, RequestGetUsersVacationsForMonth,
+  RequestGetVacationInfoByUserId, RequestGetVacationRequest,
+  RequestGetVacationsByUserId
 } from "../../services/VacationService";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
 import {
@@ -63,6 +64,30 @@ export const GetVacationsByUserIdEpic: Epic = (action$: Observable<PayloadAction
             endWith(SetIsVacationLoading(false))
         ))
     );
+
+export const getUsersVacationsForMonthActionCreator = (payload: GetUsersVacationsForMonthInput) =>
+  ({type: GET_USERS_VACATIONS_FOR_MONTH_ACTION, payload: payload});
+export const GetUsersVacationsForMonthEpic: Epic = (action$: Observable<PayloadAction<GetUsersVacationsForMonthInput>>) =>
+  action$.pipe(
+    ofType(GET_USERS_VACATIONS_FOR_MONTH_ACTION),
+    map(action => action.payload),
+    mergeMap((fetchInput) => RequestGetUsersVacationsForMonth(fetchInput).pipe(
+      map((res) => {
+        const errorMsg = "Failed to load user vacations";
+        if (res.errors) {
+          return vacationErrorActionCreator(res, errorMsg);
+        }
+        let vacationList = res.data?.vacation?.getUsersVacationsForMonth;
+        if (vacationList) {
+          return SetVacationList(vacationList);
+        }
+        return vacationErrorActionCreator(res, errorMsg);
+      }),
+      catchError((err) => of(vacationErrorActionCreator(err))),
+      startWith(SetIsVacationLoading(true)),
+      endWith(SetIsVacationLoading(false))
+    ))
+  );
 
 export const getVacationRequestsActionCreator = (getNotStarted: boolean) =>
     ({type: GET_VACATION_REQUESTS_ACTION, payload: getNotStarted});
