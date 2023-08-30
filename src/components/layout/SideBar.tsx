@@ -16,78 +16,32 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import {ReactNode, useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import TrackerBar from "../time-tracking/TrackerBar";
-import {WorkSessionSliceState} from "../../redux/slices/WorkSessionSlice";
-import {UserSliceState} from "../../redux/slices/UserSlice";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
+import {useAppSelector} from "../../redux/CustomHooks";
 
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-    open?: boolean;
-}>(({ theme, open }) => ({
-    flexGrow: 1,
-    padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-        transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-        marginLeft: 0,
-    }),
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-    open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    }),
-}));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
-}));
-
 interface SideBarProps {
-    userData: UserSliceState,
-    workSessionData: WorkSessionSliceState
     children: ReactNode
 }
-export default function SideBar({userData, workSessionData, children}: SideBarProps) {
+export default function SideBar({children}: SideBarProps) {
+    const navigate = useNavigate();
     const theme = useTheme();
-    const [open, setOpen] = React.useState(true);
+
+    const {user, isLogged} = useAppSelector(state => state.user)
+
+    const [open, setOpen] = React.useState(isLogged);
 
     const [timerBarOpen, setTimerBarOpen] = React.useState(false);
     const [trackerDisplay, setTrackerDisplay] = useState("00:00:00");
 
     const handleDrawerOpen = () => {
-        setOpen(true);
+        if (isLogged) {
+            setOpen(true);
+        }
     };
     const handleDrawerClose = () => {
         setOpen(false);
@@ -102,7 +56,7 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
 
     return (
         <div>
-            {userData.isLogged && <TrackerBar
+            {isLogged && <TrackerBar
                 open={timerBarOpen}
                 handleTimerBarOpen={handleTimerBarOpen}
                 handleSetTrackerDisplay={handleSetTrackerDisplay}
@@ -117,25 +71,40 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                         alignItems: "center"
                     }}>
                         <Box sx={{display: "flex", alignItems: "center"}}>
-                            <IconButton
-                                color="inherit"
-                                aria-label="open drawer"
-                                onClick={handleDrawerOpen}
-                                edge="start"
-                                sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                            {
+                                isLogged &&
+                                  <IconButton
+                                    color="inherit"
+                                    aria-label="open drawer"
+                                    onClick={handleDrawerOpen}
+                                    edge="start"
+                                    sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                                  >
+                                      <MenuIcon />
+                                  </IconButton>
+                            }
+                            <Typography
+                              variant="h6"
+                              noWrap
+                              component="div"
+                              sx={{
+                                  textDecoration: "none",
+                                  color: "white",
+                                  cursor: isLogged ? "pointer" : "auto"
+                              }}
+                              onClick={() => {
+                                  if (isLogged) {
+                                      navigate("/");
+                                  }
+                              }}
                             >
-                                <MenuIcon />
-                            </IconButton>
-                            <Link to="/" style={{textDecoration: "none", color: "white"}}>
-                                <Typography variant="h6" noWrap component="div" sx={{textDecoration: "none", color: "white"}}>
-                                    Time Tracker
-                                </Typography>
-                            </Link>
+                                Time Tracker
+                            </Typography>
                         </Box>
 
                         {/*Button which open timer bar*/}
                         {
-                            userData.isLogged &&
+                            isLogged &&
                             <Box sx={{
                                 display: "flex",
                                 alignItems: "center"
@@ -239,7 +208,7 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                     </List>
                     <Divider />
                     <List>
-                        {hasPermit(userData.user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
+                        {hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
                             <ListItem disablePadding>
                                 <ListItemButton sx={{width: 100}}>
                                     <Link to="/vacations/approvement" style={{width: '100%'}}>
@@ -252,7 +221,7 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
                         }
 
                         {
-                            !userData.isLogged ? (
+                            !isLogged ? (
                                 <ListItem disablePadding>
                                     <ListItemButton sx={{width: 100}}>
                                         <Link to="/user/login" style={{width: '100%'}}>
@@ -285,3 +254,52 @@ export default function SideBar({userData, workSessionData, children}: SideBarPr
         </div>
     );
 }
+
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+    open?: boolean;
+}>(({ theme, open }) => ({
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    marginLeft: `-${drawerWidth}px`,
+    ...(open && {
+        transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+        marginLeft: 0,
+    }),
+}));
+
+interface AppBarProps extends MuiAppBarProps {
+    open?: boolean;
+}
+
+const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== 'open',
+})<AppBarProps>(({ theme, open }) => ({
+    transition: theme.transitions.create(['margin', 'width'], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
+    }),
+}));
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+    justifyContent: 'flex-end',
+}));
