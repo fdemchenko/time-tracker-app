@@ -38,8 +38,8 @@ export default function VacationCreateDialog() {
         vacation: Yup.object().shape({
             userId: Yup.string(),
             start: Yup.string().required("Start date is required").test("isBeforeNow",
-                "Start date should be at least after 3 weeks", (value, context) =>
-                    moment(context.parent.start).isAfter(moment().add(3, "weeks"), "days")),
+                "Start date should be at least tomorrow", (value, context) =>
+                    moment(context.parent.start).isAfter(moment(), "days")),
             end: Yup.string().required("End date is required").test("isBefore",
                 "End date should be after start date", (value, context) =>
                     moment(context.parent.start).isBefore(value, "days")),
@@ -94,7 +94,7 @@ export default function VacationCreateDialog() {
                                     views={["year", "month", "day"]}
                                     label="Start date"
                                     format="YYYY-MM-DD"
-                                    minDate={moment().add(3, "weeks").add(1, "days")}
+                                    minDate={moment()}
                                     sx={{width: 1}}
                                     value={moment(formik.values.vacation.start)}
                                     onChange={(newDate) => formik.setFieldValue("vacation.start",
@@ -112,7 +112,7 @@ export default function VacationCreateDialog() {
                                     views={["year", "month", "day"]}
                                     label="End date"
                                     format="YYYY-MM-DD"
-                                    minDate={moment(formik.values.vacation.start).add(5, "days")}
+                                    minDate={moment(formik.values.vacation.start).add(1, "days")}
                                     sx={{width: 1}}
                                     value={moment(formik.values.vacation.end)}
                                     onChange={(newDate) => formik.setFieldValue("vacation.end",

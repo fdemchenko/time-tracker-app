@@ -13,9 +13,9 @@ import {Link, Outlet, useNavigate} from "react-router-dom";
 import {getVacationInfoByUserIdActionCreator, getVacationsByUserIdActionCreator} from "../../redux/epics/VacationEpics";
 import {GetAvailableVacationDays} from "../../services/VacationService";
 import Typography from "@mui/material/Typography";
-import {UserStatusEnum} from "../../helpers/hasPermit";
 import VacationList from "./VacationList";
 import DeleteIcon from "@mui/icons-material/Delete";
+import moment from "moment";
 
 export default  function UserVacations() {
     const dispatch = useAppDispatch();
@@ -30,7 +30,8 @@ export default  function UserVacations() {
     let vacationDaysLeft = vacationInfo && vacationInfo.daysSpent <= vacationDaysAvailable ?
         vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
-    let doesUserHasWorkingStatus = user.status === UserStatusEnum[UserStatusEnum.working];
+    let doesUserHaveVacation = !!vacationList.find(v => v.vacation.isApproved !== false &&
+      moment().isSameOrBefore(v.vacation.start, "days"));
 
     useEffect(() => {
         dispatch(getVacationsByUserIdActionCreator({
@@ -85,7 +86,7 @@ export default  function UserVacations() {
                                 vacationInfo &&
                                 <>
                                     <Typography variant="h4" gutterBottom>
-                                        User vacation info
+                                        Vacation info
                                     </Typography>
                                     <Grid container sx={{mb: 3}}>
                                         <Grid item xs={8}>
@@ -117,14 +118,14 @@ export default  function UserVacations() {
                                                 variant="outlined"
                                                 color="success"
                                                 size="medium"
-                                                disabled={!doesUserHasWorkingStatus}
+                                                disabled={doesUserHaveVacation}
                                             >
                                                 Create new vacation request
                                             </Button>
                                             {
-                                                !doesUserHasWorkingStatus &&
+                                                doesUserHaveVacation &&
                                                 <Typography sx={{color: 'text.secondary'}}>
-                                                    Can't create vacation request while you are not currently working
+                                                    You already have an active vacation request
                                                 </Typography>
                                             }
                                         </Grid>
@@ -156,6 +157,7 @@ export default  function UserVacations() {
                                     value={orderByDesc ? "desc" : "asc"}
                                     onChange={handleOrderChange}
                                     exclusive={true}
+                                    color="primary"
                                 >
                                     <ToggleButton value="asc" key="asc">
                                         Oldest first

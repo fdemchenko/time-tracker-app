@@ -61,6 +61,65 @@ export function RequestGetSickLeaveDataRequest(fetchData: GetSickLeaveDataInput)
     );
 }
 
+interface GetUsersSickLeavesFormMonthResponse extends GraphQLResponse {
+    data?: {
+        sickLeave?: {
+            getUsersSickLeavesForMonth: SickLeaveWithRelations[]
+        }
+    }
+}
+export interface GetUsersSickLeavesForMonthInput {
+    userIds: string[],
+    monthDate: string
+}
+export function RequestGetUsersSickLeavesForMonthRequest(input: GetUsersSickLeavesForMonthInput) {
+    return ajaxAuth<GetUsersSickLeavesFormMonthResponse>(JSON.stringify({
+        query: `
+                query GetUsersSickLeavesForMonth($userIds: [ID]!, $monthDate: Date!) {
+                  sickLeave {
+                    getUsersSickLeavesForMonth(userIds: $userIds, monthDate: $monthDate) {
+                      sickLeave {
+                        id
+                        userId
+                        lastModifierId
+                        start
+                        end
+                      }
+                      user {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                      lastModifier {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "userIds": input.userIds,
+            "monthDate": formatIsoDateForApi(input.monthDate)
+        }
+    })).pipe(
+      map((res) => res.response)
+    );
+}
+
 interface CreateSickLeaveDataResponse extends GraphQLResponse {
     data?: {
         sickLeave?: {

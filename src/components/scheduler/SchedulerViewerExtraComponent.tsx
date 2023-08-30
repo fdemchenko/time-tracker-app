@@ -4,7 +4,7 @@ import Typography from "@mui/material/Typography";
 import {Link} from "react-router-dom";
 import React from "react";
 import {Box} from "@mui/material";
-import {isWorkSessionEvent} from "../../services/SchedulerService";
+import {isSickLeaveEvent, isVacationEvent, isWorkSessionEvent} from "../../services/SchedulerService";
 
 interface SchedulerViewerExtraComponentProps {
   event: ProcessedEvent
@@ -49,6 +49,38 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
               }
             </>
           ):
+          isVacationEvent(event) ? (
+            <>
+              <Typography variant="body2">
+                <b>For:&nbsp;</b>
+                <Link to={`/profile/${event.user.id}`} target="_blank">
+                  {event.user.fullName}
+                </Link>
+              </Typography>
+              <Typography variant="body2">
+                <b>Approver:&nbsp;</b>
+                <Link to={`/profile/${event.approver.id}`} target="_blank">
+                  {event.approver.fullName}
+                </Link>
+              </Typography>
+            </>
+          ) :
+          isSickLeaveEvent(event) ? (
+            <>
+              <Typography variant="body2">
+                <b>For:&nbsp;</b>
+                <Link to={`/profile/${event.user.id}`} target="_blank">
+                  {event.user.fullName}
+                </Link>
+              </Typography>
+              <Typography variant="body2">
+                <b>Last modifier:&nbsp;</b>
+                <Link to={`/profile/${event.lastModifier.id}`} target="_blank">
+                  {event.lastModifier.fullName}
+                </Link>
+              </Typography>
+            </>
+          ) :
           (
             <>
               <Typography

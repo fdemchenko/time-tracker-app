@@ -6,6 +6,7 @@ import {VacationInfo} from "../models/vacation/VacationInfo";
 import moment from "moment";
 import {VacationCreate} from "../models/vacation/VacationCreate";
 import {VacationApprove} from "../models/vacation/VacationApprove";
+import {formatIsoDateForApi} from "../helpers/date";
 
 export const VacationDaysInYear = 30;
 
@@ -68,6 +69,68 @@ export function RequestGetVacationsByUserId(fetchInput: GetVacationsByUserIdInpu
         }
     })).pipe(
         map((res) => res.response)
+    );
+}
+
+interface GetUsersVacationsForMonthResponse extends GraphQLResponse {
+    data?: {
+        vacation?: {
+            getUsersVacationsForMonth: VacationResponse[] | null
+        }
+    }
+}
+export interface GetUsersVacationsForMonthInput {
+    userIds: string[],
+    monthDate: string
+}
+export function RequestGetUsersVacationsForMonth(input: GetUsersVacationsForMonthInput) {
+    return ajaxAuth<GetUsersVacationsForMonthResponse>(JSON.stringify({
+        query: `
+                query GetUsersVacationForMonth($userIds: [ID]!, $monthDate: Date!) {
+                  vacation {
+                    getUsersVacationsForMonth(userIds: $userIds, monthDate: $monthDate) {
+                      vacation {
+                        id
+                        userId
+                        start
+                        end
+                        comment
+                        isApproved
+                        approverId
+                        approverComment
+                      }
+                      user {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                      approver {
+                        id
+                        email
+                        fullName
+                        employmentRate
+                        employmentDate
+                        permissions
+                        status
+                        hasPassword
+                        hasValidSetPasswordLink
+                      }
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "userIds": input.userIds,
+            "monthDate": formatIsoDateForApi(input.monthDate)
+        }
+    })).pipe(
+      map((res) => res.response)
     );
 }
 
