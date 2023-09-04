@@ -18,6 +18,7 @@ interface UpdateUserFormData {
   updateUserPermission: boolean;
   deactivateUserPermission: boolean;
   getUsersPermission: boolean;
+  getUsersWorkInfoPermission: boolean;
   getWorkSessionsPermission: boolean;
   createWorkSessionsPermission: boolean;
   updateWorkSessionsPermission: boolean;
@@ -53,6 +54,7 @@ const UpdateUserForm = () => {
     updateUserPermission: Yup.boolean(),
     deactivateUserPermission: Yup.boolean(),
     getUsersPermission: Yup.boolean(),
+    getUsersWorkInfoPermission: Yup.boolean(),
     getWorkSessionsPermission: Yup.boolean(),
     createWorkSessionsPermission: Yup.boolean(),
     updateWorkSessionsPermission: Yup.boolean(),
@@ -73,6 +75,7 @@ const UpdateUserForm = () => {
     updateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateUser') : false,
     deactivateUserPermission: inputUser ? hasPermit(inputUser.permissions, 'DeactivateUser') : false,
     getUsersPermission: inputUser ? hasPermit(inputUser.permissions, 'GetUsers') : false,
+    getUsersWorkInfoPermission: inputUser ? hasPermit(inputUser.permissions, 'GetUsersWorkInfo') : false,
     getWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'GetWorkSessions') : false,
     createWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'CreateWorkSessions') : false,
     updateWorkSessionsPermission: inputUser ? hasPermit(inputUser.permissions, 'UpdateWorkSessions') : false,
@@ -87,6 +90,7 @@ const UpdateUserForm = () => {
   const onSubmit = (values: UpdateUserFormData, {resetForm}: any) => {
     const permissions = JSON.stringify({
       GetUsers: values.getUsersPermission,
+      GetUsersWorkInfo: values.getUsersWorkInfoPermission,
       CreateUser: values.createUserPermission,
       DeactivateUser: values.deactivateUserPermission,
       ApproveVacations: values.approveVacationsPermission,
@@ -245,6 +249,20 @@ const UpdateUserForm = () => {
                             />
                           }
                           label="Get users"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              color="secondary"
+                              checked={!formik.values.getUsersPermission ? false : formik.values.getUsersWorkInfoPermission}
+                              onChange={formik.handleChange}
+                              onBlur={formik.handleBlur}
+                              name="getUsersWorkInfoPermission"
+                              disabled={!formik.values.getUsersPermission}
+                            />
+                          }
+                          label="Get users work info"
                         />
 
                         <FormControlLabel

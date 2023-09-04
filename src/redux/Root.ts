@@ -24,14 +24,14 @@ import {
 } from "./epics/SchedulerEpics";
 import {
     ApproverUpdateVacationEpic,
-    CreateVacationEpic, DeleteVacationEpic,
+    CreateVacationEpic, DeleteVacationEpic, GetUsersVacationsForMonthEpic,
     GetVacationInfoByUserIdEpic, GetVacationRequestsEpic,
     GetVacationsByUserIdEpic,
     VacationErrorEpic
 } from "./epics/VacationEpics";
 import {
     CreateSickLeaveDataEpic, DeleteSickLeaveDataEpic,
-    GetSickLeavesDataEpic,
+    GetSickLeavesDataEpic, GetUsersSickLeavesForMonthEpic,
     SickLeaveErrorEpic,
     UpdateSickLeaveDataEpic
 } from "./epics/SickLeaveEpics";
@@ -70,12 +70,14 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         VacationErrorEpic,
         GetVacationsByUserIdEpic,
         GetVacationInfoByUserIdEpic,
+        GetUsersVacationsForMonthEpic,
         GetVacationRequestsEpic,
         CreateVacationEpic,
         ApproverUpdateVacationEpic,
         DeleteVacationEpic,
         SickLeaveErrorEpic,
         GetSickLeavesDataEpic,
+        GetUsersSickLeavesForMonthEpic,
         CreateSickLeaveDataEpic,
         UpdateSickLeaveDataEpic,
         DeleteSickLeaveDataEpic

@@ -68,7 +68,7 @@ export default function VacationList({vacationList, actionsCellRenderer, showUse
                                             </Tooltip>
                                         </TableCell>
                                         <TableCell sx={{display: showUser ? "table-cell" : "none"}}>
-                                            <Link to={`/user/${vacationItem.user.id}`} target="_blank">
+                                            <Link to={`/profile/${vacationItem.user.id}`} target="_blank">
                                                 {vacationItem.user.fullName}
                                             </Link>
                                         </TableCell>
@@ -76,7 +76,7 @@ export default function VacationList({vacationList, actionsCellRenderer, showUse
                                             {
                                                 vacationItem.approver ?
                                                     (
-                                                        <Link to={`/user/${vacationItem.approver.id}`} target="_blank">
+                                                        <Link to={`/profile/${vacationItem.approver.id}`} target="_blank">
                                                             {vacationItem.approver.fullName}
                                                         </Link>
                                                     ) : "none"

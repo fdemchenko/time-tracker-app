@@ -4,7 +4,7 @@ import AccessDenied from "../AccessDenied";
 import {Link, Outlet} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {
-    Alert, Link as MuiLink
+    Alert, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import VacationList from "./VacationList";
@@ -27,6 +27,13 @@ export default function ApproveVacation() {
         }
     }, [getNotStarted, requireUpdateToggle]);
 
+    function handleGetNotStartedChange(event: React.MouseEvent<HTMLElement>,
+                                       newValue: string | null) {
+        if (newValue) {
+            setGetNotStarted(newValue !== "waiting");
+        }
+    }
+
     if (!canApproveVacations) {
         return (<AccessDenied />);
     }
@@ -46,18 +53,21 @@ export default function ApproveVacation() {
 
                             <Outlet />
 
-                            <Typography
-                                variant="body1"
-                                paragraph
-                                gutterBottom
+                            <ToggleButtonGroup
+                              value={getNotStarted ? "answered" : "waiting"}
+                              exclusive
+                              onChange={handleGetNotStartedChange}
+                              aria-label="view mode"
+                              color="primary"
+                              size="small"
                             >
-                                <MuiLink
-                                    sx={{cursor: "pointer"}}
-                                    onClick={() => setGetNotStarted(!getNotStarted)}
-                                >
-                                    Show {getNotStarted ? "waiting for approve" : "recently answered"} vacations
-                                </MuiLink>
-                            </Typography>
+                                <ToggleButton value="waiting" aria-label="waiting">
+                                    Show waiting for approve vacations
+                                </ToggleButton>
+                                <ToggleButton value="answered" aria-label="answered">
+                                    Show recently answered vacations
+                                </ToggleButton>
+                            </ToggleButtonGroup>
 
                             <VacationList
                                 vacationList={vacationList}
