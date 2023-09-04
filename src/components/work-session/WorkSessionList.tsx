@@ -88,7 +88,7 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                       <div style={
                                                           {backgroundColor: workSessionData.workSession.type !==
                                                                 WorkSessionTypesEnum[WorkSessionTypesEnum.Planned] ?
-                                                             '#68B38D' : "#FAF1CB",
+                                                             '#47817F' : "#68B38D",
                                                           width: `${calculateWorkSessionWidth(workSessionData.workSession.start, workSessionData.workSession.end)}%`,
                                                           display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px',
                                                           borderRadius: "5px"}}>

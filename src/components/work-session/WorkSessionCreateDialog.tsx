@@ -15,8 +15,12 @@ import {useFormik} from "formik";
 import {WorkSessionInput} from "../../models/work-session/WorkSessionInput";
 import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 import {createWorkSessionActionCreator} from "../../redux/epics/WorkSessionEpics";
+import {SchedulerHelpers} from "@aldabil/react-scheduler/types";
 
-const WorkSessionCreateDialog = () => {
+interface WorkSessionCreateDialogProps {
+  scheduler?: SchedulerHelpers;
+}
+const WorkSessionCreateDialog = ({scheduler}: WorkSessionCreateDialogProps) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const {selectedUserId} = useParams();
@@ -71,13 +75,15 @@ const WorkSessionCreateDialog = () => {
     onSubmit: values => {
       let ws = values.workSession;
       ws.lastModifierId = user.id;
+
       dispatch(createWorkSessionActionCreator(ws));
-      navigate(-1);
+
+      scheduler ? scheduler.close() : navigate(-1);
     }
   });
 
   return (
-    <DialogWindow title="Create work session">
+    <DialogWindow title="Create work session" handleClose={scheduler ? scheduler.close : () => navigate(-1)}>
       <form onSubmit={formik.handleSubmit}>
         <DialogContent>
           <Box
@@ -195,7 +201,7 @@ const WorkSessionCreateDialog = () => {
           <Button
             size="large"
             color="secondary"
-            onClick={() => navigate(-1)}
+            onClick={scheduler ? scheduler.close : () => navigate(-1)}
           >
             Back
           </Button>

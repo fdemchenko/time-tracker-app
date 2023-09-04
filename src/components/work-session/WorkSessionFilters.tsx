@@ -53,6 +53,7 @@ export default function WorkSessionFilters({startDate, setStartDate, endDate, se
             <DesktopDatePicker
                 label="End date"
                 value={endDate}
+                minDate={startDate?.clone().add("days", 1)}
                 onChange={(newDate) => setEndDate(newDate)}
             />
 

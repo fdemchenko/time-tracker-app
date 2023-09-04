@@ -195,14 +195,15 @@ interface GetWorkSessionsByUserIdsByMonthResponse extends GraphQLResponse {
 }
 export interface GetWorkSessionsByUserIdsByMonthFetchParams {
     userIds: string[],
-    monthDate: string
+    monthDate: string,
+    hidePlanned: boolean
 }
 export function RequestGetWorkSessionsByUserIdsByMonth(fetchData: GetWorkSessionsByUserIdsByMonthFetchParams) {
     return ajaxAuth<GetWorkSessionsByUserIdsByMonthResponse>(JSON.stringify({
         query: `
-                query GetWorkSessionsByUserIdsByMonth($userIds: [ID]!, $monthDate: Date!) {
+                query GetWorkSessionsByUserIdsByMonth($userIds: [ID]!, $monthDate: Date!, $hidePlanned: Boolean!) {
                   workSession {
-                    getWorkSessionsByUserIdsByMonth(userIds: $userIds, monthDate: $monthDate) {
+                    getWorkSessionsByUserIdsByMonth(userIds: $userIds, monthDate: $monthDate, hidePlanned: $hidePlanned) {
                       workSession {
                         id
                         userId
@@ -241,7 +242,8 @@ export function RequestGetWorkSessionsByUserIdsByMonth(fetchData: GetWorkSession
             `,
         variables: {
             "userIds": fetchData.userIds,
-            "monthDate": formatIsoDateForApi(fetchData.monthDate)
+            "monthDate": formatIsoDateForApi(fetchData.monthDate),
+            "hidePlanned": fetchData.hidePlanned
         }
     })).pipe(
       map((res) => res.response)
