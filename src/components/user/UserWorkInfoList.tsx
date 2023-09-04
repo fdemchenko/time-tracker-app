@@ -24,9 +24,10 @@ import {
 import {FilterAltOutlined} from '@mui/icons-material';
 import {useNavigate} from "react-router-dom";
 import {formatIsoDate, getNewIsoDateWithTimeZone} from "../../helpers/date";
-import {hasPermit} from "../../helpers/hasPermit";
 import {DesktopDatePicker} from "@mui/x-date-pickers";
 import moment, {Moment} from "moment/moment";
+import {hasPermit, PermissionsEnum} from "../../helpers/hasPermit";
+import AccessDenied from "../AccessDenied";
 
 const UserWorkInfoList = () => {
   const today = moment();
@@ -104,233 +105,238 @@ const UserWorkInfoList = () => {
 
   return (
     <>
-      {error
-        ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
+      {!hasPermit(userData.permissions, PermissionsEnum[PermissionsEnum.GetUsersWorkInfo])
+        ? <AccessDenied/>
         : <>
           {isLoading
             ? <div className="lds-dual-ring"></div>
             :
             <>
-              <h3 style={{marginBottom: '10px'}}>
-                Employees work information
+              {error
+                ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
+                : <>
+                  <h3 style={{marginBottom: '10px'}}>
+                    Employees work information
 
-                <Button
-                  variant="outlined"
-                  onClick={exportToExcel}
-                  color="success"
-                  type="submit"
-                  size="small"
-                  sx={{
-                    mx: 1,
-                  }}
-                >
-                  Export to Excel
-                </Button>
-              </h3>
-
-              {userWorkInfoList.items && userWorkInfoList.items.length > 0
-                ?
-                <>
-                  <Grid container spacing={2}>
-                    <Grid item xs={2}>
-                      <FormControl fullWidth>
-                        <TextField
-                          id="fullName"
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          label="Full name"
-                          inputRef={fullNameInputRef}
-                          value={fullNameInput}
-                          onChange={(event) => {
-                            setFullNameInput(event.target.value);
-
-                            if (!event.target.value) {
-                              setFullName('');
-                            }
-                          }}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Button size="small" onClick={() => {setFullName(fullNameInputRef.current ? fullNameInputRef.current?.value : '')}}
-                                  >
-                                    <FilterAltOutlined color="secondary" />
-                                  </Button>
-
-                                </Box>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={2}>
-                      <DesktopDatePicker
-                        label="Start date"
-                        slotProps={{ textField: { size: 'small' } }}
-                        value={startDate}
-                        onChange={(newDate) => setStartDate(newDate)}
-                      />
-                    </Grid>
-
-                    <Grid item xs={2}>
-                      <DesktopDatePicker
-                        label="End date"
-                        slotProps={{ textField: { size: 'small' } }}
-                        value={endDate}
-                        onChange={(newDate) => setEndDate(newDate)}
-                      />
-                    </Grid>
-
-                    <Grid item xs={2}>
-                      <FormControl fullWidth>
-                        <TextField
-                          id="status"
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          label="Status"
-                          inputRef={statusInputRef}
-                          value={statusInput}
-                          onChange={(event) => {
-                            setStatusInput(event.target.value);
-
-                            if (!event.target.value) {
-                              setStatus('');
-                            }
-                          }}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Button size="small" onClick={() => {setStatus(statusInputRef.current ? statusInputRef.current?.value : '')}}
-                                  >
-                                    <FilterAltOutlined color="secondary" />
-                                  </Button>
-
-                                </Box>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={2}>
-                      <FormControl fullWidth>
-                        <TextField
-                          id="employmentRate"
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          type="number"
-                          label="Employment Rate"
-                          inputRef={employmentRateInputRef}
-                          value={employmentRateInput}
-                          onChange={(event) => {
-                            setEmploymentRateInput(event.target.value);
-
-                            if (!event.target.value) {
-                              setEmploymentRate(null);
-                            }
-                          }}
-                          InputProps={{
-                            endAdornment: (
-                              <InputAdornment position="end">
-                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <Button size="small" onClick={() => {setEmploymentRate(employmentRateInputRef.current ? parseInt(employmentRateInputRef.current?.value) : null)}}
-                                  >
-                                    <FilterAltOutlined color="secondary" />
-                                  </Button>
-
-                                </Box>
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={2}>
-                      <FormControl fullWidth>
-                        <InputLabel htmlFor="selectBox">Sort by:</InputLabel>
-                        <Select
-                          id="selectBox"
-                          label="Select Option"
-                          variant="outlined"
-                          value={sortBy}
-                          color="secondary"
-                          size="small"
-                          onChange={(event) => setSortBy(event.target.value)}
-                        >
-                          <MenuItem value="fullName">Full Name</MenuItem>
-                          <MenuItem value="employmentDate">Employment Date</MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </Grid>
-
-                  <TableContainer sx={{ mt: 2 }} className="custom-table-container" component={Paper}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell style={{fontWeight: 'bold'}}>Full Name</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Email</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Employment Rate</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Worked Hours</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Planned Hours</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Sick leave Hours</TableCell>
-                          <TableCell style={{fontWeight: 'bold'}}>Vacation Hours</TableCell>
-
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {userWorkInfoList.items.map((user) => (
-                          <TableRow key={user.userId}>
-                            <TableCell>{user.fullName}</TableCell>
-                            <TableCell>{user.email}</TableCell>
-                            <TableCell>{user.employmentRate}</TableCell>
-                            <TableCell>{user.workedHours} ({((user.workedHours / user.plannedWorkingHours) * 100).toFixed(2)}%)</TableCell>
-                            <TableCell>{user.plannedWorkingHours}</TableCell>
-                            <TableCell>{user.sickLeaveHours}</TableCell>
-                            <TableCell>{user.vacationHours}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-
-                  {pagesCount > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                    <Pagination
-                      count={pagesCount}
-                      page={page}
-                      onChange={handleChangePage}
-                      boundaryCount={2}
-                      siblingCount={2}
-                      color="secondary"
+                    <Button
                       variant="outlined"
-                    />
-                  </Box>}
-                </>
+                      onClick={exportToExcel}
+                      color="success"
+                      type="submit"
+                      size="small"
+                      sx={{
+                        mx: 1,
+                      }}
+                    >
+                      Export to Excel
+                    </Button>
+                  </h3>
 
-                :  <>
-                  <Alert severity="error" sx={{ mt: 2 }}>
-                    Employees not found
-                  </Alert>
+                  {userWorkInfoList.items && userWorkInfoList.items.length > 0
+                    ?
+                    <>
+                      <Grid container spacing={2}>
+                        <Grid item xs={2}>
+                          <FormControl fullWidth>
+                            <TextField
+                              id="fullName"
+                              variant="outlined"
+                              color="secondary"
+                              size="small"
+                              label="Full name"
+                              inputRef={fullNameInputRef}
+                              value={fullNameInput}
+                              onChange={(event) => {
+                                setFullNameInput(event.target.value);
 
-                  <Button
-                    onClick={() => {
-                      setEmploymentRate(null);
-                      setStatus('');
-                      setFullName('');
-                    }}
-                    variant="outlined"
-                    color="primary" sx={{mt: 2}}
-                  >
-                    Back to list
-                  </Button>
+                                if (!event.target.value) {
+                                  setFullName('');
+                                }
+                              }}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                      <Button size="small" onClick={() => {setFullName(fullNameInputRef.current ? fullNameInputRef.current?.value : '')}}
+                                      >
+                                        <FilterAltOutlined color="secondary" />
+                                      </Button>
+
+                                    </Box>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </FormControl>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <DesktopDatePicker
+                            label="Start date"
+                            slotProps={{ textField: { size: 'small' } }}
+                            value={startDate}
+                            onChange={(newDate) => setStartDate(newDate)}
+                          />
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <DesktopDatePicker
+                            label="End date"
+                            slotProps={{ textField: { size: 'small' } }}
+                            value={endDate}
+                            onChange={(newDate) => setEndDate(newDate)}
+                          />
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <FormControl fullWidth>
+                            <TextField
+                              id="status"
+                              variant="outlined"
+                              color="secondary"
+                              size="small"
+                              label="Status"
+                              inputRef={statusInputRef}
+                              value={statusInput}
+                              onChange={(event) => {
+                                setStatusInput(event.target.value);
+
+                                if (!event.target.value) {
+                                  setStatus('');
+                                }
+                              }}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                      <Button size="small" onClick={() => {setStatus(statusInputRef.current ? statusInputRef.current?.value : '')}}
+                                      >
+                                        <FilterAltOutlined color="secondary" />
+                                      </Button>
+
+                                    </Box>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </FormControl>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <FormControl fullWidth>
+                            <TextField
+                              id="employmentRate"
+                              variant="outlined"
+                              color="secondary"
+                              size="small"
+                              type="number"
+                              label="Employment Rate"
+                              inputRef={employmentRateInputRef}
+                              value={employmentRateInput}
+                              onChange={(event) => {
+                                setEmploymentRateInput(event.target.value);
+
+                                if (!event.target.value) {
+                                  setEmploymentRate(null);
+                                }
+                              }}
+                              InputProps={{
+                                endAdornment: (
+                                  <InputAdornment position="end">
+                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                      <Button size="small" onClick={() => {setEmploymentRate(employmentRateInputRef.current ? parseInt(employmentRateInputRef.current?.value) : null)}}
+                                      >
+                                        <FilterAltOutlined color="secondary" />
+                                      </Button>
+
+                                    </Box>
+                                  </InputAdornment>
+                                ),
+                              }}
+                            />
+                          </FormControl>
+                        </Grid>
+
+                        <Grid item xs={2}>
+                          <FormControl fullWidth>
+                            <InputLabel htmlFor="selectBox">Sort by:</InputLabel>
+                            <Select
+                              id="selectBox"
+                              label="Select Option"
+                              variant="outlined"
+                              value={sortBy}
+                              color="secondary"
+                              size="small"
+                              onChange={(event) => setSortBy(event.target.value)}
+                            >
+                              <MenuItem value="fullName">Full Name</MenuItem>
+                              <MenuItem value="employmentDate">Employment Date</MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+
+                      <TableContainer sx={{ mt: 2 }} className="custom-table-container" component={Paper}>
+                        <Table>
+                          <TableHead>
+                            <TableRow>
+                              <TableCell style={{fontWeight: 'bold'}}>Full Name</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Email</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Employment Rate</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Worked Hours</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Planned Hours</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Sick leave Hours</TableCell>
+                              <TableCell style={{fontWeight: 'bold'}}>Vacation Hours</TableCell>
+
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {userWorkInfoList.items.map((user) => (
+                              <TableRow key={user.userId}>
+                                <TableCell>{user.fullName}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.employmentRate}</TableCell>
+                                <TableCell>{user.workedHours} ({((user.workedHours / user.plannedWorkingHours) * 100).toFixed(2)}%)</TableCell>
+                                <TableCell>{user.plannedWorkingHours}</TableCell>
+                                <TableCell>{user.sickLeaveHours}</TableCell>
+                                <TableCell>{user.vacationHours}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+
+                      {pagesCount > 1 && <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                        <Pagination
+                          count={pagesCount}
+                          page={page}
+                          onChange={handleChangePage}
+                          boundaryCount={2}
+                          siblingCount={2}
+                          color="secondary"
+                          variant="outlined"
+                        />
+                      </Box>}
+                    </>
+
+                    :  <>
+                      <Alert severity="error" sx={{ mt: 2 }}>
+                        Employees not found
+                      </Alert>
+
+                      <Button
+                        onClick={() => {
+                          setEmploymentRate(null);
+                          setStatus('');
+                          setFullName('');
+                        }}
+                        variant="outlined"
+                        color="primary" sx={{mt: 2}}
+                      >
+                        Back to list
+                      </Button>
+                    </>
+                  }
                 </>
               }
             </>

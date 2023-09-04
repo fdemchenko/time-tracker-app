@@ -1,7 +1,7 @@
 import {Box, Button, Grid} from "@mui/material";
 
 import React from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useAppDispatch} from "../../redux/CustomHooks";
 import {logoutActionCreator} from "../../redux/epics/UserEpics";
 import {UserSliceState} from "../../redux/slices/UserSlice";
@@ -10,10 +10,12 @@ interface LogoutFormProps {
     userData: UserSliceState
 }
 export default function LogoutForm({userData}: LogoutFormProps) {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     function handleLogout() {
         dispatch(logoutActionCreator());
+        navigate('/user/login')
     }
 
     return (
