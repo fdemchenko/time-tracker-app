@@ -63,7 +63,8 @@ export default function AuthForm({userData} : AuthFormProps) {
                             mb: 3,
                         }}
                     >
-                        Enter your data
+                        <p>Welcome to Time Tracker App</p>
+                        <p>Please, sign in to start working</p>
                     </Box>
                     <form onSubmit={formik.handleSubmit}>
                         <TextField
