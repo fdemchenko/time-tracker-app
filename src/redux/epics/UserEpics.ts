@@ -213,8 +213,9 @@ export const GetUsersWorkInfoEpic: Epic = (action$:  Observable<PayloadAction<Ge
     ofType(GET_USERS_WORK_INFO_ACTION),
     mergeMap((action) => RequestGetUsersWorkInfo(action.payload).pipe(
       map(res => {
-        if (res.data)
+        if (res.data) {
           return res.data.user.getAllWorkInfo;
+        }
         else
           return {items: [], count: 0};
       }),
