@@ -6,10 +6,12 @@ import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
 import {VacationResponse} from "../models/vacation/VacationResponse";
 import {SickLeaveWithRelations} from "../models/sick-leave/SickLeaveWithRelations";
+import {rotation} from 'simpler-color'
 
-function getColor(index: number): string {
-  const colors = ["#47817F", "#3B8093", "#4D7BA2", "#7272A4", "#966795", "#AD5E78"];
-  return colors[index % colors.length];
+export function getColor(colorNumber: number): string {
+  const baseColor = "#47817F";
+  const defaultRotationAngle = 30;
+  return rotation(baseColor, colorNumber * defaultRotationAngle);
 }
 interface UserColorInfo {
   userId: string;

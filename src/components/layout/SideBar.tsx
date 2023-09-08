@@ -147,62 +147,68 @@ export default function SideBar({children}: SideBarProps) {
                     <Divider />
                     <List>
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/worksession" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Work sessions
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/worksession")}
+                            >
+                                <ListItemText>
+                                    Work sessions
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
 
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/profiles" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        List of profiles of employees
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/profiles")}
+                            >
+                                <ListItemText>
+                                    List of profiles of employees
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
 
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/users_work_info" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Employees work information
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/users_work_info")}
+                            >
+                                <ListItemText>
+                                    Employees work information
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
 
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/scheduler" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Scheduler
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/scheduler")}
+                            >
+                                <ListItemText>
+                                    Scheduler
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
 
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/vacations" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Vacations
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/vacations")}
+                            >
+                                <ListItemText>
+                                    Vacations
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
 
                         <ListItem disablePadding>
-                            <ListItemButton sx={{width: 100}}>
-                                <Link to="/sick-leave" style={{width: '100%'}}>
-                                    <ListItemText>
-                                        Sick leave
-                                    </ListItemText>
-                                </Link>
+                            <ListItemButton
+                              sx={{...SideBarLinkStyle}}
+                              onClick={() => navigate("/sick-leave")}
+                            >
+                                <ListItemText>
+                                    Sick leave
+                                </ListItemText>
                             </ListItemButton>
                         </ListItem>
                     </List>
@@ -210,12 +216,13 @@ export default function SideBar({children}: SideBarProps) {
                     <List>
                         {hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.ApproveVacations]) &&
                             <ListItem disablePadding>
-                                <ListItemButton sx={{width: 100}}>
-                                    <Link to="/vacations/approvement" style={{width: '100%'}}>
-                                        <ListItemText>
-                                            Vacation approvement
-                                        </ListItemText>
-                                    </Link>
+                                <ListItemButton
+                                  sx={{...SideBarLinkStyle}}
+                                  onClick={() => navigate("/vacations/approvement")}
+                                >
+                                    <ListItemText>
+                                        Vacation approvement
+                                    </ListItemText>
                                 </ListItemButton>
                             </ListItem>
                         }
@@ -223,22 +230,24 @@ export default function SideBar({children}: SideBarProps) {
                         {
                             !isLogged ? (
                                 <ListItem disablePadding>
-                                    <ListItemButton sx={{width: 100}}>
-                                        <Link to="/user/login" style={{width: '100%'}}>
-                                            <ListItemText>
-                                                Log in
-                                            </ListItemText>
-                                        </Link>
+                                    <ListItemButton
+                                      sx={{...SideBarLinkStyle}}
+                                      onClick={() => navigate("/user/login")}
+                                    >
+                                        <ListItemText>
+                                            Log in
+                                        </ListItemText>
                                     </ListItemButton>
                                 </ListItem>
                             ) : (
                                 <ListItem disablePadding>
-                                    <ListItemButton sx={{width: 100}}>
-                                        <Link to="/user/logout" style={{width: '100%'}}>
-                                            <ListItemText>
-                                                Log out
-                                            </ListItemText>
-                                        </Link>
+                                    <ListItemButton
+                                      sx={{...SideBarLinkStyle}}
+                                      onClick={() => navigate("/user/logout")}
+                                    >
+                                        <ListItemText>
+                                            Log out
+                                        </ListItemText>
                                     </ListItemButton>
                                 </ListItem>
                             )
@@ -303,3 +312,8 @@ const DrawerHeader = styled('div')(({ theme }) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'flex-end',
 }));
+
+const SideBarLinkStyle = {
+  width: "100%",
+  color: "primary.main"
+};
