@@ -19,7 +19,7 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} target="_blank">
+                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
                   {event.user.fullName}
                 </Link>
               </Typography>
@@ -28,7 +28,7 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
                 variant="body2"
               >
                 <b>Last modifier:&nbsp;</b>
-                <Link to={`/profile/${event.lastModifier.id}`} target="_blank">
+                <Link to={`/profile/${event.lastModifier.id}`} {...LinkStyle}>
                   {event.lastModifier.fullName}
                 </Link>
               </Typography>
@@ -53,13 +53,13 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} target="_blank">
+                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
                   {event.user.fullName}
                 </Link>
               </Typography>
               <Typography variant="body2">
                 <b>Approver:&nbsp;</b>
-                <Link to={`/profile/${event.approver.id}`} target="_blank">
+                <Link to={`/profile/${event.approver.id}`} {...LinkStyle}>
                   {event.approver.fullName}
                 </Link>
               </Typography>
@@ -69,13 +69,13 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} target="_blank">
+                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
                   {event.user.fullName}
                 </Link>
               </Typography>
               <Typography variant="body2">
                 <b>Last modifier:&nbsp;</b>
-                <Link to={`/profile/${event.lastModifier.id}`} target="_blank">
+                <Link to={`/profile/${event.lastModifier.id}`} {...LinkStyle}>
                   {event.lastModifier.fullName}
                 </Link>
               </Typography>
@@ -94,3 +94,12 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
     </Box>
   );
 }
+
+const LinkStyle = {
+  "style": {
+    "color": "#1976D2",
+    "textDecoration": "none",
+    "fontWeight": "600"
+  },
+  "target": "_blank"
+};

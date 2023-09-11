@@ -1,4 +1,4 @@
-import {Autocomplete, Box, Button, TextField} from "@mui/material";
+import {Autocomplete, Box, Button, Chip, TextField} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import {Scheduler} from "@aldabil/react-scheduler";
 import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
@@ -13,6 +13,7 @@ import {Outlet, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
 import {
+  getColor,
   GetEventsFromHolidayList, GetEventsFromSickLeaveList,
   GetEventsFromVacationList,
   GetEventsFromWorkSessionList
@@ -25,6 +26,7 @@ import {getUsersWithoutPaginationActionCreator} from "../../redux/epics/UserEpic
 import HolidaysDialog from "./HolidaysDialog";
 import {getUsersVacationsForMonthActionCreator} from "../../redux/epics/VacationEpics";
 import {getUsersSickLeavesForMonthActionCreator} from "../../redux/epics/SickLeaveEpics";
+import moment from "moment";
 
 export default function TrackerScheduler() {
   const dispatch = useAppDispatch();
@@ -41,6 +43,7 @@ export default function TrackerScheduler() {
   let initialUser: User = getInitialSelectedUser();
   const [userInput, setUserInput] = useState<User[]>([initialUser]);
   const [userTextInput, setUserTextInput] = useState<string>(initialUser.fullName);
+  let userTagColors = userInput.map((_, index) => getColor(index));
 
   const [hidePlanned, setHidePlanned] = useState<boolean>(false);
 
@@ -50,33 +53,22 @@ export default function TrackerScheduler() {
   const [endRange, setEndRange] = useState<number>(20);
 
   const schedulerRef = useRef<SchedulerRef>(null);
+  const [dateToCompare, setDateToCompare] = useState<Date>(new Date());
+  const [schedulerDate, setSchedulerDate] = useState<Date>(dateToCompare);
 
   useEffect(() => {
     if (schedulerRef.current) {
-      const userIds = userInput.map(u => u.id);
-      const monthDate = schedulerRef.current.scheduler.selectedDate.toISOString();
-
-      dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
-        userIds: userIds,
-        monthDate: monthDate,
-        hidePlanned: hidePlanned
-      }));
-
-      dispatch(getHolidaysActionCreator());
-
-      dispatch(getUsersWithoutPaginationActionCreator(false));
-
-      dispatch(getUsersVacationsForMonthActionCreator({
-        userIds: userIds,
-        monthDate: monthDate
-      }));
-
-      dispatch(getUsersSickLeavesForMonthActionCreator({
-        userIds: userIds,
-        monthDate: monthDate
-      }));
+      refreshSchedulerData();
     }
   }, [requireUpdateToggle, userInput, hidePlanned]);
+
+  useEffect(() => {
+    if (!moment(schedulerDate).isSame(dateToCompare, "months")) {
+      refreshSchedulerData();
+
+      setDateToCompare(schedulerDate);
+    }
+  }, [schedulerDate]);
 
   useEffect(() => {
     if (schedulerRef.current) {
@@ -91,6 +83,31 @@ export default function TrackerScheduler() {
       schedulerRef.current.scheduler.handleState(events, "events");
     }
   }, [workSessionsList, holidays, vacationList, sickLeaveList]);
+
+  function refreshSchedulerData() {
+    const userIds = userInput.map(u => u.id);
+    const monthDate = schedulerDate.toISOString();
+
+    dispatch(getWorkSessionsByUserIdsByMonthActionCreator({
+      userIds: userIds,
+      monthDate: monthDate,
+      hidePlanned: hidePlanned
+    }));
+
+    dispatch(getHolidaysActionCreator());
+
+    dispatch(getUsersWithoutPaginationActionCreator(false));
+
+    dispatch(getUsersVacationsForMonthActionCreator({
+      userIds: userIds,
+      monthDate: monthDate
+    }));
+
+    dispatch(getUsersSickLeavesForMonthActionCreator({
+      userIds: userIds,
+      monthDate: monthDate
+    }));
+  }
 
   function getInitialSelectedUser(): User {
     if (selectedUserId) {
@@ -159,15 +176,27 @@ export default function TrackerScheduler() {
             width: "auto",
             minWidth: "200px"
           }}
+          renderTags={(value, getTagProps) =>
+            value.map((user, index) => (
+              <Chip
+                sx={{
+                  backgroundColor: userTagColors[index],
+                  color: "white"
+                }}
+                label={user.fullName}
+                {...getTagProps({index})}
+              />
+            ))
+          }
           selectOnFocus
           clearOnBlur
           handleHomeEndKeys
           value={userInput}
           inputValue={userTextInput}
-          onChange={(event: any, value: User[]) => {
+          onChange={(_: any, value: User[]) => {
             setUserInput(value);
           }}
-          onInputChange={(event, newInputValue) => {
+          onInputChange={(_, newInputValue) => {
             setUserTextInput(newInputValue);
           }}
         />
@@ -190,6 +219,8 @@ export default function TrackerScheduler() {
         ]}
         ref={schedulerRef}
         loading={isLoading}
+        selectedDate={schedulerDate}
+        onSelectedDateChange={(newDate) => setSchedulerDate(newDate)}
         onDelete={handleDelete}
         //disable drag and drop
         onEventDrop={() => new Promise(() => {
