@@ -1,4 +1,4 @@
-import {Epic, ofType} from "redux-observable";
+import {Epic, ofType, StateObservable} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {
@@ -27,6 +27,10 @@ import {
 } from "../../services/SickLeaveService";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
 import {SickLeaveInput} from "../../models/sick-leave/SickLeaveInput";
+import {RootState} from "../store";
+import {findMissingUsersIds} from "../../services/UserService";
+import {SickLeave} from "../../models/sick-leave/SickLeave";
+import {getUsersByIdsActionCreator} from "./UserEpics";
 
 export const sickLeaveErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: SICK_LEAVE_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -44,23 +48,28 @@ export interface GetSickLeaveDataInput {
     userId: string | null,
     searchByYear: boolean
 }
-export const GetSickLeavesDataEpic: Epic = (action$: Observable<PayloadAction<GetSickLeaveDataInput>>) =>
+export const GetSickLeavesDataEpic: Epic = (action$: Observable<PayloadAction<GetSickLeaveDataInput>>,
+                                            state$: StateObservable<RootState>) =>
     action$.pipe(
         ofType(GET_SICK_LEAVE_DATA_ACTION),
         map(action => action.payload),
         mergeMap((fetchInput) => RequestGetSickLeaveDataRequest(fetchInput).pipe(
-            map((res) => {
+            mergeMap((res) => {
                 const errorMsg = "Failed to load sick leave data";
                 if (res.errors) {
-                    return sickLeaveErrorActionCreator(res, errorMsg);
+                    return of(sickLeaveErrorActionCreator(res, errorMsg));
                 }
                 let sickLeaveList = res.data?.sickLeave?.getSickLeaves;
 
                 if (sickLeaveList) {
-                    return SetSickLeaveList(sickLeaveList);
+                    const userList = state$.value.manageUsers.usersWithoutPagination;
+                    let missingUsersIdsToFind = findMissingUsersIds(userList, sickLeaveList, (item: SickLeave) => item.userId);
+                    missingUsersIdsToFind.push(...findMissingUsersIds(userList, sickLeaveList, (item: SickLeave) => item.lastModifierId));
+                    //removing duplicates
+                    missingUsersIdsToFind = missingUsersIdsToFind.filter((id, index) => missingUsersIdsToFind.indexOf(id) === index);
+                    return of(getUsersByIdsActionCreator(missingUsersIdsToFind), SetSickLeaveList(sickLeaveList));
                 }
-                console.log(sickLeaveList)
-                return sickLeaveErrorActionCreator(res, errorMsg);
+                return of(sickLeaveErrorActionCreator(res, errorMsg));
             }),
             catchError((err) => of(sickLeaveErrorActionCreator(err))),
             startWith(SetIsSickLeaveLoading(true)),

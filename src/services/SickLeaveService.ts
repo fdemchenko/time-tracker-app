@@ -1,14 +1,14 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
-import {SickLeaveWithRelations} from "../models/sick-leave/SickLeaveWithRelations";
 import {GetSickLeaveDataInput, UpdateSickLeaveDataInput} from "../redux/epics/SickLeaveEpics";
 import {SickLeaveInput} from "../models/sick-leave/SickLeaveInput";
 import {formatIsoDateForApi} from "../helpers/date";
+import {SickLeave} from "../models/sick-leave/SickLeave";
 
 interface GetSickLeaveDataResponse extends GraphQLResponse {
     data?: {
         sickLeave?: {
-            getSickLeaves: SickLeaveWithRelations[]
+            getSickLeaves: SickLeave[]
         }
     }
 }
@@ -18,35 +18,11 @@ export function RequestGetSickLeaveDataRequest(fetchData: GetSickLeaveDataInput)
                 query GetSickLeaveData($date: Date!, $userId: ID, $searchByYear: Boolean) {
                   sickLeave {
                     getSickLeaves(date: $date, userId: $userId, searchByYear: $searchByYear) {
-                      sickLeave {
                         id
                         userId
                         lastModifierId
                         start
                         end
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      lastModifier {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      } 
                     }
                   }
                 }
@@ -64,7 +40,7 @@ export function RequestGetSickLeaveDataRequest(fetchData: GetSickLeaveDataInput)
 interface GetUsersSickLeavesFormMonthResponse extends GraphQLResponse {
     data?: {
         sickLeave?: {
-            getUsersSickLeavesForMonth: SickLeaveWithRelations[]
+            getUsersSickLeavesForMonth: SickLeave[]
         }
     }
 }
@@ -78,35 +54,11 @@ export function RequestGetUsersSickLeavesForMonthRequest(input: GetUsersSickLeav
                 query GetUsersSickLeavesForMonth($userIds: [ID]!, $monthDate: Date!) {
                   sickLeave {
                     getUsersSickLeavesForMonth(userIds: $userIds, monthDate: $monthDate) {
-                      sickLeave {
                         id
-                        userId
-                        lastModifierId
                         start
                         end
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      lastModifier {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
+                        userId
+                        lastModifierId
                     } 
                   }
                 }

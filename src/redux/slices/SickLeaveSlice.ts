@@ -1,8 +1,8 @@
-import {SickLeaveWithRelations} from "../../models/sick-leave/SickLeaveWithRelations";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {SickLeave} from "../../models/sick-leave/SickLeave";
 
 export interface SickLeaveSliceState {
-    sickLeaveList: SickLeaveWithRelations[],
+    sickLeaveList: SickLeave[],
     isLoading: boolean,
     requireUpdateToggle: boolean,
     error: string | null
@@ -18,7 +18,7 @@ export const SickLeaveSlice = createSlice({
     name: "sickLeave",
     initialState,
     reducers: {
-        SetSickLeaveList: (state, action: PayloadAction<SickLeaveWithRelations[]>) => {
+        SetSickLeaveList: (state, action: PayloadAction<SickLeave[]>) => {
             state.sickLeaveList = action.payload
             state.error = null
         },

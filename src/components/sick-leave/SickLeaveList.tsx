@@ -9,79 +9,81 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function SickLeaveList() {
-    const {sickLeaveList} = useAppSelector(state => state.sickLeave);
+  const {sickLeaveList} = useAppSelector(state => state.sickLeave);
+  const {usersWithoutPagination} = useAppSelector(state => state.manageUsers);
 
-    function getIsActiveStatus(sickLeve: SickLeave) {
-        return isTodayIsInRange(sickLeve.start, sickLeve.end) ? "Active" : "Not active";
-    }
+  function getIsActiveStatus(sickLeve: SickLeave) {
+    return isTodayIsInRange(sickLeve.start, sickLeve.end) ? "Active" : "Not active";
+  }
 
-    return (
-        <>
-            {sickLeaveList.length > 0
-                ?
-                <>
-                    <TableContainer sx={{ mt: 2 }} className="custom-table-container" component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell style={{fontWeight: 'bold'}}>User</TableCell>
-                                    <TableCell style={{fontWeight: 'bold'}}>Last modifier</TableCell>
-                                    <TableCell style={{fontWeight: 'bold'}}>Start</TableCell>
-                                    <TableCell style={{fontWeight: 'bold'}}>End</TableCell>
-                                    <TableCell style={{fontWeight: 'bold'}}>Is active</TableCell>
-                                    <TableCell style={{fontWeight: 'bold'}} />
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {sickLeaveList.map((sickLeaveItem) => (
-                                    <TableRow key={sickLeaveItem.sickLeave.id}>
-                                        <TableCell>
-                                            <Link to={`/user/${sickLeaveItem.user.id}`} target="_blank">
-                                                {sickLeaveItem.user.fullName}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link to={`/user/${sickLeaveItem.lastModifier.id}`} target="_blank">
-                                                {sickLeaveItem.lastModifier.fullName}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatIsoDateWithoutTime(sickLeaveItem.sickLeave.start)}
-                                        </TableCell>
-                                        <TableCell>
-                                            {formatIsoDateWithoutTime(sickLeaveItem.sickLeave.end)}
-                                        </TableCell>
-                                        <TableCell>
-                                            {getIsActiveStatus(sickLeaveItem.sickLeave)}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    flexWrap: "wrap",
-                                                    gap: 2
-                                                }}
-                                            >
-                                                <Link to={`/sick-leave/update/${sickLeaveItem.sickLeave.id}`}>
-                                                    <EditIcon />
-                                                </Link>
+  return (
+    <>
+      {
+        sickLeaveList.length > 0
+          ?
+          <>
+            <TableContainer sx={{mt: 2}} className="custom-table-container" component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell style={{fontWeight: 'bold'}}>User</TableCell>
+                    <TableCell style={{fontWeight: 'bold'}}>Last modifier</TableCell>
+                    <TableCell style={{fontWeight: 'bold'}}>Start</TableCell>
+                    <TableCell style={{fontWeight: 'bold'}}>End</TableCell>
+                    <TableCell style={{fontWeight: 'bold'}}>Is active</TableCell>
+                    <TableCell style={{fontWeight: 'bold'}}/>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sickLeaveList.map((sickLeave) => (
+                    <TableRow key={sickLeave.id}>
+                      <TableCell>
+                        <Link to={`/profile/${sickLeave.userId}`} target="_blank" className="general_link">
+                          {usersWithoutPagination.find(u => u.id === sickLeave.userId)?.fullName || ""}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Link to={`/profile/${sickLeave.lastModifierId}`} target="_blank" className="general_link">
+                          {usersWithoutPagination.find(u => u.id === sickLeave.lastModifierId)?.fullName || ""}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        {formatIsoDateWithoutTime(sickLeave.start)}
+                      </TableCell>
+                      <TableCell>
+                        {formatIsoDateWithoutTime(sickLeave.end)}
+                      </TableCell>
+                      <TableCell>
+                        {getIsActiveStatus(sickLeave)}
+                      </TableCell>
+                      <TableCell>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 2
+                          }}
+                        >
+                          <Link to={`/sick-leave/update/${sickLeave.id}`} className="general_link">
+                            <EditIcon/>
+                          </Link>
 
-                                                <Link to={`/sick-leave/delete/${sickLeaveItem.sickLeave.id}`}>
-                                                    <DeleteIcon />
-                                                </Link>
-                                            </Box>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </>
-                :
-                <Alert severity="info" sx={{ mt: 2 }}>
-                    There is no sick leave data to be found
-                </Alert>
-            }
-        </>
-    );
+                          <Link to={`/sick-leave/delete/${sickLeave.id}`} className="general_link">
+                            <DeleteIcon/>
+                          </Link>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
+          :
+          <Alert severity="info" sx={{mt: 2}}>
+            There is no sick leave data to be found
+          </Alert>
+      }
+    </>
+  );
 }

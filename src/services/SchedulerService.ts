@@ -5,8 +5,8 @@ import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
 import {VacationResponse} from "../models/vacation/VacationResponse";
-import {SickLeaveWithRelations} from "../models/sick-leave/SickLeaveWithRelations";
 import {rotation} from 'simpler-color'
+import {SickLeave} from "../models/sick-leave/SickLeave";
 
 export function getColor(colorNumber: number): string {
   const baseColor = "#47817F";
@@ -105,18 +105,18 @@ export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) 
   return events;
 }
 
-export function GetEventsFromSickLeaveList(sickLeaveDataList: SickLeaveWithRelations[]) {
+export function GetEventsFromSickLeaveList(sickLeaveList: SickLeave[]) {
   let events: ProcessedEvent[] = [];
 
-  sickLeaveDataList.map(sld => {
+  sickLeaveList.map(sl => {
     events.push({
-      event_id: sld.sickLeave.id,
+      event_id: sl.id,
       title: "Sick Leave",
-      user: sld.user,
-      lastModifier: sld.lastModifier,
+      user: sl.userId, //not working
+      lastModifier: sl.lastModifierId, //not working
       type: "SickLeave",
-      start: moment(sld.sickLeave.start).toDate(),
-      end: scaleEndDateToSchedulerEndDayEvent(sld.sickLeave.end),
+      start: moment(sl.start).toDate(),
+      end: scaleEndDateToSchedulerEndDayEvent(sl.end),
 
       allDay: true,
       editable: false,
