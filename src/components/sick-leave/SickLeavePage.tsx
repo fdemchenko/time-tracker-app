@@ -18,6 +18,7 @@ export default function SickLeavePage() {
 
     const {error, isLoading, requireUpdateToggle} = useAppSelector(state => state.sickLeave);
     const {user} = useAppSelector(state => state.user);
+    const isUserLoading = useAppSelector(state => state.manageUsers.isLoading);
 
     const [filterUser, setFilterUser] = useState<Profile | null>(null);
     const [searchByYear, setSearchByYear] = useState<boolean>(false);
@@ -36,7 +37,7 @@ export default function SickLeavePage() {
             {error
                 ? <Alert severity="error" sx={{mt: 2}}>{error}</Alert>
                 : <>
-                    {isLoading
+                    {isLoading || isUserLoading
                         ? <div className="lds-dual-ring"></div>
                         :
                         <>

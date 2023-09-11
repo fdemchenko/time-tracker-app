@@ -35,6 +35,10 @@ export const ManageUsersSlice = createSlice({
       state.usersWithoutPagination = action.payload;
       state.error = null;
     },
+    AddUsersWithoutPagination: (state, action: PayloadAction<User[]>) => {
+      state.usersWithoutPagination = [...state.usersWithoutPagination, ...action.payload];
+      state.error = null;
+    },
     SetUserLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
@@ -95,6 +99,7 @@ export const {
   SetUserLoading,
   SetSendPasswordLink,
   SetUsersWithoutPagination,
+  AddUsersWithoutPagination,
   CreateUser,
   UpdateUser,
   FireUser

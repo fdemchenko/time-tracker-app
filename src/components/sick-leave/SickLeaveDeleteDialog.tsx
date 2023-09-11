@@ -17,7 +17,7 @@ export default function SickLeaveDeleteDialog() {
 
     const {user} = useAppSelector(state => state.user);
     const sickLeaveData = useAppSelector(state => state.sickLeave.sickLeaveList
-        ).find(sl => sl.sickLeave.id === id);
+        ).find(sl => sl.id === id);
 
     function handleDelete() {
         if (sickLeaveData && id) {
