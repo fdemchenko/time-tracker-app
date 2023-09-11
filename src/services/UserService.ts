@@ -1,5 +1,4 @@
 import {map, Observable} from "rxjs";
-import {GetUserFromToken, SetAccessToken} from "./JwtService";
 import {
     CreateUserActionPayload, GetProfilesActionPayload, GetUsersActionPayload, GetUsersWorkInfoActionPayload,
     LoginActionPayload,
@@ -10,6 +9,12 @@ import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
 import Profile from "../models/Profile";
 import UserWorkInfo from "../models/UserWorkInfo";
+
+export function findMissingUsersIds(userList: User[], data: any[], idFieldGetter: (item: any) => string): string[] {
+    const exitingUserIds = userList.map(u => u.id);
+    const allUsersIdsNeeded = data.map(idFieldGetter);
+    return allUsersIdsNeeded.filter(idToFind => !exitingUserIds.some(existingId => idToFind === existingId));
+}
 
 interface LoginResponse extends GraphQLResponse {
     data?: {
@@ -101,6 +106,40 @@ export function RequestGetUsers(payload: GetUsersActionPayload): Observable<GetU
         }
     })).pipe(
         map(res => res.response)
+    );
+}
+
+interface GetUsersByIdsResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getUsersByIds: User[]
+        }
+    }
+}
+export function RequestGetUsersByIds(ids: string[]) {
+    return ajaxAuth<GetUsersByIdsResponse>(JSON.stringify({
+        query: `
+               query GetUsersByIds($userIdsToGet: [ID]!) {
+                  user {
+                    getUsersByIds(userIdsToGet: $userIdsToGet) {
+                      id
+                      email
+                      fullName
+                      employmentRate
+                      employmentDate
+                      permissions
+                      status
+                      hasPassword
+                      hasValidSetPasswordLink
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "userIdsToGet": ids
+        }
+    })).pipe(
+      map(res => res.response)
     );
 }
 

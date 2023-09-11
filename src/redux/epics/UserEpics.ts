@@ -1,10 +1,21 @@
 import {
   CREATE_USER_ACTION,
-  DEACTIVATE_USER_ACTION, GET_PROFILES_ACTION,
-  GET_USERS_ACTION, GET_USERS_WITHOUT_PAGINATION_ACTION, GET_USERS_WORK_INFO_ACTION, GET_USERS_WORK_INFO_EXCEL_ACTION,
+  DEACTIVATE_USER_ACTION,
+  GET_PROFILES_ACTION,
+  GET_USERS_ACTION,
+  GET_USERS_BY_IDS_ACTION,
+  GET_USERS_WITHOUT_PAGINATION_ACTION,
+  GET_USERS_WORK_INFO_ACTION,
+  GET_USERS_WORK_INFO_EXCEL_ACTION,
   LOGIN_ACTION,
-  LOGOUT_ACTION, MANAGE_USERS_ERROR_ACTION, PROFILE_ERROR_ACTION, SET_PASSWORD_ACTION,
-  SET_SEND_PASSWORD_LINK_ACTION, UPDATE_USER_ACTION, USER_ERROR_ACTION, USER_WORK_INFO_ERROR_ACTION,
+  LOGOUT_ACTION,
+  MANAGE_USERS_ERROR_ACTION,
+  PROFILE_ERROR_ACTION,
+  SET_PASSWORD_ACTION,
+  SET_SEND_PASSWORD_LINK_ACTION,
+  UPDATE_USER_ACTION,
+  USER_ERROR_ACTION,
+  USER_WORK_INFO_ERROR_ACTION,
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {
@@ -26,7 +37,7 @@ import {
   RequestLogout,
   RequestSetPassword,
   RequestSetSendPasswordLink,
-  RequestUpdateUser
+  RequestUpdateUser, RequestGetUsersByIds
 } from "../../services/UserService";
 import {
   SetUsers,
@@ -34,7 +45,7 @@ import {
   SetUserLoading as SetManageUsersLoading,
   SetSendPasswordLink,
   CreateUser,
-  UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading
+  UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading, AddUsersWithoutPagination
 } from "../slices/ManageUsersSlice";
 import {
   SetProfiles,
@@ -168,6 +179,31 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
             endWith(SetUserLoading(false)),
         ))
     );
+
+export const getUsersByIdsActionCreator = (ids: string[]) =>
+  ({type: GET_USERS_BY_IDS_ACTION, payload: ids});
+export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<string[]>>) =>
+  action$.pipe(
+    ofType(GET_USERS_BY_IDS_ACTION),
+    map(action => action.payload),
+    mergeMap((ids) => RequestGetUsersByIds(ids).pipe(
+      map(res => {
+        const errorMsg = "Failed to load users data";
+        if (res.errors) {
+          return manageUsersErrorActionCreator(res, errorMsg);
+        }
+
+        let users = res.data?.user.getUsersByIds;
+        if (users) {
+          return AddUsersWithoutPagination(users);
+        }
+        return manageUsersErrorActionCreator(res, errorMsg);
+      }),
+      catchError((err) => of(manageUsersErrorActionCreator(err))),
+      startWith(SetUserLoading(true)),
+      endWith(SetUserLoading(false)),
+    ))
+  );
 
 export const getProfilesActionCreator = (payload: GetProfilesActionPayload ) =>
   ({type: GET_PROFILES_ACTION, payload: payload});

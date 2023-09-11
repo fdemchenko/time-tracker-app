@@ -30,7 +30,7 @@ export default function SickLeaveFormDialog({isUpdate = false}: SickLeaveFormDia
     const profiles = useAppSelector(state => state.profile.profiles.items)
         .filter(profile => profile.id !== user.id);
     const curSickLeave = useAppSelector(state => state.sickLeave.sickLeaveList)
-        .find(sickLeaveData => sickLeaveData.sickLeave.id === id);
+        .find(sickLeave => sickLeave.id === id);
 
     const initialProfile = getInitialProfile();
 
@@ -44,10 +44,10 @@ export default function SickLeaveFormDialog({isUpdate = false}: SickLeaveFormDia
     function getInitialSickLeaveValue(): SickLeaveInput {
         if (curSickLeave && isUpdate) {
             return {
-                userId: curSickLeave.sickLeave.userId,
-                lastModifierId: curSickLeave.sickLeave.lastModifierId,
-                start: curSickLeave.sickLeave.start,
-                end: curSickLeave.sickLeave.end
+                userId: curSickLeave.userId,
+                lastModifierId: curSickLeave.lastModifierId,
+                start: curSickLeave.start,
+                end: curSickLeave.end
             }
         }
         return {
@@ -60,7 +60,7 @@ export default function SickLeaveFormDialog({isUpdate = false}: SickLeaveFormDia
 
     function getInitialProfile(): Profile | null {
         if (curSickLeave && isUpdate) {
-            let searchedProfile = profiles.find(profile => profile.id == curSickLeave.sickLeave.userId);
+            let searchedProfile = profiles.find(profile => profile.id == curSickLeave.userId);
             return searchedProfile ? searchedProfile : null;
         }
         return null;
