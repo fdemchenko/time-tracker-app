@@ -34,12 +34,12 @@ export default function VacationApproveDialog() {
         .find(vl => vl.vacation.id === vacationId));
 
     const validationSchema = Yup.object().shape({
-        approveComment: Yup.string().notRequired().nullable(),
+        approverComment: Yup.string().notRequired().nullable(),
         isApproved: Yup.boolean().required("Approve decision is required")
     });
     const formik = useFormik({
         initialValues: {
-            approveComment: vacationResp ? vacationResp.vacation.approverComment : "",
+            approverComment: vacationResp ? vacationResp.vacation.approverComment : "",
             isApproved: vacationResp ? vacationResp.vacation.isApproved : null
         },
         validationSchema,
@@ -49,7 +49,7 @@ export default function VacationApproveDialog() {
                     id: vacationResp.vacation.id,
                     isApproved: values.isApproved,
                     approverId: user.id,
-                    approverComment: values.approveComment
+                    approverComment: values.approverComment
                 }));
             }
             navigate(-1);
@@ -150,9 +150,9 @@ export default function VacationApproveDialog() {
                                     minRows={3}
                                     fullWidth
                                     multiline
-                                    error={formik.touched.approveComment && !!formik.errors.approveComment}
-                                    helperText={formik.touched.approveComment && formik.errors.approveComment}
-                                    {...formik.getFieldProps('approveComment')}
+                                    error={formik.touched.approverComment && !!formik.errors.approverComment}
+                                    helperText={formik.touched.approverComment && formik.errors.approverComment}
+                                    {...formik.getFieldProps('approverComment')}
                                 />
 
                                 <FormControl fullWidth>
