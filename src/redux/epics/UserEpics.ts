@@ -17,7 +17,7 @@ import {
   USER_ERROR_ACTION,
   USER_WORK_INFO_ERROR_ACTION,
 } from "../actions";
-import {Epic, ofType} from "redux-observable";
+import {Epic, ofType, StateObservable} from "redux-observable";
 import {
   catchError,
   endWith,
@@ -68,6 +68,7 @@ import {
 } from "../slices/UserSlice";
 import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
+import {RootState} from "../store";
 
 export const userErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: USER_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -180,29 +181,40 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
         ))
     );
 
-export const getUsersByIdsActionCreator = (ids: string[]) =>
+//epic to get users which is not currently in state (manageUser state)
+export const getUsersByIdsActionCreator = (ids: Set<string>) =>
   ({type: GET_USERS_BY_IDS_ACTION, payload: ids});
-export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<string[]>>) =>
+export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<Set<string>>>,
+                                        state$: StateObservable<RootState>) =>
   action$.pipe(
     ofType(GET_USERS_BY_IDS_ACTION),
     map(action => action.payload),
-    mergeMap((ids) => RequestGetUsersByIds(ids).pipe(
-      map(res => {
-        const errorMsg = "Failed to load users data";
-        if (res.errors) {
-          return manageUsersErrorActionCreator(res, errorMsg);
-        }
+    mergeMap((rawIds) => {
+      const existingUsersIds = state$.value.manageUsers.usersWithoutPagination.map(u => u.id);
+      const idsToFind = Array.from(rawIds).filter(id => !existingUsersIds.includes(id));
 
-        let users = res.data?.user.getUsersByIds;
-        if (users) {
-          return AddUsersWithoutPagination(users);
-        }
-        return manageUsersErrorActionCreator(res, errorMsg);
-      }),
-      catchError((err) => of(manageUsersErrorActionCreator(err))),
-      startWith(SetUserLoading(true)),
-      endWith(SetUserLoading(false)),
-    ))
+      if (idsToFind.length > 0) {
+        return RequestGetUsersByIds(idsToFind).pipe(
+          map(res => {
+            const errorMsg = "Failed to load users data";
+            if (res.errors) {
+              return manageUsersErrorActionCreator(res, errorMsg);
+            }
+
+            let users = res.data?.user.getUsersByIds;
+            if (users) {
+              return AddUsersWithoutPagination(users);
+            }
+            return manageUsersErrorActionCreator(res, errorMsg);
+          }),
+          catchError((err) => of(manageUsersErrorActionCreator(err))),
+          startWith(SetUserLoading(true)),
+          endWith(SetUserLoading(false)),
+        )
+      }
+
+      return of(SetUserLoading(false));
+    })
   );
 
 export const getProfilesActionCreator = (payload: GetProfilesActionPayload ) =>

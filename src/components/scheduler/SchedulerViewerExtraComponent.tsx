@@ -5,12 +5,15 @@ import {Link} from "react-router-dom";
 import React from "react";
 import {Box} from "@mui/material";
 import {isSickLeaveEvent, isVacationEvent, isWorkSessionEvent} from "../../services/SchedulerService";
+import {useAppSelector} from "../../redux/CustomHooks";
 
 interface SchedulerViewerExtraComponentProps {
   event: ProcessedEvent
 }
 
 export default function SchedulerViewerExtraComponent({event}: SchedulerViewerExtraComponentProps) {
+  const users = useAppSelector(state => state.manageUsers.usersWithoutPagination);
+
   return (
     <Box sx={{color: "#00000099"}}>
       {
@@ -69,14 +72,14 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
-                  {event.user.fullName}
+                <Link to={`/profile/${event.userId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.userId)?.fullName}
                 </Link>
               </Typography>
               <Typography variant="body2">
                 <b>Last modifier:&nbsp;</b>
-                <Link to={`/profile/${event.lastModifier.id}`} {...LinkStyle}>
-                  {event.lastModifier.fullName}
+                <Link to={`/profile/${event.lastModifierId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.lastModifierId)?.fullName}
                 </Link>
               </Typography>
             </>

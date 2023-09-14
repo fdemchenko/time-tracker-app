@@ -112,8 +112,8 @@ export function GetEventsFromSickLeaveList(sickLeaveList: SickLeave[]) {
     events.push({
       event_id: sl.id,
       title: "Sick Leave",
-      user: sl.userId, //not working
-      lastModifier: sl.lastModifierId, //not working
+      userId: sl.userId,
+      lastModifierId: sl.lastModifierId,
       type: "SickLeave",
       start: moment(sl.start).toDate(),
       end: scaleEndDateToSchedulerEndDayEvent(sl.end),
