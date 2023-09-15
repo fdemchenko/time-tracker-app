@@ -13,12 +13,12 @@ export default function VacationDeleteDialog() {
     const navigate = useNavigate();
     const {vacationId} = useParams();
 
-    const vacationResp = useAppSelector(state => state.vacation.vacationList
-        .find(vl => vl.vacation.id === vacationId));
+    const vacation = useAppSelector(state => state.vacation.vacationList
+        .find(v => v.id === vacationId));
 
     function handleDelete() {
-        if (vacationResp) {
-            dispatch(deleteVacationActionCreator(vacationResp.vacation.id));
+        if (vacation) {
+            dispatch(deleteVacationActionCreator(vacation.id));
             navigate(-1);
         }
     }
@@ -26,11 +26,11 @@ export default function VacationDeleteDialog() {
     return (
         <DialogWindow title="Delete vacation request">
             {
-                !vacationResp ? (
+                !vacation ? (
                     <Alert severity="error" sx={{m: 2}}>
                         Unable to find the vacation request you are looking for
                     </Alert>
-                ) : vacationResp.vacation.isApproved === null ?
+                ) : vacation.isApproved === null ?
                     <>
                         <DialogContent>
                             <DialogContentText fontSize={18}>

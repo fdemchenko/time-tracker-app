@@ -42,7 +42,6 @@ import {
 import {
   SetUsers,
   SetError as SetManageUsersError,
-  SetUserLoading as SetManageUsersLoading,
   SetSendPasswordLink,
   CreateUser,
   UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading, AddUsersWithoutPagination
@@ -58,7 +57,6 @@ import {
   SetError as SetUserWorkInfoError,
   SetLoading as SetUserWorkInfoLoading
 } from "../slices/UserWorkInfoSlice";
-import User from "../../models/User";
 import {
     SetUserError,
     UserRequestFinish,

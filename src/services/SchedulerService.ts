@@ -4,9 +4,9 @@ import {parseIsoDateToLocal, separateDateOnMidnight} from "../helpers/date";
 import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
-import {VacationResponse} from "../models/vacation/VacationResponse";
 import {rotation} from 'simpler-color'
 import {SickLeave} from "../models/sick-leave/SickLeave";
+import {Vacation} from "../models/vacation/Vacation";
 
 export function getColor(colorNumber: number): string {
   const baseColor = "#47817F";
@@ -22,7 +22,7 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
 
   let userColorInfoList: UserColorInfo[] = [];
   let colorIndex = 0;
-  wsList.items.map(wsData => {
+  wsList.items.forEach(wsData => {
     if (wsData.workSession.end) {
       let curUserColorInfo = userColorInfoList.find(uci => uci.userId === wsData.user.id);
       if (!curUserColorInfo) {
@@ -35,7 +35,7 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
       let endLocal = parseIsoDateToLocal(wsData.workSession.end);
 
       let timePassed = separateDateOnMidnight(startLocal, endLocal);
-      timePassed.map(timePassesDay => {
+      timePassed.forEach(timePassesDay => {
         events.push({
           event_id: wsData.workSession.id,
           user: wsData.user,
@@ -61,7 +61,7 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
 export function GetEventsFromHolidayList(holidayList: Holiday[]) {
   let events: ProcessedEvent[] = [];
 
-  holidayList.map(holiday => {
+  holidayList.forEach(holiday => {
     events.push({
       event_id: holiday.id,
       title: holiday.title,
@@ -81,18 +81,18 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
   return events;
 }
 
-export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) {
+export function GetEventsFromVacationList(vacationList: Vacation[]) {
   let events: ProcessedEvent[] = [];
 
-  vacationDataList.map(vd => {
+  vacationList.forEach(vacation => {
     events.push({
-      event_id: vd.vacation.id,
+      event_id: vacation.id,
       title: "Vacation",
-      user: vd.user,
-      approver: vd.approver,
+      userId: vacation.userId,
+      approverId: vacation.approverId,
       type: "Vacation",
-      start: moment(vd.vacation.start).toDate(),
-      end: scaleEndDateToSchedulerEndDayEvent(vd.vacation.end),
+      start: moment(vacation.start).toDate(),
+      end: scaleEndDateToSchedulerEndDayEvent(vacation.end),
 
       allDay: true,
       editable: false,
@@ -108,7 +108,7 @@ export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) 
 export function GetEventsFromSickLeaveList(sickLeaveList: SickLeave[]) {
   let events: ProcessedEvent[] = [];
 
-  sickLeaveList.map(sl => {
+  sickLeaveList.forEach(sl => {
     events.push({
       event_id: sl.id,
       title: "Sick Leave",

@@ -30,8 +30,9 @@ export default function VacationApproveDialog() {
     const {vacationId} = useParams();
 
     const {user} = useAppSelector(state => state.user);
-    const vacationResp = useAppSelector(state => state.vacation.vacationList
-        .find(vl => vl.vacation.id === vacationId));
+    const users = useAppSelector(state => state.manageUsers.usersWithoutPagination);
+    const vacation = useAppSelector(state => state.vacation.vacationList
+        .find(v => v.id === vacationId));
 
     const validationSchema = Yup.object().shape({
         approverComment: Yup.string().notRequired().nullable(),
@@ -39,14 +40,14 @@ export default function VacationApproveDialog() {
     });
     const formik = useFormik({
         initialValues: {
-            approverComment: vacationResp ? vacationResp.vacation.approverComment : "",
-            isApproved: vacationResp ? vacationResp.vacation.isApproved : null
+            approverComment: vacation?.approverComment ? vacation.approverComment : "",
+            isApproved: vacation ? vacation.isApproved : null
         },
         validationSchema,
         onSubmit: values => {
-            if (vacationResp && values.isApproved !== null) {
+            if (vacation && values.isApproved !== null) {
                 dispatch(approverUpdateVacationActionCreator({
-                    id: vacationResp.vacation.id,
+                    id: vacation.id,
                     isApproved: values.isApproved,
                     approverId: user.id,
                     approverComment: values.approverComment
@@ -72,7 +73,7 @@ export default function VacationApproveDialog() {
     return (
         <DialogWindow title="Approve vacation request">
             {
-                !vacationResp ? (
+                !vacation ? (
                     <Alert severity="error" sx={{m: 2}}>
                         Unable to find the vacation request you are looking for
                     </Alert>
@@ -94,7 +95,7 @@ export default function VacationApproveDialog() {
                                     label="Start date"
                                     format="YYYY-MM-DD"
                                     sx={{width: 1}}
-                                    value={moment(vacationResp.vacation.start)}
+                                    value={moment(vacation.start)}
                                     readOnly
                                     dayOfWeekFormatter={(day) => `${day}`}
                                 />
@@ -104,13 +105,13 @@ export default function VacationApproveDialog() {
                                     label="End date"
                                     format="YYYY-MM-DD"
                                     sx={{width: 1}}
-                                    value={moment(vacationResp.vacation.end)}
+                                    value={moment(vacation.end)}
                                     readOnly
                                     dayOfWeekFormatter={(day) => `${day}`}
                                 />
 
                                 {
-                                    vacationResp.vacation.comment &&
+                                    vacation.comment &&
                                     <TextField
                                         label="Optional comment"
                                         variant="outlined"
@@ -119,7 +120,7 @@ export default function VacationApproveDialog() {
                                         minRows={3}
                                         fullWidth
                                         multiline
-                                        value={vacationResp.vacation.comment}
+                                        value={vacation.comment}
                                         InputProps={{
                                             readOnly: true,
                                         }}
@@ -127,8 +128,8 @@ export default function VacationApproveDialog() {
                                 }
 
                                 <Box>
-                                    Requested by <Link to={`/profile/${vacationResp.user.id}`} target="_blank">
-                                        {vacationResp.user.fullName}
+                                    Requested by <Link to={`/profile/${vacation.userId}`} target="_blank">
+                                        {users.find(u => u.id === vacation.userId)?.fullName}
                                     </Link>
                                 </Box>
                             </Box>
@@ -176,10 +177,10 @@ export default function VacationApproveDialog() {
                                 </FormControl>
 
                                 {
-                                    vacationResp.approver &&
+                                    vacation.approverId &&
                                     <Box>
-                                        Updated by <Link to={`/user/${vacationResp.approver.id}`} target="_blank">
-                                            {vacationResp.approver.fullName}
+                                        Updated by <Link to={`/user/${vacation.approverId}`} target="_blank">
+                                            {users.find(u => u.id === vacation.approverId)?.fullName}
                                         </Link>
                                     </Box>
                                 }

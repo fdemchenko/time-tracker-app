@@ -1,5 +1,4 @@
 import {ProcessedEvent} from "@aldabil/react-scheduler/types";
-import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 import Typography from "@mui/material/Typography";
 import {Link} from "react-router-dom";
 import React from "react";
@@ -56,14 +55,14 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
-                  {event.user.fullName}
+                <Link to={`/profile/${event.userId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.userId)?.fullName}
                 </Link>
               </Typography>
               <Typography variant="body2">
                 <b>Approver:&nbsp;</b>
-                <Link to={`/profile/${event.approver.id}`} {...LinkStyle}>
-                  {event.approver.fullName}
+                <Link to={`/profile/${event.approverId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.approverId)?.fullName}
                 </Link>
               </Typography>
             </>

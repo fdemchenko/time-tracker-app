@@ -1,12 +1,12 @@
 import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
-import {VacationResponse} from "../models/vacation/VacationResponse";
 import {GetVacationsByUserIdInput} from "../redux/epics/VacationEpics";
 import {VacationInfo} from "../models/vacation/VacationInfo";
 import moment from "moment";
 import {VacationCreate} from "../models/vacation/VacationCreate";
 import {VacationApprove} from "../models/vacation/VacationApprove";
 import {formatIsoDateForApi} from "../helpers/date";
+import {Vacation} from "../models/vacation/Vacation";
 
 export const VacationDaysInYear = 30;
 
@@ -16,7 +16,7 @@ export function GetAvailableVacationDays(employmentDate: string): number {
 interface GetVacationsByUserIdResponse extends GraphQLResponse {
     data?: {
         vacation?: {
-            getVacationsByUserId: VacationResponse[] | null
+            getVacationsByUserId: Vacation[] | null
         }
     }
 }
@@ -26,7 +26,6 @@ export function RequestGetVacationsByUserId(fetchInput: GetVacationsByUserIdInpu
                 query GetVacationsByUserId($userId: ID!, $onlyApproved: Boolean, $orderByDesc: Boolean!) {
                   vacation {
                     getVacationsByUserId(userId: $userId, onlyApproved: $onlyApproved, orderByDesc: $orderByDesc) {
-                      vacation {
                         id
                         userId
                         start
@@ -35,29 +34,6 @@ export function RequestGetVacationsByUserId(fetchInput: GetVacationsByUserIdInpu
                         isApproved
                         approverId
                         approverComment
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      approver {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      } 
                     }
                   }
                 }
@@ -75,7 +51,7 @@ export function RequestGetVacationsByUserId(fetchInput: GetVacationsByUserIdInpu
 interface GetUsersVacationsForMonthResponse extends GraphQLResponse {
     data?: {
         vacation?: {
-            getUsersVacationsForMonth: VacationResponse[] | null
+            getUsersVacationsForMonth: Vacation[] | null
         }
     }
 }
@@ -89,7 +65,6 @@ export function RequestGetUsersVacationsForMonth(input: GetUsersVacationsForMont
                 query GetUsersVacationForMonth($userIds: [ID]!, $monthDate: Date!) {
                   vacation {
                     getUsersVacationsForMonth(userIds: $userIds, monthDate: $monthDate) {
-                      vacation {
                         id
                         userId
                         start
@@ -98,29 +73,6 @@ export function RequestGetUsersVacationsForMonth(input: GetUsersVacationsForMont
                         isApproved
                         approverId
                         approverComment
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      approver {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
                     } 
                   }
                 }
@@ -165,7 +117,7 @@ export function RequestGetVacationInfoByUserId(userId: string) {
 interface GetVacationRequestsResponse extends GraphQLResponse {
     data?: {
         vacation?: {
-            getVacationsRequests: VacationResponse[] | null
+            getVacationsRequests: Vacation[] | null
         }
     }
 }
@@ -175,7 +127,6 @@ export function RequestGetVacationRequest(getNotStarted: boolean) {
                 query GetVacationRequests($getNotStarted: Boolean!) {
                   vacation {
                     getVacationsRequests(getNotStarted: $getNotStarted) {
-                      vacation {
                         id
                         userId
                         start
@@ -184,29 +135,6 @@ export function RequestGetVacationRequest(getNotStarted: boolean) {
                         isApproved
                         approverId
                         approverComment
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      approver {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
                     } 
                   }
                 }
