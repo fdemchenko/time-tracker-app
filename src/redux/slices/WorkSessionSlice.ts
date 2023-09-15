@@ -1,12 +1,11 @@
 import WorkSession from "../../models/work-session/WorkSession";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {WorkSessionWithRelations} from "../../models/work-session/WorkSessionWithRelations";
 
 export interface WorkSessionSliceState {
     activeWorkSession: WorkSession | null,
     workSessionsList: {
         count: number,
-        items: WorkSessionWithRelations[]
+        items: WorkSession[]
     },
     isLoading: boolean,
     requireUpdateToggle: boolean
@@ -42,7 +41,7 @@ export const WorkSessionSlice = createSlice({
             state.activeWorkSession = action.payload;
             state.error = null;
         },
-        SetWorkSessionList: (state, action: PayloadAction<{count: number, items: WorkSessionWithRelations[]}>) => {
+        SetWorkSessionList: (state, action: PayloadAction<{count: number, items: WorkSession[]}>) => {
             state.workSessionsList = action.payload;
             state.error = null;
         }

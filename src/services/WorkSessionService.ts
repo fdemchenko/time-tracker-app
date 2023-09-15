@@ -3,7 +3,6 @@ import {map} from "rxjs";
 import WorkSession from "../models/work-session/WorkSession";
 import {Moment} from "moment";
 import {WorkSessionInput} from "../models/work-session/WorkSessionInput";
-import {WorkSessionWithRelations} from "../models/work-session/WorkSessionWithRelations";
 import {WorkSessionUpdateInput} from "../models/work-session/WorkSessionUpdateInput";
 import {formatIsoDateForApi} from "../helpers/date";
 
@@ -111,7 +110,7 @@ interface GetUsersWorkSessionsResponse extends GraphQLResponse {
         workSession?: {
             getWorkSessionsByUserId: {
                 count: number,
-                items: WorkSessionWithRelations[]
+                items: WorkSession[]
             } | null
         }
     }
@@ -135,7 +134,6 @@ export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchP
                     limit: $limit, startDate: $startDate, endDate: $endDate, showPlanned: $showPlanned)  {
                       count
                       items {
-                        workSession {
                           id
                           userId
                           start
@@ -144,29 +142,6 @@ export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchP
                           title
                           description
                           lastModifierId
-                        }
-                        user {
-                          id
-                          email
-                          fullName
-                          employmentRate
-                          employmentDate
-                          permissions
-                          status
-                          hasPassword
-                          hasValidSetPasswordLink
-                        }
-                        lastModifier {
-                          id
-                          email
-                          fullName
-                          employmentRate
-                          employmentDate
-                          permissions
-                          status
-                          hasPassword
-                          hasValidSetPasswordLink
-                        }
                       }
                     } 
                   }
@@ -189,7 +164,7 @@ export function RequestGetUserWorkSessions(fetchData: GetUsersWorkSessionsFetchP
 interface GetWorkSessionsByUserIdsByMonthResponse extends GraphQLResponse {
     data?: {
         workSession?: {
-            getWorkSessionsByUserIdsByMonth: WorkSessionWithRelations[] | null
+            getWorkSessionsByUserIdsByMonth: WorkSession[] | null
         }
     }
 }
@@ -204,7 +179,6 @@ export function RequestGetWorkSessionsByUserIdsByMonth(fetchData: GetWorkSession
                 query GetWorkSessionsByUserIdsByMonth($userIds: [ID]!, $monthDate: Date!, $hidePlanned: Boolean!) {
                   workSession {
                     getWorkSessionsByUserIdsByMonth(userIds: $userIds, monthDate: $monthDate, hidePlanned: $hidePlanned) {
-                      workSession {
                         id
                         userId
                         start
@@ -213,29 +187,6 @@ export function RequestGetWorkSessionsByUserIdsByMonth(fetchData: GetWorkSession
                         title
                         description
                         lastModifierId
-                      }
-                      user {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
-                      lastModifier {
-                        id
-                        email
-                        fullName
-                        employmentRate
-                        employmentDate
-                        permissions
-                        status
-                        hasPassword
-                        hasValidSetPasswordLink
-                      }
                     } 
                   }
                 }

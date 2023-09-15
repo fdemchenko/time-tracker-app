@@ -1,4 +1,3 @@
-import {WorkSessionWithRelations} from "../models/work-session/WorkSessionWithRelations";
 import {ProcessedEvent} from "@aldabil/react-scheduler/types";
 import {parseIsoDateToLocal, separateDateOnMidnight} from "../helpers/date";
 import {Holiday} from "../models/Holiday";
@@ -7,6 +6,7 @@ import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
 import {rotation} from 'simpler-color'
 import {SickLeave} from "../models/sick-leave/SickLeave";
 import {Vacation} from "../models/vacation/Vacation";
+import WorkSession from "../models/work-session/WorkSession";
 
 export function getColor(colorNumber: number): string {
   const baseColor = "#47817F";
@@ -17,35 +17,35 @@ interface UserColorInfo {
   userId: string;
   color: string;
 }
-export function GetEventsFromWorkSessionList(wsList: {count: number, items: WorkSessionWithRelations[]}) {
+export function GetEventsFromWorkSessionList(workSessionList: {count: number, items: WorkSession[]}) {
   let events: ProcessedEvent[] = [];
 
   let userColorInfoList: UserColorInfo[] = [];
   let colorIndex = 0;
-  wsList.items.forEach(wsData => {
-    if (wsData.workSession.end) {
-      let curUserColorInfo = userColorInfoList.find(uci => uci.userId === wsData.user.id);
+  workSessionList.items.forEach(ws => {
+    if (ws.end) {
+      let curUserColorInfo = userColorInfoList.find(uci => uci.userId === ws.userId);
       if (!curUserColorInfo) {
-        curUserColorInfo = {userId: wsData.user.id, color: getColor(colorIndex)};
+        curUserColorInfo = {userId: ws.userId, color: getColor(colorIndex)};
         userColorInfoList.push(curUserColorInfo);
         colorIndex++;
       }
 
-      let startLocal = parseIsoDateToLocal(wsData.workSession.start);
-      let endLocal = parseIsoDateToLocal(wsData.workSession.end);
+      let startLocal = parseIsoDateToLocal(ws.start);
+      let endLocal = parseIsoDateToLocal(ws.end);
 
       let timePassed = separateDateOnMidnight(startLocal, endLocal);
       timePassed.forEach(timePassesDay => {
         events.push({
-          event_id: wsData.workSession.id,
-          user: wsData.user,
-          title: wsData.workSession.title || (wsData.workSession.type ===
+          event_id: ws.id,
+          userId: ws.userId,
+          title: ws.title || (ws.type ===
             WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]? "Planned" : "Working"),
-          type: wsData.workSession.type,
-          lastModifier: wsData.lastModifier,
+          type: ws.type,
+          lastModifierId: ws.lastModifierId,
           start: new Date(timePassesDay.start),
           end: new Date(timePassesDay.end),
-          description: wsData.workSession.description,
+          description: ws.description,
 
           allDay: false,
           draggable: false,

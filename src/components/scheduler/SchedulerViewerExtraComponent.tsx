@@ -21,8 +21,8 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
             <>
               <Typography variant="body2">
                 <b>For:&nbsp;</b>
-                <Link to={`/profile/${event.user.id}`} {...LinkStyle}>
-                  {event.user.fullName}
+                <Link to={`/profile/${event.userId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.userId)?.fullName}
                 </Link>
               </Typography>
 
@@ -30,8 +30,8 @@ export default function SchedulerViewerExtraComponent({event}: SchedulerViewerEx
                 variant="body2"
               >
                 <b>Last modifier:&nbsp;</b>
-                <Link to={`/profile/${event.lastModifier.id}`} {...LinkStyle}>
-                  {event.lastModifier.fullName}
+                <Link to={`/profile/${event.lastModifierId}`} {...LinkStyle}>
+                  {users.find(u => u.id === event.lastModifierId)?.fullName}
                 </Link>
               </Typography>
 

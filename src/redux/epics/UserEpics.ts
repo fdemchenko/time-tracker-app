@@ -201,7 +201,8 @@ export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<Set<s
 
             let users = res.data?.user.getUsersByIds;
             if (users) {
-              return AddUsersWithoutPagination(users);
+              const stateUsersIds = state$.value.manageUsers.usersWithoutPagination.map(stateUser => stateUser.id);
+              return AddUsersWithoutPagination(users.filter(u => !stateUsersIds.includes(u.id)));
             }
             return manageUsersErrorActionCreator(res, errorMsg);
           }),
@@ -296,10 +297,12 @@ export const GetUsersWorkInfoExcelEpic: Epic = (action$:  Observable<PayloadActi
 
 export const getUsersWithoutPaginationActionCreator = (showFired: boolean) =>
   ({type: GET_USERS_WITHOUT_PAGINATION_ACTION, payload: showFired});
-export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<PayloadAction<boolean>>) =>
+export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<PayloadAction<boolean>>,
+                                                    state$: StateObservable<RootState>) =>
   action$.pipe(
     ofType(GET_USERS_WITHOUT_PAGINATION_ACTION),
-    mergeMap((action) => RequestGetUsersWithoutPagination(action.payload).pipe(
+    map(action => action.payload),
+    mergeMap((showFired) => RequestGetUsersWithoutPagination(showFired).pipe(
       map(res => {
         const errorMsg = "Failed to load users";
         if (res.errors) {
@@ -308,7 +311,8 @@ export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<Payload
 
         let users = res.data?.user.getAllWithoutPagination;
         if (users) {
-          return SetUsersWithoutPagination(users);
+          const stateUsersIds = state$.value.manageUsers.usersWithoutPagination.map(stateUser => stateUser.id);
+          return AddUsersWithoutPagination(users.filter(u => !stateUsersIds.includes(u.id)));
         }
         return userErrorActionCreator(res, errorMsg);
       }),

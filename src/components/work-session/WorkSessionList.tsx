@@ -6,16 +6,19 @@ import Tooltip from "@mui/material/Tooltip";
 import {Link} from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {WorkSessionWithRelations} from "../../models/work-session/WorkSessionWithRelations";
 import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
+import WorkSession from "../../models/work-session/WorkSession";
+import {useAppSelector} from "../../redux/CustomHooks";
 
 interface WorkSessionListProps {
     workSessionList: {
         count: number,
-        items: WorkSessionWithRelations[]
+        items: WorkSession[]
     }
 }
 export default function WorkSessionList({workSessionList}: WorkSessionListProps) {
+    const users = useAppSelector(state => state.manageUsers.usersWithoutPagination);
+
     function calculateWorkSessionWidth(start: string, end?: string | null | undefined) {
         const startDate = new Date(start);
         const timeZoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -30,8 +33,8 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
         return percentage;
     }
 
-    function generateToolTipString(workSessionData: WorkSessionWithRelations): string[] {
-        const { workSession, lastModifier } = workSessionData;
+    function generateToolTipString(workSession: WorkSession): string[] {
+        const lastModifier = users.find(u => u.id === workSession.lastModifierId);
 
         const tooltipStrings: string[] = [];
         if (workSession.title) {
@@ -42,7 +45,7 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
         }
 
         tooltipStrings.push(`Type: ${workSession.type}`);
-        tooltipStrings.push(`Last modifier: ${lastModifier.fullName}`);
+        tooltipStrings.push(`Last modifier: ${lastModifier?.fullName}`);
         return tooltipStrings;
     }
 
@@ -56,25 +59,25 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                       >
                           <Table>
                               <TableBody>
-                                  {workSessionList.items.map((workSessionData, index) => {
-                                      return <React.Fragment key={workSessionData.workSession.id}>
-                                          <TableRow key={workSessionData.workSession.id}>
+                                  {workSessionList.items.map((ws, index) => {
+                                      return <React.Fragment key={ws.id}>
+                                          <TableRow key={ws.id}>
                                               <TableCell padding="none">
                                                   {index === 0 &&
                                                     <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                        {formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start)).split(' ')[0]}
+                                                        {formatIsoDateTime(parseIsoDateToLocal(ws.start)).split(' ')[0]}
                                                     </Typography>
                                                   }
-                                                  {index > 0 && new Date(workSessionList.items[index - 1].workSession.start).getDate() !==
-                                                    new Date(workSessionData.workSession.start).getDate()  &&
+                                                  {index > 0 && new Date(workSessionList.items[index - 1].start).getDate() !==
+                                                    new Date(ws.start).getDate()  &&
                                                     <Typography variant="h6" sx={{mt: 2, fontWeight: 'bold'}}>
-                                                        {formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start)).split(' ')[0]}
+                                                        {formatIsoDateTime(parseIsoDateToLocal(ws.start)).split(' ')[0]}
                                                     </Typography>
                                                   }
                                                   <Tooltip
                                                     title={
                                                         <React.Fragment>
-                                                            {generateToolTipString(workSessionData).map((line, index) => (
+                                                            {generateToolTipString(ws).map((line, index) => (
                                                               <React.Fragment key={index}>
                                                                   {line}
                                                                   <br />
@@ -86,31 +89,31 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                     placement="right"
                                                   >
                                                       <div style={
-                                                          {backgroundColor: workSessionData.workSession.type !==
+                                                          {backgroundColor: ws.type !==
                                                                 WorkSessionTypesEnum[WorkSessionTypesEnum.Planned] ?
                                                              '#47817F' : "#68B38D",
-                                                          width: `${calculateWorkSessionWidth(workSessionData.workSession.start, workSessionData.workSession.end)}%`,
+                                                          width: `${calculateWorkSessionWidth(ws.start, ws.end)}%`,
                                                           display: 'flex', cursor: 'pointer', flexDirection: 'column', padding: '5px', gap: '15px', marginTop: '10px',
                                                           borderRadius: "5px"}}>
                                                           <Typography style={{fontSize: '12px'}}>
                                                               {
-                                                                  `Start: ${formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.start))}`
+                                                                  `Start: ${formatIsoDateTime(parseIsoDateToLocal(ws.start))}`
                                                               }
                                                           </Typography>
 
-                                                          {workSessionData.workSession.end &&
+                                                          {ws.end &&
                                                             <Typography style={{fontSize: '12px'}}>
                                                                 {
-                                                                    `${workSessionData.workSession.end ? `End: 
-                                                                    ${formatIsoDateTime(parseIsoDateToLocal(workSessionData.workSession.end))}` : ''}`
+                                                                    `${ws.end ? `End: 
+                                                                    ${formatIsoDateTime(parseIsoDateToLocal(ws.end))}` : ''}`
                                                                 }
                                                             </Typography>
                                                           }
 
                                                           <Typography style={{fontSize: '12px'}}>
                                                               {
-                                                                workSessionData.workSession.end &&
-                                                                `Duration: ${countIsoDateDiff(workSessionData.workSession.start, workSessionData.workSession.end)}`
+                                                                ws.end &&
+                                                                `Duration: ${countIsoDateDiff(ws.start, ws.end)}`
                                                               }
                                                           </Typography>
                                                       </div>
@@ -118,7 +121,7 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                               </TableCell>
 
                                               <TableCell sx={{width: "10%"}}>
-                                                  {workSessionData.workSession.end &&
+                                                  {ws.end &&
                                                     <Box
                                                       sx={{
                                                           display: "flex",
@@ -126,12 +129,12 @@ export default function WorkSessionList({workSessionList}: WorkSessionListProps)
                                                           gap: 2
                                                       }}
                                                     >
-                                                        <Link to={`/worksession/update/${workSessionData.workSession.id}`}>
+                                                        <Link to={`/worksession/update/${ws.id}`}>
                                                             <EditIcon />
                                                         </Link>
 
 
-                                                        <Link to={`/worksession/delete/${workSessionData.workSession.id}`}>
+                                                        <Link to={`/worksession/delete/${ws.id}`}>
                                                             <DeleteIcon />
                                                         </Link>
                                                     </Box>
