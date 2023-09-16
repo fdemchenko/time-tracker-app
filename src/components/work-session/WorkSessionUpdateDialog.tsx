@@ -28,18 +28,18 @@ export default function WorkSessionUpdateDialog({scheduler}: WorkSessionCreateDi
   const {workSessionsList, error} = useAppSelector(state => state.workSession);
 
   const curWorkSessionId = scheduler?.edited ? scheduler.edited.event_id.toString() : workSessionId;
-  const curWorkSession = workSessionsList.items.find(wsd => wsd.workSession.id === curWorkSessionId);
+  const curWorkSession = workSessionsList.items.find(ws => ws.id === curWorkSessionId);
 
   const InitialWorkSessionInput: WorkSessionUpdateInput = getInitialFormValue();
 
   function getInitialFormValue(): WorkSessionUpdateInput {
     return {
-      start: curWorkSession?.workSession.start ? parseIsoDateToLocal(curWorkSession?.workSession.start)
+      start: curWorkSession?.start ? parseIsoDateToLocal(curWorkSession?.start)
         : moment().toISOString(),
-      end: curWorkSession?.workSession.end ? parseIsoDateToLocal(curWorkSession?.workSession.end)
+      end: curWorkSession?.end ? parseIsoDateToLocal(curWorkSession?.end)
         : moment().toISOString(),
-      title: curWorkSession?.workSession.title || "",
-      description: curWorkSession?.workSession.description || "",
+      title: curWorkSession?.title || "",
+      description: curWorkSession?.description || "",
       lastModifierId: user.id
     };
   }
@@ -76,7 +76,7 @@ export default function WorkSessionUpdateDialog({scheduler}: WorkSessionCreateDi
     <DialogWindow title="Update work session" handleClose={scheduler ? scheduler.close : () => navigate(-1)}>
       {
         !hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.UpdateWorkSessions])
-        && curWorkSession?.workSession.userId !== user.id ?
+        && curWorkSession?.userId !== user.id ?
           (<AccessDenied/>)
           : !curWorkSession ? (
               <Alert severity="error" sx={{m: 2}}>Can not find this work session</Alert>

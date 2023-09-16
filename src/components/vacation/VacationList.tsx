@@ -3,20 +3,24 @@ import {formatIsoDateWithoutTime} from "../../helpers/date";
 import Tooltip from "@mui/material/Tooltip";
 import {Link} from "react-router-dom";
 import React from "react";
-import {VacationResponse} from "../../models/vacation/VacationResponse";
 import {Vacation} from "../../models/vacation/Vacation";
+import {useAppSelector} from "../../redux/CustomHooks";
 
 interface VacationListProps {
-    vacationList: VacationResponse[],
+    vacationList: Vacation[],
     actionsCellRenderer: (vacation: Vacation) => React.ReactNode,
     showUser?: boolean
 }
 export default function VacationList({vacationList, actionsCellRenderer, showUser}: VacationListProps) {
+    const users = useAppSelector(state => state.manageUsers.usersWithoutPagination);
+
     function getVacationStatus(vacation: Vacation): string {
         if (vacation.isApproved === null) {
             return "waiting for approve";
         }
-        return vacation ? "approved" : "declined";
+        else {
+            return vacation.isApproved ? "approved" : "declined";
+        }
     }
 
     return (
@@ -46,57 +50,57 @@ export default function VacationList({vacationList, actionsCellRenderer, showUse
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {vacationList.map((vacationItem) => (
-                                    <TableRow style={{backgroundColor: vacationItem.vacation.isApproved === null ? 'inherit' :
-                                            vacationItem.vacation.isApproved ? '#6fbf73' : '#ffa733'}}
-                                              key={vacationItem.vacation.id}>
+                                {vacationList.map((vacation) => (
+                                    <TableRow style={{backgroundColor: vacation.isApproved === null ? 'inherit' :
+                                            vacation.isApproved ? '#6fbf73' : '#ffa733'}}
+                                              key={vacation.id}>
                                         <TableCell>
-                                            {formatIsoDateWithoutTime(vacationItem.vacation.start)}
+                                            {formatIsoDateWithoutTime(vacation.start)}
                                         </TableCell>
                                         <TableCell>
-                                            {formatIsoDateWithoutTime(vacationItem.vacation.end)}
+                                            {formatIsoDateWithoutTime(vacation.end)}
                                         </TableCell>
                                         <TableCell sx={{maxWidth: "150px"}}>
-                                            <Tooltip title={vacationItem.vacation.comment}>
+                                            <Tooltip title={vacation.comment}>
                                                 <Box sx={{
                                                     whiteSpace: 'nowrap',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis'
                                                 }}>
-                                                    {vacationItem.vacation.comment || "missing"}
+                                                    {vacation.comment || "missing"}
                                                 </Box>
                                             </Tooltip>
                                         </TableCell>
                                         <TableCell sx={{display: showUser ? "table-cell" : "none"}}>
-                                            <Link to={`/profile/${vacationItem.user.id}`} target="_blank">
-                                                {vacationItem.user.fullName}
+                                            <Link to={`/profile/${vacation.userId}`} target="_blank">
+                                                {users.find(u => u.id === vacation.userId)?.fullName}
                                             </Link>
                                         </TableCell>
                                         <TableCell>
                                             {
-                                                vacationItem.approver ?
+                                                vacation.approverId ?
                                                     (
-                                                        <Link to={`/profile/${vacationItem.approver.id}`} target="_blank">
-                                                            {vacationItem.approver.fullName}
+                                                        <Link to={`/profile/${vacation.approverId}`} target="_blank">
+                                                            {users.find(u => u.id === vacation.approverId)?.fullName}
                                                         </Link>
                                                     ) : "none"
                                             }
                                         </TableCell>
                                         <TableCell sx={{maxWidth: "150px"}}>
-                                            <Tooltip title={vacationItem.vacation.approverComment}>
+                                            <Tooltip title={vacation.approverComment}>
                                                 <Box sx={{
                                                     whiteSpace: 'nowrap',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis'
                                                 }}>
                                                     {
-                                                        vacationItem.vacation.approverComment || "missing"
+                                                        vacation.approverComment || "missing"
                                                     }
                                                 </Box>
                                             </Tooltip>
                                         </TableCell>
-                                        <TableCell>{getVacationStatus(vacationItem.vacation)}</TableCell>
-                                        <TableCell>{actionsCellRenderer(vacationItem.vacation)}</TableCell>
+                                        <TableCell>{getVacationStatus(vacation)}</TableCell>
+                                        <TableCell>{actionsCellRenderer(vacation)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

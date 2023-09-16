@@ -10,12 +10,6 @@ import User from "../models/User";
 import Profile from "../models/Profile";
 import UserWorkInfo from "../models/UserWorkInfo";
 
-export function findMissingUsersIds(userList: User[], data: any[], idFieldGetter: (item: any) => string): string[] {
-    const exitingUserIds = userList.map(u => u.id);
-    const allUsersIdsNeeded = data.map(idFieldGetter);
-    return allUsersIdsNeeded.filter(idToFind => !exitingUserIds.some(existingId => idToFind === existingId));
-}
-
 interface LoginResponse extends GraphQLResponse {
     data?: {
         auth?: {

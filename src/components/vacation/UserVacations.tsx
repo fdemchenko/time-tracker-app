@@ -30,8 +30,8 @@ export default  function UserVacations() {
     let vacationDaysLeft = vacationInfo && vacationInfo.daysSpent <= vacationDaysAvailable ?
         vacationDaysAvailable - vacationInfo.daysSpent : 0;
 
-    let doesUserHaveVacation = !!vacationList.find(v => v.vacation.isApproved !== false &&
-      moment().isSameOrBefore(v.vacation.start, "days"));
+    let doesUserHaveVacation = !!vacationList.find(v => v.isApproved !== false &&
+      moment().isSameOrBefore(v.start, "days"));
 
     useEffect(() => {
         dispatch(getVacationsByUserIdActionCreator({
@@ -45,7 +45,7 @@ export default  function UserVacations() {
         dispatch(getVacationInfoByUserIdActionCreator(user.id));
     }, []);
 
-    function handleOrderChange(e: React.MouseEvent<HTMLElement>, value: string) {
+    function handleOrderChange(_: React.MouseEvent<HTMLElement>, value: string) {
         if (value === "asc") {
             setOrderByDesc(false);
         }

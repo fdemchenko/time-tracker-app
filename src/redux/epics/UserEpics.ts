@@ -17,7 +17,7 @@ import {
   USER_ERROR_ACTION,
   USER_WORK_INFO_ERROR_ACTION,
 } from "../actions";
-import {Epic, ofType} from "redux-observable";
+import {Epic, ofType, StateObservable} from "redux-observable";
 import {
   catchError,
   endWith,
@@ -42,7 +42,6 @@ import {
 import {
   SetUsers,
   SetError as SetManageUsersError,
-  SetUserLoading as SetManageUsersLoading,
   SetSendPasswordLink,
   CreateUser,
   UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading, AddUsersWithoutPagination
@@ -58,7 +57,6 @@ import {
   SetError as SetUserWorkInfoError,
   SetLoading as SetUserWorkInfoLoading
 } from "../slices/UserWorkInfoSlice";
-import User from "../../models/User";
 import {
     SetUserError,
     UserRequestFinish,
@@ -68,6 +66,7 @@ import {
 } from "../slices/UserSlice";
 import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
 import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
+import {RootState} from "../store";
 
 export const userErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: USER_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -180,29 +179,41 @@ export const GetUsersEpic: Epic = (action$:  Observable<PayloadAction<GetUsersAc
         ))
     );
 
-export const getUsersByIdsActionCreator = (ids: string[]) =>
+//epic to get users which is not currently in state (manageUser state)
+export const getUsersByIdsActionCreator = (ids: Set<string>) =>
   ({type: GET_USERS_BY_IDS_ACTION, payload: ids});
-export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<string[]>>) =>
+export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<Set<string>>>,
+                                        state$: StateObservable<RootState>) =>
   action$.pipe(
     ofType(GET_USERS_BY_IDS_ACTION),
     map(action => action.payload),
-    mergeMap((ids) => RequestGetUsersByIds(ids).pipe(
-      map(res => {
-        const errorMsg = "Failed to load users data";
-        if (res.errors) {
-          return manageUsersErrorActionCreator(res, errorMsg);
-        }
+    mergeMap((rawIds) => {
+      const existingUsersIds = state$.value.manageUsers.usersWithoutPagination.map(u => u.id);
+      const idsToFind = Array.from(rawIds).filter(id => !existingUsersIds.includes(id));
 
-        let users = res.data?.user.getUsersByIds;
-        if (users) {
-          return AddUsersWithoutPagination(users);
-        }
-        return manageUsersErrorActionCreator(res, errorMsg);
-      }),
-      catchError((err) => of(manageUsersErrorActionCreator(err))),
-      startWith(SetUserLoading(true)),
-      endWith(SetUserLoading(false)),
-    ))
+      if (idsToFind.length > 0) {
+        return RequestGetUsersByIds(idsToFind).pipe(
+          map(res => {
+            const errorMsg = "Failed to load users data";
+            if (res.errors) {
+              return manageUsersErrorActionCreator(res, errorMsg);
+            }
+
+            let users = res.data?.user.getUsersByIds;
+            if (users) {
+              const stateUsersIds = state$.value.manageUsers.usersWithoutPagination.map(stateUser => stateUser.id);
+              return AddUsersWithoutPagination(users.filter(u => !stateUsersIds.includes(u.id)));
+            }
+            return manageUsersErrorActionCreator(res, errorMsg);
+          }),
+          catchError((err) => of(manageUsersErrorActionCreator(err))),
+          startWith(SetUserLoading(true)),
+          endWith(SetUserLoading(false)),
+        )
+      }
+
+      return of(SetUserLoading(false));
+    })
   );
 
 export const getProfilesActionCreator = (payload: GetProfilesActionPayload ) =>
@@ -286,10 +297,12 @@ export const GetUsersWorkInfoExcelEpic: Epic = (action$:  Observable<PayloadActi
 
 export const getUsersWithoutPaginationActionCreator = (showFired: boolean) =>
   ({type: GET_USERS_WITHOUT_PAGINATION_ACTION, payload: showFired});
-export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<PayloadAction<boolean>>) =>
+export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<PayloadAction<boolean>>,
+                                                    state$: StateObservable<RootState>) =>
   action$.pipe(
     ofType(GET_USERS_WITHOUT_PAGINATION_ACTION),
-    mergeMap((action) => RequestGetUsersWithoutPagination(action.payload).pipe(
+    map(action => action.payload),
+    mergeMap((showFired) => RequestGetUsersWithoutPagination(showFired).pipe(
       map(res => {
         const errorMsg = "Failed to load users";
         if (res.errors) {
@@ -298,7 +311,8 @@ export const GetUsersWithoutPaginationEpic: Epic = (action$:  Observable<Payload
 
         let users = res.data?.user.getAllWithoutPagination;
         if (users) {
-          return SetUsersWithoutPagination(users);
+          const stateUsersIds = state$.value.manageUsers.usersWithoutPagination.map(stateUser => stateUser.id);
+          return AddUsersWithoutPagination(users.filter(u => !stateUsersIds.includes(u.id)));
         }
         return userErrorActionCreator(res, errorMsg);
       }),

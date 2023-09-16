@@ -17,7 +17,7 @@ export default function WorkSessionDeleteDialog() {
 
     const {workSessionsList} = useAppSelector(state => state.workSession);
     const {user} = useAppSelector(state => state.user);
-    const curWorkSession = workSessionsList.items.find(wsd => wsd.workSession.id === workSessionId);
+    const curWorkSession = workSessionsList.items.find(ws => ws.id === workSessionId);
 
     function handleDelete() {
         if (workSessionId && curWorkSession) {
@@ -30,7 +30,7 @@ export default function WorkSessionDeleteDialog() {
       <DialogWindow title="Delete work session">
           {
               !hasPermit(user.permissions, PermissionsEnum[PermissionsEnum.DeleteWorkSessions])
-              && curWorkSession?.workSession.userId !== user.id ?
+              && curWorkSession?.userId !== user.id ?
                 (<AccessDenied/>)
                 : !curWorkSession ? (
                     <Alert severity="error" sx={{m: 2}}>Can not find this work session</Alert>

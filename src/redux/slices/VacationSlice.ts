@@ -1,9 +1,9 @@
-import {VacationResponse} from "../../models/vacation/VacationResponse";
 import {VacationInfo} from "../../models/vacation/VacationInfo";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {Vacation} from "../../models/vacation/Vacation";
 
 export interface VacationSliceState {
-    vacationList: VacationResponse[],
+    vacationList: Vacation[],
     vacationInfo: VacationInfo | null,
     isLoading: boolean,
     requireUpdateToggle: boolean,
@@ -21,7 +21,7 @@ export const VacationSlice = createSlice({
     name: "vacation",
     initialState,
     reducers: {
-        SetVacationList: (state, action: PayloadAction<VacationResponse[]>) => {
+        SetVacationList: (state, action: PayloadAction<Vacation[]>) => {
             state.vacationList = action.payload;
             state.error = null;
         },
