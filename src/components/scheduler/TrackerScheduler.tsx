@@ -8,7 +8,7 @@ import {
   getWorkSessionsByUserIdsByMonthActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
-import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
+import {getHolidaysActionCreator, getHolidaysForMontyActionCreator} from "../../redux/epics/HolidayEpics";
 import {Outlet, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
@@ -94,7 +94,7 @@ export default function TrackerScheduler() {
       hidePlanned: hidePlanned
     }));
 
-    dispatch(getHolidaysActionCreator());
+    dispatch(getHolidaysForMontyActionCreator(monthDate));
 
     dispatch(getUsersWithoutPaginationActionCreator(false));
 

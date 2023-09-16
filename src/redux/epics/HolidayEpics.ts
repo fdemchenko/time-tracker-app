@@ -1,24 +1,24 @@
 import {
-    CREATE_HOLIDAY_ACTION,
-    DELETE_HOLIDAY_ACTION,
-    GET_HOLIDAYS_ACTION,
-    HOLIDAYS_ERROR_ACTION,
-    UPDATE_HOLIDAY_ACTION
+  CREATE_HOLIDAY_ACTION,
+  DELETE_HOLIDAY_ACTION,
+  GET_HOLIDAYS_ACTION, GET_HOLIDAYS_FOR_MONTH_ACTION,
+  HOLIDAYS_ERROR_ACTION,
+  UPDATE_HOLIDAY_ACTION
 } from "../actions";
 import {Epic, ofType} from "redux-observable";
 import {catchError, endWith, map, mergeMap, Observable, of, startWith} from "rxjs";
 import {
     ErrorCodes,
     handleErrorMessage,
-    HandleErrorMessageType, InvalidInputErrorMessage, NoPermissionErrorMessage
+    HandleErrorMessageType, InvalidInputErrorMessage
 } from "../../helpers/errors";
 import {PayloadAction} from "@reduxjs/toolkit";
 import {SetHolidays, SetIsSchedulerLoading, SetSchedulerError} from "../slices/SchedulerSlice";
 import {
-    RequestCreateHoliday,
-    RequestDeleteHoliday,
-    RequestGetHolidays,
-    RequestUpdateHoliday
+  RequestCreateHoliday,
+  RequestDeleteHoliday,
+  RequestGetHolidays, RequestGetHolidaysForMonth,
+  RequestUpdateHoliday
 } from "../../services/HolidayService";
 import {Holiday} from "../../models/Holiday";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
@@ -31,6 +31,7 @@ export const SchedulerErrorEpic: Epic = (action$: Observable<PayloadAction<Handl
         map(action => action.payload),
         mergeMap((payload) => handleErrorMessage(payload, SetSchedulerError))
     );
+
 export const getHolidaysActionCreator = () => ({type: GET_HOLIDAYS_ACTION});
 export const GetHolidaysEpic: Epic = (action$) =>
     action$.pipe(
@@ -52,6 +53,31 @@ export const GetHolidaysEpic: Epic = (action$) =>
             )
         )
     );
+
+export const getHolidaysForMontyActionCreator = (monthDate: string) =>
+  ({type: GET_HOLIDAYS_FOR_MONTH_ACTION, payload: monthDate});
+export const GetHolidaysForMonthEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+  action$.pipe(
+    ofType(GET_HOLIDAYS_FOR_MONTH_ACTION),
+    map(action => action.payload),
+    mergeMap((monthDate) => RequestGetHolidaysForMonth(monthDate).pipe(
+        map((res) => {
+          const errMsg = "Failed to get holidays";
+          if (res.errors) {
+            return schedulerErrorActionCreator(res,errMsg);
+          }
+          let holidays = res.data?.holiday?.getHolidaysForMonth;
+          if (holidays) {
+            return SetHolidays(holidays);
+          }
+          return schedulerErrorActionCreator(res,errMsg);
+        }),
+        catchError((err) => of(schedulerErrorActionCreator(err))),
+        startWith(SetIsSchedulerLoading(true)),
+        endWith(SetIsSchedulerLoading(false))
+      )
+    )
+  );
 
 export const createHolidayActionCreator = (holiday: Holiday) =>
     ({type: CREATE_HOLIDAY_ACTION, payload: holiday});
