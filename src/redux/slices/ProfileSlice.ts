@@ -1,8 +1,10 @@
 import ProfileList from "../../models/ProfileList";
+import Profile from "../../models/Profile";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface ProfileSliceState {
   profiles: ProfileList,
+  profile: Profile | null,
   error: string | null,
   isLoading: boolean
 }
@@ -12,6 +14,7 @@ const initialState: ProfileSliceState = {
     items: [],
     count: 0
   },
+  profile: null,
   error: null,
   isLoading: false
 }
@@ -22,6 +25,9 @@ export const ProfileSlice = createSlice({
   reducers: {
     SetProfiles: (state, action: PayloadAction<ProfileList>) => {
       state.profiles = action.payload;
+    },
+    SetProfile: (state, action: PayloadAction<Profile | null>) => {
+      state.profile = action.payload;
     },
     SetError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
@@ -35,6 +41,7 @@ export const ProfileSlice = createSlice({
 export const {
   SetProfiles,
   SetLoading,
+  SetProfile,
   SetError
 } = ProfileSlice.actions;
 

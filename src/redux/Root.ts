@@ -16,7 +16,7 @@ import {
     GetUsersWorkInfoEpic,
     UserWorkInfoErrorEpic,
     GetUsersWorkInfoExcelEpic,
-    GetUsersByIdsEpic
+    GetUsersByIdsEpic, GetProfileEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
 import {
@@ -63,6 +63,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         ProfileErrorEpic,
         GetUsersByIdsEpic,
         GetProfilesEpic,
+        GetProfileEpic,
         GetUsersWorkInfoEpic,
         GetUsersWorkInfoExcelEpic,
         UserWorkInfoErrorEpic,

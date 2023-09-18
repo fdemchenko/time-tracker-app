@@ -2,6 +2,7 @@ import {
   CREATE_USER_ACTION,
   DEACTIVATE_USER_ACTION,
   GET_PROFILES_ACTION,
+  GET_PROFILE,
   GET_USERS_ACTION,
   GET_USERS_BY_IDS_ACTION,
   GET_USERS_WITHOUT_PAGINATION_ACTION,
@@ -37,7 +38,7 @@ import {
   RequestLogout,
   RequestSetPassword,
   RequestSetSendPasswordLink,
-  RequestUpdateUser, RequestGetUsersByIds
+  RequestUpdateUser, RequestGetUsersByIds, RequestGetProfile
 } from "../../services/UserService";
 import {
   SetUsers,
@@ -49,7 +50,7 @@ import {
 import {
   SetProfiles,
   SetError as SetProfilesError,
-  SetLoading as SetProfilesLoading,
+  SetLoading as SetProfilesLoading, SetProfile,
 } from "../slices/ProfileSlice";
 import {
   SetUserWorkInfoList,
@@ -215,6 +216,27 @@ export const GetUsersByIdsEpic: Epic = (action$:  Observable<PayloadAction<Set<s
       return of(SetUserLoading(false));
     })
   );
+
+export const getProfileActionCreator = (payload: string) =>
+  ({type: GET_PROFILE, payload: payload});
+
+export const GetProfileEpic: Epic = (action$: Observable<PayloadAction<string>>) =>
+  action$.pipe(
+    ofType(GET_PROFILE),
+    mergeMap((action) => RequestGetProfile(action.payload).pipe(
+      map(res => {
+        if (res.data)
+          return res.data.user.getProfile;
+        else
+          return null;
+      }),
+
+      mergeMap(payload => of(SetProfile(payload))),
+      catchError((err) => of(profileErrorActionCreator(err))),
+      startWith(SetProfilesLoading(true)),
+      endWith(SetProfilesLoading(false)),
+    ))
+  )
 
 export const getProfilesActionCreator = (payload: GetProfilesActionPayload ) =>
   ({type: GET_PROFILES_ACTION, payload: payload});
