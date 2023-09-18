@@ -61,6 +61,16 @@ const ProfilesList = () => {
       Search: fullName,
       FilteringStatus: status,
     }));
+  }, []);
+
+
+  useEffect(() => {
+    dispatch(getProfilesActionCreator({
+      Offset: page * usersOnPageLimit - usersOnPageLimit,
+      Limit: usersOnPageLimit,
+      Search: fullName,
+      FilteringStatus: status,
+    }));
 
   }, [page, fullName, status, employmentRate]);
 

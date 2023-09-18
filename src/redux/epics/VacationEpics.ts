@@ -26,6 +26,7 @@ import {
 import {VacationCreate} from "../../models/vacation/VacationCreate";
 import {SetGlobalMessage} from "../slices/GlobalMessageSlice";
 import {VacationApprove} from "../../models/vacation/VacationApprove";
+import {getUsersByIdsActionCreator} from "./UserEpics";
 
 export const vacationErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: VACATION_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -48,16 +49,18 @@ export const GetVacationsByUserIdEpic: Epic = (action$: Observable<PayloadAction
         ofType(GET_VACATIONS_BY_USER_ID_ACTION),
         map(action => action.payload),
         mergeMap((fetchInput) => RequestGetVacationsByUserId(fetchInput).pipe(
-            map((res) => {
+            mergeMap((res) => {
                 const errorMsg = "Failed to load user vacations";
                 if (res.errors) {
-                    return vacationErrorActionCreator(res, errorMsg);
+                    return of(vacationErrorActionCreator(res, errorMsg));
                 }
                 let vacationList = res.data?.vacation?.getVacationsByUserId;
                 if (vacationList) {
-                    return SetVacationList(vacationList);
+                    let missingUsersIdsToFind = new Set<string>(vacationList.map(v => v.userId));
+                    vacationList.map(v => v.approverId).filter(v => v).forEach(v => missingUsersIdsToFind.add(v));
+                    return of(getUsersByIdsActionCreator(missingUsersIdsToFind), SetVacationList(vacationList));
                 }
-                return vacationErrorActionCreator(res, errorMsg);
+                return of(vacationErrorActionCreator(res, errorMsg));
             }),
             catchError((err) => of(vacationErrorActionCreator(err))),
             startWith(SetIsVacationLoading(true)),
@@ -72,16 +75,18 @@ export const GetUsersVacationsForMonthEpic: Epic = (action$: Observable<PayloadA
     ofType(GET_USERS_VACATIONS_FOR_MONTH_ACTION),
     map(action => action.payload),
     mergeMap((fetchInput) => RequestGetUsersVacationsForMonth(fetchInput).pipe(
-      map((res) => {
+      mergeMap((res) => {
         const errorMsg = "Failed to load user vacations";
         if (res.errors) {
-          return vacationErrorActionCreator(res, errorMsg);
+          return of(vacationErrorActionCreator(res, errorMsg));
         }
         let vacationList = res.data?.vacation?.getUsersVacationsForMonth;
         if (vacationList) {
-          return SetVacationList(vacationList);
+          let missingUsersIdsToFind = new Set<string>(vacationList.map(v => v.userId));
+          vacationList.map(v => v.approverId).filter(v => v).forEach(v => missingUsersIdsToFind.add(v));
+          return of(getUsersByIdsActionCreator(missingUsersIdsToFind), SetVacationList(vacationList));
         }
-        return vacationErrorActionCreator(res, errorMsg);
+        return of(vacationErrorActionCreator(res, errorMsg));
       }),
       catchError((err) => of(vacationErrorActionCreator(err))),
       startWith(SetIsVacationLoading(true)),
@@ -96,16 +101,18 @@ export const GetVacationRequestsEpic: Epic = (action$: Observable<PayloadAction<
         ofType(GET_VACATION_REQUESTS_ACTION),
         map(action => action.payload),
         mergeMap((getNotStarted) => RequestGetVacationRequest(getNotStarted).pipe(
-            map((res) => {
+            mergeMap((res) => {
                 const errorMsg = "Failed to load vacation requests";
                 if (res.errors) {
-                    return vacationErrorActionCreator(res, errorMsg);
+                    return of(vacationErrorActionCreator(res, errorMsg));
                 }
                 let vacationList = res.data?.vacation?.getVacationsRequests;
                 if (vacationList) {
-                    return SetVacationList(vacationList);
+                    let missingUsersIdsToFind = new Set<string>(vacationList.map(v => v.userId));
+                    vacationList.map(v => v.approverId).filter(v => v).forEach(v => missingUsersIdsToFind.add(v));
+                    return of(getUsersByIdsActionCreator(missingUsersIdsToFind), SetVacationList(vacationList));
                 }
-                return vacationErrorActionCreator(res, errorMsg);
+                return of(vacationErrorActionCreator(res, errorMsg));
             }),
             catchError((err) => of(vacationErrorActionCreator(err))),
             startWith(SetIsVacationLoading(true)),

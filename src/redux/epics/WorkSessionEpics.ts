@@ -27,6 +27,7 @@ import {Moment} from "moment";
 import {WorkSessionInput} from "../../models/work-session/WorkSessionInput";
 import {WorkSessionTypesEnum} from "../../helpers/workSessionHelper";
 import {WorkSessionUpdateInput} from "../../models/work-session/WorkSessionUpdateInput";
+import {getUsersByIdsActionCreator} from "./UserEpics";
 
 export const workSessionErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: WORK_SESSION_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -123,16 +124,18 @@ export const GetUsersWorkSessionsEpic: Epic = (action$: Observable<PayloadAction
         ofType(GET_USER_WORK_SESSIONS_ACTION),
         map(action => action.payload),
         mergeMap((fetchData) => RequestGetUserWorkSessions(fetchData).pipe(
-            map((res) => {
+            mergeMap((res) => {
                 const errorMsg = "Failed to load user sessions";
                 if (res.errors) {
-                    return workSessionErrorActionCreator(res, errorMsg);
+                    return of(workSessionErrorActionCreator(res, errorMsg));
                 }
                 let workSessions = res.data?.workSession?.getWorkSessionsByUserId;
                 if (workSessions) {
-                    return SetWorkSessionList(workSessions);
+                    let missingUsersIdsToFind = new Set<string>(workSessions.items.map(ws => ws.userId));
+                    workSessions.items.map(ws => ws.lastModifierId).forEach(ws => missingUsersIdsToFind.add(ws));
+                    return of(getUsersByIdsActionCreator(missingUsersIdsToFind), SetWorkSessionList(workSessions));
                 }
-                return workSessionErrorActionCreator(res, errorMsg);
+                return of(workSessionErrorActionCreator(res, errorMsg));
             }),
             catchError((err) => of(workSessionErrorActionCreator(err))),
             startWith(SetIsWorkSessionLoading(true)),
@@ -147,16 +150,19 @@ export const GetWorkSessionsByUserIdsByMonthEpic: Epic = (action$: Observable<Pa
     ofType(GET_WORK_SESSIONS_BY_USER_IDS_BY_MONTH_ACTION),
     map(action => action.payload),
     mergeMap((fetchData) => RequestGetWorkSessionsByUserIdsByMonth(fetchData).pipe(
-      map((res) => {
+      mergeMap((res) => {
         const errorMsg = "Failed to load user sessions";
         if (res.errors) {
-          return workSessionErrorActionCreator(res, errorMsg);
+          return of(workSessionErrorActionCreator(res, errorMsg));
         }
         let workSessions = res.data?.workSession?.getWorkSessionsByUserIdsByMonth;
         if (workSessions) {
-          return SetWorkSessionList({count: workSessions.length, items: workSessions});
+          let missingUsersIdsToFind = new Set<string>(workSessions.map(ws => ws.userId));
+          workSessions.map(ws => ws.lastModifierId).forEach(ws => missingUsersIdsToFind.add(ws));
+          return of(getUsersByIdsActionCreator(missingUsersIdsToFind),
+            SetWorkSessionList({count: workSessions.length, items: workSessions}));
         }
-        return workSessionErrorActionCreator(res, errorMsg);
+        return of(workSessionErrorActionCreator(res, errorMsg));
       }),
       catchError((err) => of(workSessionErrorActionCreator(err))),
       startWith(SetIsWorkSessionLoading(true)),

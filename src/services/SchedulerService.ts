@@ -1,51 +1,54 @@
-import {WorkSessionWithRelations} from "../models/work-session/WorkSessionWithRelations";
 import {ProcessedEvent} from "@aldabil/react-scheduler/types";
 import {parseIsoDateToLocal, separateDateOnMidnight} from "../helpers/date";
 import {Holiday} from "../models/Holiday";
 import moment from "moment";
 import {WorkSessionTypesEnum} from "../helpers/workSessionHelper";
-import {VacationResponse} from "../models/vacation/VacationResponse";
 import {rotation} from 'simpler-color'
 import {SickLeave} from "../models/sick-leave/SickLeave";
+import {Vacation} from "../models/vacation/Vacation";
+import WorkSession from "../models/work-session/WorkSession";
+import User from "../models/User";
 
-export function getColor(colorNumber: number): string {
+export function getUserColors(users: User[]): UserColorInfo[] {
   const baseColor = "#47817F";
   const defaultRotationAngle = 30;
-  return rotation(baseColor, colorNumber * defaultRotationAngle);
+
+  let userColorInfoList: UserColorInfo[] = [];
+  users.forEach((user, index) => {
+    userColorInfoList.push({
+      userId: user.id,
+      color: rotation(baseColor, index * defaultRotationAngle)
+    });
+  });
+
+  return userColorInfoList;
 }
-interface UserColorInfo {
+export interface UserColorInfo {
   userId: string;
   color: string;
 }
-export function GetEventsFromWorkSessionList(wsList: {count: number, items: WorkSessionWithRelations[]}) {
+export function GetEventsFromWorkSessionList(workSessionList: {count: number, items: WorkSession[]}, colors: UserColorInfo[]) {
   let events: ProcessedEvent[] = [];
 
-  let userColorInfoList: UserColorInfo[] = [];
-  let colorIndex = 0;
-  wsList.items.map(wsData => {
-    if (wsData.workSession.end) {
-      let curUserColorInfo = userColorInfoList.find(uci => uci.userId === wsData.user.id);
-      if (!curUserColorInfo) {
-        curUserColorInfo = {userId: wsData.user.id, color: getColor(colorIndex)};
-        userColorInfoList.push(curUserColorInfo);
-        colorIndex++;
-      }
+  workSessionList.items.forEach(ws => {
+    if (ws.end) {
+      const curUserColorInfo = colors.find(uci => uci.userId === ws.userId);
 
-      let startLocal = parseIsoDateToLocal(wsData.workSession.start);
-      let endLocal = parseIsoDateToLocal(wsData.workSession.end);
+      let startLocal = parseIsoDateToLocal(ws.start);
+      let endLocal = parseIsoDateToLocal(ws.end);
 
       let timePassed = separateDateOnMidnight(startLocal, endLocal);
-      timePassed.map(timePassesDay => {
+      timePassed.forEach(timePassesDay => {
         events.push({
-          event_id: wsData.workSession.id,
-          user: wsData.user,
-          title: wsData.workSession.title || (wsData.workSession.type ===
+          event_id: ws.id,
+          userId: ws.userId,
+          title: ws.title || (ws.type ===
             WorkSessionTypesEnum[WorkSessionTypesEnum.Planned]? "Planned" : "Working"),
-          type: wsData.workSession.type,
-          lastModifier: wsData.lastModifier,
+          type: ws.type,
+          lastModifierId: ws.lastModifierId,
           start: new Date(timePassesDay.start),
           end: new Date(timePassesDay.end),
-          description: wsData.workSession.description,
+          description: ws.description,
 
           allDay: false,
           draggable: false,
@@ -61,7 +64,7 @@ export function GetEventsFromWorkSessionList(wsList: {count: number, items: Work
 export function GetEventsFromHolidayList(holidayList: Holiday[]) {
   let events: ProcessedEvent[] = [];
 
-  holidayList.map(holiday => {
+  holidayList.forEach(holiday => {
     events.push({
       event_id: holiday.id,
       title: holiday.title,
@@ -81,18 +84,18 @@ export function GetEventsFromHolidayList(holidayList: Holiday[]) {
   return events;
 }
 
-export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) {
+export function GetEventsFromVacationList(vacationList: Vacation[]) {
   let events: ProcessedEvent[] = [];
 
-  vacationDataList.map(vd => {
+  vacationList.forEach(vacation => {
     events.push({
-      event_id: vd.vacation.id,
+      event_id: vacation.id,
       title: "Vacation",
-      user: vd.user,
-      approver: vd.approver,
+      userId: vacation.userId,
+      approverId: vacation.approverId,
       type: "Vacation",
-      start: moment(vd.vacation.start).toDate(),
-      end: scaleEndDateToSchedulerEndDayEvent(vd.vacation.end),
+      start: moment(vacation.start).toDate(),
+      end: scaleEndDateToSchedulerEndDayEvent(vacation.end),
 
       allDay: true,
       editable: false,
@@ -108,12 +111,12 @@ export function GetEventsFromVacationList(vacationDataList: VacationResponse[]) 
 export function GetEventsFromSickLeaveList(sickLeaveList: SickLeave[]) {
   let events: ProcessedEvent[] = [];
 
-  sickLeaveList.map(sl => {
+  sickLeaveList.forEach(sl => {
     events.push({
       event_id: sl.id,
       title: "Sick Leave",
-      user: sl.userId, //not working
-      lastModifier: sl.lastModifierId, //not working
+      userId: sl.userId,
+      lastModifierId: sl.lastModifierId,
       type: "SickLeave",
       start: moment(sl.start).toDate(),
       end: scaleEndDateToSchedulerEndDayEvent(sl.end),

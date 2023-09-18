@@ -10,12 +10,6 @@ import User from "../models/User";
 import Profile from "../models/Profile";
 import UserWorkInfo from "../models/UserWorkInfo";
 
-export function findMissingUsersIds(userList: User[], data: any[], idFieldGetter: (item: any) => string): string[] {
-    const exitingUserIds = userList.map(u => u.id);
-    const allUsersIdsNeeded = data.map(idFieldGetter);
-    return allUsersIdsNeeded.filter(idToFind => !exitingUserIds.some(existingId => idToFind === existingId));
-}
-
 interface LoginResponse extends GraphQLResponse {
     data?: {
         auth?: {
@@ -175,6 +169,36 @@ export function RequestGetProfiles(payload: GetProfilesActionPayload): Observabl
             "limit": payload.Limit,
             "search": payload.Search,
             "filteringStatus": payload.FilteringStatus
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
+interface GetProfileResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getProfile: Profile
+        }
+    }
+}
+
+export function RequestGetProfile(payload: string): Observable<GetProfileResponse> {
+    return ajaxAuth<GetProfileResponse>(JSON.stringify({
+        query: `
+               query getProfile($id: ID) {
+                  user {
+                    getProfile(id: $id) {
+                      id,
+                      fullName,
+                      email,
+                      status
+                    }
+                  }
+                }
+            `,
+        variables: {
+            "id": payload,
         }
     })).pipe(
       map(res => res.response)

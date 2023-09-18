@@ -32,7 +32,7 @@ import {
     createHolidayActionCreator,
     deleteHolidayActionCreator,
     updateHolidayActionCreator
-} from "../../redux/epics/SchedulerEpics";
+} from "../../redux/epics/HolidayEpics";
 import {useFormik} from "formik";
 import * as Yup from "yup";
 import {hasPermit} from "../../helpers/hasPermit";

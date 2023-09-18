@@ -16,7 +16,7 @@ import {
     GetUsersWorkInfoEpic,
     UserWorkInfoErrorEpic,
     GetUsersWorkInfoExcelEpic,
-    GetUsersByIdsEpic
+    GetUsersByIdsEpic, GetProfileEpic
 } from "./epics/UserEpics";
 import {catchError} from "rxjs";
 import {
@@ -28,10 +28,10 @@ import {
 import {
     CreateHolidayEpic,
     DeleteHolidayEpic,
-    GetHolidaysEpic,
+    GetHolidaysEpic, GetHolidaysForMonthEpic,
     SchedulerErrorEpic,
     UpdateHolidayEpic
-} from "./epics/SchedulerEpics";
+} from "./epics/HolidayEpics";
 import {
     ApproverUpdateVacationEpic,
     CreateVacationEpic, DeleteVacationEpic, GetUsersVacationsForMonthEpic,
@@ -63,6 +63,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         ProfileErrorEpic,
         GetUsersByIdsEpic,
         GetProfilesEpic,
+        GetProfileEpic,
         GetUsersWorkInfoEpic,
         GetUsersWorkInfoExcelEpic,
         UserWorkInfoErrorEpic,
@@ -75,6 +76,7 @@ export const RootEpic: Epic = (action$, store$, dependencies) =>
         DeleteWorkSessionEpic,
         SchedulerErrorEpic,
         GetHolidaysEpic,
+        GetHolidaysForMonthEpic,
         CreateHolidayEpic,
         UpdateHolidayEpic,
         DeleteHolidayEpic,
