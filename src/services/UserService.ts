@@ -175,6 +175,36 @@ export function RequestGetProfiles(payload: GetProfilesActionPayload): Observabl
     );
 }
 
+interface GetProfileResponse extends GraphQLResponse {
+    data?: {
+        user: {
+            getProfile: Profile
+        }
+    }
+}
+
+export function RequestGetProfile(payload: string): Observable<GetProfileResponse> {
+    return ajaxAuth<GetProfileResponse>(JSON.stringify({
+        query: `
+               query getProfile($id: ID) {
+                  user {
+                    getProfile(id: $id) {
+                      id,
+                      fullName,
+                      email,
+                      status
+                    }
+                  }
+                }
+            `,
+        variables: {
+            "id": payload,
+        }
+    })).pipe(
+      map(res => res.response)
+    );
+}
+
 interface GetUsersWorkInfoResponse extends GraphQLResponse {
     data?: {
         user: {

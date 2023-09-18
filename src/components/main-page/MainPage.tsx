@@ -70,6 +70,7 @@ export default function MainPage({userData}: MainPageProps) {
                   variant="outlined"
                   color="secondary"
                   type="submit"
+                  className="margin0"
                   sx={{
                     mx: 2
                   }}
