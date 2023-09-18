@@ -7,29 +7,32 @@ import {rotation} from 'simpler-color'
 import {SickLeave} from "../models/sick-leave/SickLeave";
 import {Vacation} from "../models/vacation/Vacation";
 import WorkSession from "../models/work-session/WorkSession";
+import User from "../models/User";
 
-export function getColor(colorNumber: number): string {
+export function getUserColors(users: User[]): UserColorInfo[] {
   const baseColor = "#47817F";
   const defaultRotationAngle = 30;
-  return rotation(baseColor, colorNumber * defaultRotationAngle);
+
+  let userColorInfoList: UserColorInfo[] = [];
+  users.forEach((user, index) => {
+    userColorInfoList.push({
+      userId: user.id,
+      color: rotation(baseColor, index * defaultRotationAngle)
+    });
+  });
+
+  return userColorInfoList;
 }
-interface UserColorInfo {
+export interface UserColorInfo {
   userId: string;
   color: string;
 }
-export function GetEventsFromWorkSessionList(workSessionList: {count: number, items: WorkSession[]}) {
+export function GetEventsFromWorkSessionList(workSessionList: {count: number, items: WorkSession[]}, colors: UserColorInfo[]) {
   let events: ProcessedEvent[] = [];
 
-  let userColorInfoList: UserColorInfo[] = [];
-  let colorIndex = 0;
   workSessionList.items.forEach(ws => {
     if (ws.end) {
-      let curUserColorInfo = userColorInfoList.find(uci => uci.userId === ws.userId);
-      if (!curUserColorInfo) {
-        curUserColorInfo = {userId: ws.userId, color: getColor(colorIndex)};
-        userColorInfoList.push(curUserColorInfo);
-        colorIndex++;
-      }
+      const curUserColorInfo = colors.find(uci => uci.userId === ws.userId);
 
       let startLocal = parseIsoDateToLocal(ws.start);
       let endLocal = parseIsoDateToLocal(ws.end);

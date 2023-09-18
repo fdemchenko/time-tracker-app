@@ -2,6 +2,7 @@ import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import {map} from "rxjs";
 import {Holiday} from "../models/Holiday";
 import moment from "moment/moment";
+import {formatIsoDateForApi} from "../helpers/date";
 
 interface GetHolidaysResponse extends GraphQLResponse {
     data?: {
@@ -27,6 +28,36 @@ export function RequestGetHolidays() {
             `
     })).pipe(
         map((res) => res.response)
+    );
+}
+
+interface GetHolidaysForMonthResponse extends GraphQLResponse {
+    data?: {
+        holiday?: {
+            getHolidaysForMonth: Holiday[] | null
+        }
+    }
+}
+export function RequestGetHolidaysForMonth(monthDate: string) {
+    return ajaxAuth<GetHolidaysForMonthResponse>(JSON.stringify({
+        query: `
+               query GetHolidaysForMonth($monthDate: Date!) {
+                  holiday {
+                    getHolidaysForMonth(monthDate: $monthDate) {
+                      id
+                      title
+                      type
+                      date
+                      endDate
+                    } 
+                  }
+                }
+            `,
+        variables: {
+            "monthDate": formatIsoDateForApi(monthDate)
+        }
+    })).pipe(
+      map((res) => res.response)
     );
 }
 

@@ -8,12 +8,12 @@ import {
   getWorkSessionsByUserIdsByMonthActionCreator
 } from "../../redux/epics/WorkSessionEpics";
 import {DayHours, SchedulerRef} from "@aldabil/react-scheduler/types";
-import {getHolidaysActionCreator} from "../../redux/epics/SchedulerEpics";
+import {getHolidaysForMontyActionCreator} from "../../redux/epics/HolidayEpics";
 import {Outlet, useParams} from "react-router-dom";
 import {hasPermit} from "../../helpers/hasPermit";
 import SchedulerFilterPopup from "./SchedulerFilterPopup";
 import {
-  getColor,
+  getUserColors,
   GetEventsFromHolidayList, GetEventsFromSickLeaveList,
   GetEventsFromVacationList,
   GetEventsFromWorkSessionList
@@ -40,10 +40,10 @@ export default function TrackerScheduler() {
   const {user} = useAppSelector(state => state.user);
   const usersList = useAppSelector(state => state.manageUsers.usersWithoutPagination);
 
-  let initialUser: User = getInitialSelectedUser();
+  const initialUser: User = getInitialSelectedUser();
   const [userInput, setUserInput] = useState<User[]>([initialUser]);
   const [userTextInput, setUserTextInput] = useState<string>(initialUser.fullName);
-  let userTagColors = userInput.map((_, index) => getColor(index));
+  const userTagColors = getUserColors(userInput);
 
   const [hidePlanned, setHidePlanned] = useState<boolean>(false);
 
@@ -74,7 +74,7 @@ export default function TrackerScheduler() {
     if (schedulerRef.current) {
       let events = GetEventsFromHolidayList(holidays);
 
-      events.push(...GetEventsFromWorkSessionList(workSessionsList));
+      events.push(...GetEventsFromWorkSessionList(workSessionsList, userTagColors));
 
       events.push(...GetEventsFromVacationList(vacationList));
 
@@ -94,7 +94,7 @@ export default function TrackerScheduler() {
       hidePlanned: hidePlanned
     }));
 
-    dispatch(getHolidaysActionCreator());
+    dispatch(getHolidaysForMontyActionCreator(monthDate));
 
     dispatch(getUsersWithoutPaginationActionCreator(false));
 
@@ -180,7 +180,7 @@ export default function TrackerScheduler() {
             value.map((user, index) => (
               <Chip
                 sx={{
-                  backgroundColor: userTagColors[index],
+                  backgroundColor: userTagColors.find(ci => ci.userId === user.id)?.color,
                   color: "white"
                 }}
                 label={user.fullName}
