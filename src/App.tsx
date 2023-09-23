@@ -60,7 +60,7 @@ function App() {
             <MainPage userData={userData}/>
           </ProtectedRoute>
         }/>
-        <Route path="/user/login" element={<AuthForm userData={userData}/>}/>
+        <Route path="/user/login" element={<AuthForm />}/>
         <Route path="/set-password/:link" element={<SetPasswordFrom/>}/>
         <Route path="/user/logout" element={
           <ProtectedRoute>

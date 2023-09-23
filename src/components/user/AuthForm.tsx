@@ -2,10 +2,12 @@ import React from 'react';
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
 import {Box, TextField, Button, Alert, Grid} from '@mui/material';
-import {useAppDispatch} from "../../redux/CustomHooks";
-import {loginActionCreator} from "../../redux/epics/UserEpics";
+import {useAppDispatch, useAppSelector} from "../../redux/CustomHooks";
+import {googleLoginActionCreator, loginActionCreator} from "../../redux/epics/UserEpics";
 import {Navigate} from "react-router-dom";
-import {UserSliceState} from "../../redux/slices/UserSlice";
+import {SetUserError} from "../../redux/slices/UserSlice";
+import {CredentialResponse, GoogleLogin} from "@react-oauth/google";
+import {GoogleLoginFailedErrorMessage} from "../../helpers/errors";
 
 interface AuthFormData {
     login: string;
@@ -20,27 +22,31 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required('Password is required').min(6, 'Password must be at least 6 characters'),
 });
 
-interface AuthFormProps {
-    userData: UserSliceState
-}
-export default function AuthForm({userData} : AuthFormProps) {
+export default function AuthForm() {
     const dispatch = useAppDispatch();
 
-    const handleSubmit = (data: AuthFormData, {resetForm}: any) => {
-        dispatch(loginActionCreator({
-            Email: data.login,
-            Password: data.password
-        }));
-        resetForm();
-    };
+    const {isLogged, isLoading, error} = useAppSelector(state => state.user);
+
+    function completeGoogleAuth(credentialResponse: CredentialResponse) {
+        dispatch(googleLoginActionCreator(credentialResponse));
+    }
+    function failedGoogleAuth() {
+        dispatch(SetUserError(GoogleLoginFailedErrorMessage));
+    }
 
     const formik = useFormik({
         initialValues: initialAuthData,
         validationSchema,
-        onSubmit: handleSubmit,
+        onSubmit: (data: AuthFormData, {resetForm}: any) => {
+            dispatch(loginActionCreator({
+                Email: data.login,
+                Password: data.password
+            }));
+            resetForm();
+        },
     });
 
-    if (userData.isLogged) {
+    if (isLogged) {
         return (<Navigate to="/" />);
     }
 
@@ -91,22 +97,33 @@ export default function AuthForm({userData} : AuthFormProps) {
                             error={formik.touched.password && !!formik.errors.password}
                             helperText={formik.touched.password && formik.errors.password}
                         />
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            type="submit"
-                            disabled={formik.isSubmitting}
-                        >
-                            Sign in
-                        </Button>
+                        <Box sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            flexWrap: "wrap",
+                            gap: 2
+                        }}>
+                            <Button
+                              variant="outlined"
+                              color="secondary"
+                              type="submit"
+                              disabled={formik.isSubmitting}
+                            >
+                                Sign in
+                            </Button>
+                            <GoogleLogin
+                              onSuccess={completeGoogleAuth}
+                              onError={() => failedGoogleAuth()}
+                            />
+                        </Box>
 
-                        {userData.isLoading ? <div className="lds-dual-ring"></div> : "" }
+                        {isLoading ? <div className="lds-dual-ring"></div> : "" }
 
                         {
-                            userData.error ?
-                                <Alert severity="error" sx={{m: 2}}>
-                                    {userData.error}
-                                </Alert> : ""
+                            error &&
+                            <Alert severity="error" sx={{my: 2}}>
+                                {error}
+                            </Alert>
                         }
                     </form>
                 </div>

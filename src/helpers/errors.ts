@@ -10,6 +10,7 @@ export const InvalidUserStatusErrorMessage = "User have inappropriate status";
 export const ActiveWorkSessionErrorMessage = "Can not update or delete work session until " +
     "it is finished";
 export const InvalidInputErrorMessage = "Invalid input data";
+export const GoogleLoginFailedErrorMessage = "Google authentication failed";
 
 export interface HandleErrorMessageType {
     response: any,
