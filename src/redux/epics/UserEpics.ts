@@ -16,7 +16,7 @@ import {
   SET_SEND_PASSWORD_LINK_ACTION,
   UPDATE_USER_ACTION,
   USER_ERROR_ACTION,
-  USER_WORK_INFO_ERROR_ACTION,
+  USER_WORK_INFO_ERROR_ACTION, GOOGLE_LOGIN_ACTION,
 } from "../actions";
 import {Epic, ofType, StateObservable} from "redux-observable";
 import {
@@ -38,14 +38,14 @@ import {
   RequestLogout,
   RequestSetPassword,
   RequestSetSendPasswordLink,
-  RequestUpdateUser, RequestGetUsersByIds, RequestGetProfile
+  RequestUpdateUser, RequestGetUsersByIds, RequestGetProfile, RequestGoogleLogin
 } from "../../services/UserService";
 import {
   SetUsers,
   SetError as SetManageUsersError,
   SetSendPasswordLink,
   CreateUser,
-  UpdateUser, FireUser, SetUsersWithoutPagination, SetUserLoading, AddUsersWithoutPagination
+  UpdateUser, FireUser, SetUserLoading, AddUsersWithoutPagination
 } from "../slices/ManageUsersSlice";
 import {
   SetProfiles,
@@ -66,8 +66,9 @@ import {
     SetUser
 } from "../slices/UserSlice";
 import {GetUserFromToken, RemoveAccessToken, SetAccessToken} from "../../services/JwtService";
-import {handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
+import {GoogleLoginFailedErrorMessage, handleErrorMessage, HandleErrorMessageType} from "../../helpers/errors";
 import {RootState} from "../store";
+import {CredentialResponse} from "@react-oauth/google";
 
 export const userErrorActionCreator = (response: any, message?: string, sendGlobalMessage: boolean = true) => (
     {type: USER_ERROR_ACTION, payload: {response, message, sendGlobalMessage}});
@@ -117,22 +118,56 @@ export const LoginEpic: Epic = (action$: Observable<PayloadAction<LoginActionPay
         map(action => action.payload),
         mergeMap((payload) => RequestLogin(payload).pipe(
             map((res) => {
-                let accessToken = res.data?.auth?.login;
+                const errMsg = "Login failed, please write your correct data";
+                if (res.errors) {
+                  return userErrorActionCreator(res, errMsg, false);
+                }
+
+                const accessToken = res.data?.auth?.login;
                 if (accessToken) {
                     SetAccessToken(accessToken);
-                    let user = GetUserFromToken(accessToken);
+                    const user = GetUserFromToken(accessToken);
                     if (user) {
                         return SetUser(user);
                     }
-                    return userErrorActionCreator(res, "Login failed, please write your correct data", false);
+                    return userErrorActionCreator(res, errMsg, false);
                 }
-                return userErrorActionCreator(res, "Login failed, please write your correct data", false);
+              return userErrorActionCreator(res, errMsg, false);
             }),
             catchError((err) => of(userErrorActionCreator(err))),
             startWith(UserRequestStart()),
             endWith(UserRequestFinish())
         ))
     );
+
+export const googleLoginActionCreator = (credentialResponse: CredentialResponse) => (
+  {type: GOOGLE_LOGIN_ACTION, payload: credentialResponse});
+export const GoogleLoginEpic: Epic = (action$: Observable<PayloadAction<CredentialResponse>>) =>
+  action$.pipe(
+    ofType(GOOGLE_LOGIN_ACTION),
+    map(action => action.payload),
+    mergeMap((credentialResponse) => RequestGoogleLogin(credentialResponse).pipe(
+      map((res) => {
+        if (res.errors) {
+          return userErrorActionCreator(res, GoogleLoginFailedErrorMessage, false);
+        }
+
+        const accessToken = res.data?.auth?.googleLogin;
+        if (accessToken) {
+          SetAccessToken(accessToken);
+          const user = GetUserFromToken(accessToken);
+          if (user) {
+            return SetUser(user);
+          }
+          return userErrorActionCreator(res, GoogleLoginFailedErrorMessage, false);
+        }
+        return userErrorActionCreator(res, GoogleLoginFailedErrorMessage, false);
+      }),
+      catchError((err) => of(userErrorActionCreator(err))),
+      startWith(UserRequestStart()),
+      endWith(UserRequestFinish())
+    ))
+  );
 
 export const logoutActionCreator = () => ({type: LOGOUT_ACTION});
 export const LogoutEpic: Epic = (action$) =>
@@ -143,7 +178,7 @@ export const LogoutEpic: Epic = (action$) =>
                 RemoveAccessToken();
                 return RemoveUser();
             }),
-            catchError((err) => {
+            catchError(() => {
                 RemoveAccessToken();
                 return of(RemoveUser());
             }),
