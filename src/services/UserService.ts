@@ -9,6 +9,7 @@ import {ajaxAuth, GraphQLResponse} from "./AuthInterceptors";
 import User from "../models/User";
 import Profile from "../models/Profile";
 import UserWorkInfo from "../models/UserWorkInfo";
+import {CredentialResponse} from "@react-oauth/google";
 
 interface LoginResponse extends GraphQLResponse {
     data?: {
@@ -34,6 +35,30 @@ export function RequestLogin(payload: LoginActionPayload) {
         }
     })).pipe(
         map(res => res.response),
+    );
+}
+
+interface GoogleLoginResponse extends GraphQLResponse {
+    data?: {
+        auth?: {
+            googleLogin: string | null
+        }
+    }
+}
+export function RequestGoogleLogin(credentialResponse: CredentialResponse) {
+    return ajaxAuth<GoogleLoginResponse>(JSON.stringify({
+        query: `
+                mutation GoogleLogin($oauthData: OAuthInputType!) {
+                  auth {
+                    googleLogin(oauthData: $oauthData)
+                  }
+                }
+            `,
+        variables: {
+            "oauthData": credentialResponse
+        }
+    })).pipe(
+      map(res => res.response),
     );
 }
 

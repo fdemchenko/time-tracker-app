@@ -1,5 +1,6 @@
 //user actions
 export const LOGIN_ACTION = "LOGIN";
+export const GOOGLE_LOGIN_ACTION = "GOOGLE_LOGIN";
 export const LOGOUT_ACTION = "LOGOUT";
 
 export const GET_USERS_ACTION = "GET_USERS";
